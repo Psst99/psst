@@ -3,7 +3,7 @@
  * Learn more: https://www.sanity.io/docs/configuration
  */
 
-import {defineConfig} from 'sanity'
+import {defineConfig, StudioLogo} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './src/schemaTypes'
@@ -16,6 +16,7 @@ import {
   type DocumentLocation,
 } from 'sanity/presentation'
 import {assist} from '@sanity/assist'
+import StudioLogoNew from './src/components/StudioLogo'
 
 // Environment variables for project configuration
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
@@ -47,7 +48,8 @@ function resolveHref(documentType?: string, slug?: string): string | undefined {
 // Main Sanity configuration
 export default defineConfig({
   name: 'default',
-  title: 'Clean Next.js + Sanity',
+  title: 'Psst',
+  icon: StudioLogoNew,
 
   projectId,
   dataset,
