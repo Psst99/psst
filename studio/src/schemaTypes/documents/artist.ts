@@ -15,6 +15,7 @@ export const artist = defineType({
     defineField({
       name: 'artistName',
       title: 'Artist Name',
+
       type: 'string',
       validation: (rule) => rule.required(),
     }),
@@ -82,11 +83,11 @@ export const artist = defineType({
       description: 'Relevant tags for this artist (e.g., genres, styles, roles)',
     }),
     defineField({
-      name: 'pendingApproval',
-      title: 'Pending Approval',
+      name: 'approved',
+      title: 'Approved',
       type: 'boolean',
-      initialValue: true,
-      // readOnly: true,
+      initialValue: false,
+      description: 'Check to approve this artist and make them visible in the database.',
     }),
 
     // defineField({

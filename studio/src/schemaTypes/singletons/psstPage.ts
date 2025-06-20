@@ -9,13 +9,37 @@ export const psstPage = defineType({
       name: 'about',
       title: 'About PSST',
       type: 'array',
-      of: [{type: 'block'}],
+      of: [
+        {
+          type: 'block',
+          marks: {
+            annotations: [
+              {type: 'textColor'},
+              {
+                type: 'highlightColor',
+              },
+            ],
+          },
+        },
+      ],
     }),
     defineField({
       name: 'charter',
       title: 'Charter',
       type: 'array',
-      of: [{type: 'block'}],
+      of: [
+        {
+          type: 'block',
+          marks: {
+            annotations: [
+              {type: 'textColor'},
+              {
+                type: 'highlightColor',
+              },
+            ],
+          },
+        },
+      ],
     }),
     defineField({
       name: 'legal',

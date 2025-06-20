@@ -60,16 +60,23 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
                     .items([
                       // Pending Submissions
                       S.listItem()
-                        .title('Pending submissions')
-                        .icon(ClockIcon)
+                        .title('Pending Submissions')
                         .child(
                           S.documentTypeList('artist')
-                            .title('Pending submissions')
-                            .filter('_type == "artist" && pendingApproval == true'),
+                            .title('Pending Submissions')
+                            .filter(
+                              '_type == "artist" && (!defined(approved) || approved == false)',
+                            ),
                         ),
                       S.divider(),
                       // All Artists
-                      S.documentTypeListItem('artist').title('All Artists'),
+                      S.listItem()
+                        .title('All Artists')
+                        .child(
+                          S.documentTypeList('artist')
+                            .title('All Artists')
+                            .filter('_type == "artist" && approved == true'),
+                        ),
 
                       // Browse by Category
                       S.listItem()
@@ -101,6 +108,40 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
         ),
 
       // ————— WORKSHOPS SECTION —————
+      // S.listItem()
+      //   .title('Workshops')
+      //   .icon(LuLightbulb)
+      //   .child(
+      //     S.list()
+      //       .title('Workshops')
+      //       .items([
+      //         // All workshops
+      //         S.documentTypeListItem('workshop').title('Workshops'),
+
+      //         // Workshop Registrations grouped by workshop
+      //         S.listItem()
+      //           .title('Workshop Registrations')
+      //           .icon(ClockIcon)
+      //           .child(
+      //             S.documentTypeList('workshop')
+      //               .title('Select Workshop')
+      //               .child((workshopId) =>
+      //                 S.documentList()
+      //                   .title('Registrations')
+      //                   .filter('_type == "workshopRegistration" && workshop._ref == $workshopId')
+      //                   .params({workshopId}),
+      //               ),
+      //           ),
+
+      //         S.divider(),
+      //         S.listItem()
+      //           .title('Page settings')
+      //           .icon(CogIcon)
+      //           .child(
+      //             S.document().schemaType('pageSettings').documentId('workshops-pageSettings'),
+      //           ),
+      //       ]),
+      //   ),
       S.listItem()
         .title('Workshops')
         .icon(LuLightbulb)
@@ -108,10 +149,34 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
           S.list()
             .title('Workshops')
             .items([
-              // All workshops
-              S.documentTypeListItem('workshop').title('All Workshops'),
-
-              // Workshop Registrations grouped by workshop
+              S.listItem()
+                .title('All')
+                .icon(ListIcon)
+                .child(
+                  S.documentTypeList('workshop')
+                    .title('All Workshops')
+                    .filter('_type == "workshop"')
+                    .defaultOrdering([{field: 'date', direction: 'desc'}]),
+                ),
+              S.listItem()
+                .title('Upcoming')
+                .icon(CalendarIcon)
+                .child(
+                  S.documentTypeList('workshop')
+                    .title('Upcoming Workshops')
+                    .filter('_type == "workshop" && date >= now()')
+                    .defaultOrdering([{field: 'date', direction: 'asc'}]),
+                ),
+              S.listItem()
+                .title('Past')
+                .icon(ArchiveIcon)
+                .child(
+                  S.documentTypeList('workshop')
+                    .title('Past Workshops')
+                    .filter('_type == "workshop" && date < now()')
+                    .defaultOrdering([{field: 'date', direction: 'desc'}]),
+                ),
+              S.divider(),
               S.listItem()
                 .title('Workshop Registrations')
                 .icon(ClockIcon)
@@ -125,7 +190,6 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
                         .params({workshopId}),
                     ),
                 ),
-
               S.divider(),
               S.listItem()
                 .title('Page settings')
@@ -144,8 +208,33 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
           S.list()
             .title('Events')
             .items([
-              // All workshops
-              S.documentTypeListItem('event').title('All Events'),
+              S.listItem()
+                .title('All')
+                .icon(ListIcon)
+                .child(
+                  S.documentTypeList('event')
+                    .title('All Events')
+                    .filter('_type == "event"')
+                    .defaultOrdering([{field: 'date', direction: 'desc'}]),
+                ),
+              S.listItem()
+                .title('Upcoming')
+                .icon(CalendarIcon)
+                .child(
+                  S.documentTypeList('event')
+                    .title('Upcoming Events')
+                    .filter('_type == "event" && date >= now()')
+                    .defaultOrdering([{field: 'date', direction: 'asc'}]),
+                ),
+              S.listItem()
+                .title('Past')
+                .icon(ArchiveIcon)
+                .child(
+                  S.documentTypeList('event')
+                    .title('Past Events')
+                    .filter('_type == "event" && date < now()')
+                    .defaultOrdering([{field: 'date', direction: 'desc'}]),
+                ),
 
               S.divider(),
               S.listItem()

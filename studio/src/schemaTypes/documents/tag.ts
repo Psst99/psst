@@ -1,5 +1,3 @@
-// ./schemas/documents/tag.ts
-
 import {defineField, defineType} from 'sanity'
 
 export const tag = defineType({
@@ -29,13 +27,13 @@ export const tag = defineType({
       type: 'text',
       description: 'Optional: describe what this tag means.',
     }),
-    defineField({
-      name: 'pendingApproval',
-      title: 'Pending Approval',
-      type: 'boolean',
-      initialValue: true,
-      description: 'If checked, this tag is awaiting review.',
-    }),
+    // defineField({
+    //   name: 'pendingApproval',
+    //   title: 'Pending Approval',
+    //   type: 'boolean',
+    //   initialValue: true,
+    //   description: 'If checked, this tag is awaiting review.',
+    // }),
   ],
   preview: {
     select: {
