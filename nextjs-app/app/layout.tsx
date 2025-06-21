@@ -1,20 +1,23 @@
-import "./globals.css";
+import './globals.css'
 
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { draftMode } from "next/headers";
-import { VisualEditing, toPlainText } from "next-sanity";
-import { Toaster } from "sonner";
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import { draftMode } from 'next/headers'
+import { VisualEditing, toPlainText } from 'next-sanity'
+import { Toaster } from 'sonner'
 
-import DraftModeToast from "@/app/components/DraftModeToast";
-import Footer from "@/app/components/Footer";
-import Header from "@/app/components/Header";
-import * as demo from "@/sanity/lib/demo";
-import { sanityFetch, SanityLive } from "@/sanity/lib/live";
-import { settingsQuery } from "@/sanity/lib/queries";
-import { resolveOpenGraphImage } from "@/sanity/lib/utils";
-import { handleError } from "./client-utils";
+import DraftModeToast from '@/components/DraftModeToast'
+// import Footer from '@/app/components/Footer'
+// import Header from '@/app/components/Header'
+import * as demo from '@/sanity/lib/demo'
+import { sanityFetch, SanityLive } from '@/sanity/lib/live'
+import { settingsQuery } from '@/sanity/lib/queries'
+import { resolveOpenGraphImage } from '@/sanity/lib/utils'
+import { handleError } from './client-utils'
+
+import localFont from 'next/font/local'
+import MobileHeader from '@/components/mobile-header'
 
 /**
  * Generate metadata for the page.
@@ -25,16 +28,16 @@ export async function generateMetadata(): Promise<Metadata> {
     query: settingsQuery,
     // Metadata should never contain stega
     stega: false,
-  });
-  const title = settings?.title || demo.title;
-  const description = settings?.description || demo.description;
+  })
+  const title = settings?.title || demo.title
+  const description = settings?.description || demo.description
 
-  const ogImage = resolveOpenGraphImage(settings?.ogImage);
-  let metadataBase: URL | undefined = undefined;
+  const ogImage = resolveOpenGraphImage(settings?.ogImage)
+  let metadataBase: URL | undefined = undefined
   try {
     metadataBase = settings?.ogImage?.metadataBase
       ? new URL(settings.ogImage.metadataBase)
-      : undefined;
+      : undefined
   } catch {
     // ignore
   }
@@ -48,26 +51,35 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       images: ogImage ? [ogImage] : [],
     },
-  };
+  }
 }
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
+  variable: '--font-inter',
+  subsets: ['latin'],
+  display: 'swap',
+})
+
+const kleber = localFont({
+  src: '/fonts/NeueHaasGroteskTextPro.ttf',
+  display: 'swap',
+  variable: '--font-kleber',
+})
 
 export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const { isEnabled: isDraftMode } = await draftMode();
+  const { isEnabled: isDraftMode } = await draftMode()
 
   return (
-    <html lang="en" className={`${inter.variable} bg-white text-black`}>
+    <html
+      lang='en'
+      className={`${inter.variable} bg-white text-black ${kleber.variable}`}
+    >
       <body>
-        <section className="min-h-screen pt-24">
+        <section className='font-[family-name:var(--font-kleber)]'>
           {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
           <Toaster />
           {isDraftMode && (
@@ -79,12 +91,13 @@ export default async function RootLayout({
           )}
           {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
           <SanityLive onError={handleError} />
-          <Header />
-          <main className="">{children}</main>
-          <Footer />
+          {/* <Header /> */}
+          <MobileHeader />
+          <main className='min-h-screen flex flex-col'>{children}</main>
+          {/* <Footer /> */}
         </section>
         <SpeedInsights />
       </body>
     </html>
-  );
+  )
 }

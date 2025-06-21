@@ -35,7 +35,6 @@ Your `projectI ID` is not sensitive information
 
 ### Step 4. Set up environment variables
 
-```bash
 cp -i .env.local.example .env.local
 ```
 

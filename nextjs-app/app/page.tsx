@@ -1,69 +1,58 @@
-import { Suspense } from "react";
-import Link from "next/link";
+import { Suspense } from 'react'
+import Link from 'next/link'
 
-import { AllPosts } from "@/app/components/Posts";
-import GetStartedCode from "@/app/components/GetStartedCode";
+import { AllPosts } from '@/components/Posts'
+import GetStartedCode from '@/components/GetStartedCode'
+import SectionNavigation from '@/components/section-navigation'
 
 export default async function Page() {
   return (
     <>
-      <div className="bg-gradient-to-r from-red-200 from-0% via-white via-40%  relative">
-        <div className="bg-gradient-to-b from-white w-full h-40 absolute top-0"></div>
-        <div className="bg-gradient-to-t from-white w-full h-40 absolute bottom-0"></div>
-        <div className="container relative">
-          <div className="mx-auto max-w-2xl py-20 lg:max-w-4xl lg:px-12 text-center">
-            <div className="flex flex-col gap-4 items-center">
-              <div className=" text-md leading-6 prose uppercase">
-                A starter template for
-              </div>
-              <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-black">
-                <Link className="text-red-500 " href="https://sanity.io/">
-                  Sanity
-                </Link>{" "}
-                +{" "}
-                <Link className="text-[#000] " href="https://nextjs.org/">
-                  Next.js
-                </Link>
-              </h1>
-            </div>
-            <div className="mt-6 space-y-6 prose sm:prose-lg md:prose-xl lg:prose-2xl text-gray-700">
-              <p>
-                This starter is a statically generated site that uses Next.js
-                for the frontend and Sanity to handle its content. It comes with
-                a standalone Sanity Studio that offers features like real-time
-                collaboration, instant side-by-side content previews, and
-                intuitive editing.
-              </p>
-            </div>
-            <div className="flex items-center flex-col gap-4">
-              <GetStartedCode />
-              <Link
-                href="https://www.sanity.io/docs"
-                className="inline-flex text-red-500 text-xs md:text-sm underline hover:text-gray-900"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Sanity Documentation
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className="w-4 h-4 ml-1 inline"
-                  fill="currentColor"
-                >
-                  <path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V12L17.206 8.207L11.2071 14.2071L9.79289 12.7929L15.792 6.793L12 3H21Z"></path>
-                </svg>
-              </Link>
-            </div>
+      <main className='min-h-screen flex flex-col'>
+        {/* Main content */}
+        <div className='flex-1 flex flex-col items-center justify-center p-4 overflow-y-auto pb-[56px]'>
+          {/* Dark container with cyan text */}
+          <div className='bg-[#4E4E4E] text-[#00FFDD] p-4 sm:p-5 md:max-w-[60vw] mb-6 rounded-lg'>
+            <p className='text-base leading-tight sm:text-4xl md:leading-relaxed'>
+              Psst Mlle is an intersectional feminist platform standing for more
+              inclusion and representation in nightlife and music. We aim to
+              create tools to support MaGe* artists and cultural workers, while
+              paying great attention to racial and economical discriminations.
+              With our events, we&apos;re questioning the codes of nightlife and
+              deconstructing the dance floor. Besides, we try to tackle
+              discrimination at its roots with our workshops, conversations and
+              more.
+            </p>
+          </div>
+
+          {/* Green container with founding info */}
+          <div className='bg-[#07F25B] text-[#1D53FF] p-4 sm:p-5 md:max-w-[60vw] rounded-lg'>
+            <p className='text-base leading-tight sm:text-xl md:leading-relaxed'>
+              Founded in 2018 by Souria Cheurfi, the platform is carried by a
+              collective whose members have evolved and will keep evolving. The
+              collective&apos;s current members are Andrea Nivière, Daya Hallé,
+              Katia Lecomte, Lola Lourdes, Manal Benmalek, Mika Oki, Soumaya
+              Abouda, Souria Cheurfi, Yasmina Tayoub and Zoé Merchez. But Psst
+              Mlle is a open and moving community - everyone who shares our
+              values can join and contribute.
+            </p>
           </div>
         </div>
-      </div>
-      <div className="border-t border-gray-10">
-        <div className="container">
-          <aside className="py-12 sm:py-20">
+
+        {/* Fixed navigation at the bottom - only visible on desktop */}
+        <div className='hidden md:block'>
+          <div className='fixed bottom-0 left-0 right-0 z-50'>
+            <SectionNavigation currentSection='home' position='bottom' />
+          </div>
+        </div>
+      </main>
+      {/* <div className='border-t border-gray-10'>
+        <div className='container'>
+          <aside className='py-12 sm:py-20'>
             <Suspense>{await AllPosts()}</Suspense>
           </aside>
         </div>
-      </div>
+      </div> */}
     </>
-  );
+  )
 }
