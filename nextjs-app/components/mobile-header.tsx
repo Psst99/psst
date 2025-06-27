@@ -1,244 +1,328 @@
 'use client'
 
 import { useState } from 'react'
-import CustomLink from './custom-link'
 import { usePathname } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import CustomLink from './custom-link'
+
+// Types
+type Section =
+  | 'home'
+  | 'psst'
+  | 'database'
+  | 'workshops'
+  | 'events'
+  | 'pssound-system'
+  | 'resources'
+  | 'archive'
+
+// Configuration
+const SECTION_CONFIG = {
+  database: {
+    name: 'DATABASE',
+    color: 'bg-[#6600ff] text-[#D3CD7F] border-[#D3CD7F]',
+    subMenus: [
+      { path: '/database', name: 'Browse' },
+      { path: '/database/register', name: 'Register' },
+      { path: '/database/guidelines', name: 'Guidelines' },
+    ],
+  },
+
+  psst: {
+    name: 'PSST',
+    color: 'bg-[#DFFF3D] text-[#A20018] border-[#A20018]',
+  },
+
+  workshops: {
+    name: 'WORKSHOPS',
+    color: 'bg-[#f50806] text-[#D2D2D2] border-[#D2D2D2]',
+    subMenus: [
+      { path: '/workshops', name: 'Browse' },
+      { path: '/workshops/register', name: 'Register' },
+    ],
+  },
+  events: {
+    name: 'EVENTS',
+    color: 'bg-[#00ffdd] text-[#4E4E4E] border-[#4E4E4E]',
+  },
+  'pssound-system': {
+    name: 'PSSOUND SYSTEM',
+    color: 'bg-[#07f25b] text-[#81520A] border-[#81520A]',
+    subMenus: [
+      { path: '/pssound-system', name: 'Calendar' },
+      { path: '/pssound-system/request', name: 'Request' },
+      { path: '/pssound-system/guidelines', name: 'Guidelines' },
+    ],
+  },
+  resources: {
+    name: 'RESOURCES',
+    color: 'bg-[#fe93e7] text-[#1D53FF] border-[#1D53FF]',
+  },
+  archive: {
+    name: 'ARCHIVE',
+    color: 'bg-[#81520a] text-[#FFCC00] border-[#FFCC00]',
+  },
+} as const
+
+const MAIN_MENU_ITEMS = [
+  { path: '/database', section: 'database' as const },
+  { path: '/workshops', section: 'workshops' as const },
+  { path: '/events', section: 'events' as const },
+  { path: '/pssound-system', section: 'pssound-system' as const },
+  { path: '/resources', section: 'resources' as const },
+  { path: '/archive', section: 'archive' as const },
+  { path: '/psst', section: 'psst' as const },
+]
 
 export default function MobileHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false)
   const pathname = usePathname()
 
-  // Determine which section is active
-  const getActiveSection = () => {
-    if (pathname.startsWith('/database')) return 'database'
-    if (pathname.startsWith('/workshops')) return 'workshops'
-    if (pathname.startsWith('/events')) return 'events'
-    if (pathname.startsWith('/pssound-system')) return 'pssound-system'
-    if (pathname.startsWith('/resources')) return 'resources'
-    if (pathname.startsWith('/archive')) return 'archive'
+  const getActiveSection = (): Section => {
+    for (const { path, section } of MAIN_MENU_ITEMS) {
+      if (pathname.startsWith(path)) return section
+    }
     return 'home'
   }
 
   const activeSection = getActiveSection()
+  const sectionConfig = SECTION_CONFIG[activeSection]
+  const hasSubMenu =
+    sectionConfig?.subMenus && sectionConfig.subMenus.length > 0
 
-  // Get section color
-  const getSectionColor = () => {
-    switch (activeSection) {
-      case 'database':
-        return 'bg-[#6600ff] text-white'
-      case 'workshops':
-        return 'bg-[#f50806] text-white'
-      case 'events':
-        return 'bg-[#00ffdd] text-black'
-      case 'pssound-system':
-        return 'bg-[#07f25b] text-black'
-      case 'resources':
-        return 'bg-[#fe93e7] text-black'
-      case 'archive':
-        return 'bg-[#81520a] text-white'
-      default:
-        return 'bg-[#dfff3d] text-black'
-    }
+  const getCurrentSubsection = () => {
+    if (!hasSubMenu) return null
+    return sectionConfig.subMenus?.find((sub) => sub.path === pathname)
   }
 
-  // Get section name
-  const getSectionName = () => {
-    switch (activeSection) {
-      case 'database':
-        return 'DATABASE'
-      case 'workshops':
-        return 'WORKSHOPS'
-      case 'events':
-        return 'EVENTS'
-      case 'pssound-system':
-        return 'PSSOUND SYSTEM'
-      case 'resources':
-        return 'RESOURCES'
-      case 'archive':
-        return 'ARCHIVE'
-      default:
-        return ''
-    }
-  }
+  const currentSubsection = getCurrentSubsection()
 
-  // Toggle main menu
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
     setIsSubMenuOpen(false)
   }
 
-  // Toggle submenu
   const toggleSubMenu = () => {
     setIsSubMenuOpen(!isSubMenuOpen)
   }
 
-  // Get current subsection for database
-  const getDatabaseSubsection = () => {
-    if (pathname === '/database') return 'BROWSE'
-    if (pathname === '/database/register') return 'REGISTER'
-    if (pathname === '/database/guidelines') return 'GUIDELINES'
-    return 'BROWSE'
+  const handleOverlayClick = () => {
+    setIsSubMenuOpen(false)
   }
 
-  // Get current subsection for pssound-system
-  const getPssoundSubsection = () => {
-    if (pathname === '/pssound-system') return 'CALENDAR'
-    if (pathname === '/pssound-system/request') return 'REQUEST'
-    if (pathname === '/pssound-system/guidelines') return 'GUIDELINES'
-    return 'CALENDAR'
+  const closeMenus = () => {
+    setIsMenuOpen(false)
+    setIsSubMenuOpen(false)
   }
+
+  const getSubMenuColors = (section: Section) => {
+    switch (section) {
+      case 'database':
+        return {
+          active: 'bg-[#d3cd7f] text-[#6600ff] border-[#6600ff]', // Border matches text
+          inactive: 'bg-[#6600ff] text-[#d3cd7f] border-[#d3cd7f]', // Border matches text
+          headerBg: 'bg-[#D3CD7F]',
+          headerText: 'text-[#6600ff]',
+          headerBorder: 'border-[#6600ff]',
+          hamburgerBorder: 'border-[#D3CD7F]',
+          buttonBg: 'bg-[#6600ff]',
+          buttonText: 'text-[#D3CD7F]',
+        }
+      case 'workshops':
+        return {
+          active: 'bg-[#D2D2D2] text-[#f50806] border-[#f50806]', // Border matches text
+          inactive: 'bg-[#f50806] text-[#D2D2D2] border-[#D2D2D2]', // Border matches text
+          headerBg: 'bg-[#D2D2D2]',
+          headerText: 'text-[#f50806]',
+          headerBorder: 'border-[#f50806]',
+          hamburgerBorder: 'border-[#D2D2D2]',
+          buttonBg: 'bg-[#f50806]',
+          buttonText: 'text-[#D2D2D2]',
+        }
+      case 'pssound-system':
+        return {
+          active: 'bg-[#81520A] text-[#07f25b] border-[#07f25b]', // Border matches text
+          inactive: 'bg-[#07f25b] text-[#81520A] border-[#81520A]', // Border matches text
+          headerBg: 'bg-[#81520A]',
+          headerText: 'text-[#07f25b]',
+          headerBorder: 'border-[#07f25b]',
+          hamburgerBorder: 'border-[#81520A]',
+          buttonBg: 'bg-[#07f25b]',
+          buttonText: 'text-[#81520A]',
+        }
+      default:
+        return {
+          active: 'bg-white text-black border-black',
+          inactive: 'bg-black text-white border-white',
+          headerBg: 'bg-white',
+          headerText: 'text-black',
+          headerBorder: 'border-black',
+          buttonBg: 'bg-black',
+          buttonText: 'text-white',
+        }
+    }
+  }
+
+  const subMenuColors = getSubMenuColors(activeSection)
+
+  const isHome = activeSection === 'home'
 
   return (
-    <div className='md:hidden'>
-      {/* Persistent top header - always visible */}
-      <div className='fixed top-0 left-0 right-0 z-50 flex'>
+    <div
+      className={`fixed md:hidden left-0 right-0 z-50 ${isHome ? 'bottom-0' : 'top-0'}`}
+    >
+      {/* Top Header */}
+      <div className='flex w-full border-4 border-black'>
         <CustomLink
-          href='/'
-          className='bg-[#DFFF3D] text-[#A20018] border-[#A20018] px-4 py-2 pt-1 flex-1 border rounded-t-lg border-b-0 text-center'
+          href='/psst'
+          className={`bg-[#DFFF3D] text-[#A20018] border-[#A20018] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center pb-8 text-lg w-full ${activeSection !== 'home' ? '' : ''}`}
         >
           PSST
         </CustomLink>
         <button
           onClick={toggleMenu}
-          className='bg-[#D2D2D2] text-[#1D53FF] border-[#1D53FF] px-4 py-2 flex-1 border rounded-t-lg border-b-0 text-center -ml-[1px]'
+          className={`bg-[#D2D2D2] text-[#1D53FF] border-[#1D53FF] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center -ml-[1px] text-lg z-50 pb-8 w-full  ${activeSection !== 'home' ? '' : ''}`}
         >
-          {isMenuOpen ? 'x' : 'MENU'}
+          {isMenuOpen ? 'CLOSE' : 'MENU'}
         </button>
       </div>
 
-      {/* Section header - only visible when menu is closed */}
-      {activeSection !== 'home' && !isMenuOpen && (
-        <div className='fixed top-[41px] left-0 right-0 z-40 flex'>
-          <div
-            className={`${getSectionColor()} px-4 py-2 flex-1 border text-center`}
+      {/* Section Header */}
+      {activeSection !== 'home' &&
+        activeSection !== 'psst' &&
+        sectionConfig && (
+          <div className='fixed top-[36px] left-0 right-0 z-50 w-full -mt-2'>
+            <div className='flex w-full bg-[#dfff3d] rounded-t-lg'>
+              <div
+                className={`${sectionConfig.color} px-4 py-0.5 pb-1 flex-1 border border-b-0 text-center rounded-t-lg text-lg w-1/2`}
+              >
+                {sectionConfig.name}
+              </div>
+              <div className='w-1/2 border-t border-r border-[#A20018] rounded-tr-lg'></div>
+            </div>
+
+            {/* Subsection Row */}
+            {hasSubMenu && currentSubsection && (
+              <div className='flex w-full -mt-1.5 -mb-8'>
+                <div
+                  className={`flex-1 text-lg ${subMenuColors.headerBg} ${subMenuColors.headerText} px-4 py-0.5 text-center rounded-t-lg border border-b-0 ${subMenuColors.headerBorder}`}
+                >
+                  {currentSubsection.name.toUpperCase()}
+                </div>
+                <button
+                  onClick={toggleSubMenu}
+                  className={`${subMenuColors.buttonBg} ${subMenuColors.buttonText} ${subMenuColors.hamburgerBorder} px-4 py-1 border flex items-center justify-center w-1/2 rounded-tr-lg border-l-0 border-b-0`}
+                >
+                  ≡
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+      {/* Submenu Overlay Click Handler */}
+      {isSubMenuOpen && (
+        <div
+          className='fixed top-[36px] left-0 right-0 z-[61] w-full h-[39px] cursor-pointer'
+          onClick={handleOverlayClick}
+          style={{ background: 'transparent' }}
+        />
+      )}
+
+      {/* Main Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            key='main-menu'
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{
+              duration: 0.7,
+              ease: [0.76, 0, 0.24, 1],
+            }}
+            className='fixed inset-0 z-50 bg-transparent pt-[28px]'
+            onClick={closeMenus}
           >
-            {getSectionName()}
-          </div>
-          {(activeSection === 'database' ||
-            activeSection === 'pssound-system') && (
-            <button
-              onClick={toggleSubMenu}
-              className='bg-[#dfff3d] text-black px-4 py-2 w-12 border flex items-center justify-center'
+            <div
+              className='flex flex-col h-full'
+              onClick={(e) => e.stopPropagation()}
             >
-              ≡
-            </button>
-          )}
-        </div>
-      )}
+              {MAIN_MENU_ITEMS.map(({ path, section }, index) => (
+                <CustomLink
+                  key={section}
+                  href={path}
+                  className={`${SECTION_CONFIG[section].color} flex items-center justify-center text-center text-4xl flex-1 border rounded-t-3xl uppercase ${
+                    index > 0 ? '-mt-5' : ''
+                  }`}
+                  onClick={closeMenus}
+                >
+                  {SECTION_CONFIG[section].name}
+                </CustomLink>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Main menu overlay - covers everything except the top header */}
-      {isMenuOpen && (
-        <div className='fixed inset-0 z-50 bg-transparent pt-[41px] -mt-2'>
-          <div className='flex flex-col h-full'>
-            <CustomLink
-              href='/database'
-              className='bg-[#6600ff] text-[#D3CD7F] border-[#D3CD7F] flex items-center justify-center text-center text-4xl flex-1 border rounded-t-xl uppercase'
-              onClick={toggleMenu}
+      {/* Submenu */}
+      <AnimatePresence>
+        {isSubMenuOpen && hasSubMenu && (
+          <div
+            key='submenu-overlay'
+            // initial={{ opacity: 0 }}
+            // animate={{ opacity: 1 }}
+            // exit={{ opacity: 0 }}
+            // transition={{ duration: 0.2 }}
+            className='fixed inset-0 z-[60]'
+            onClick={handleOverlayClick}
+          >
+            <motion.div
+              key='submenu'
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{
+                duration: 0.7,
+                ease: [0.76, 0, 0.24, 1],
+              }}
+              className='fixed inset-0 pt-[58px] z-[70]'
+              onClick={(e) => e.stopPropagation()}
             >
-              Database
-            </CustomLink>
-            <CustomLink
-              href='/workshops'
-              className='bg-[#F50806] text-[#D2D2D2] border-[#D2D2D2] border rounded-t-xl flex items-center justify-center text-center text-4xl flex-1 -mt-2 uppercase'
-              onClick={toggleMenu}
-            >
-              Workshops
-            </CustomLink>
-            <CustomLink
-              href='/events'
-              className='bg-[#00FFDD] text-[#4E4E4E] flex items-center justify-center text-center text-4xl flex-1 border-[#4E4E4E] border rounded-t-xl -mt-2 uppercase'
-              onClick={toggleMenu}
-            >
-              Events
-            </CustomLink>
-            <CustomLink
-              href='/pssound-system'
-              className='bg-[#07F25B] text-[#81520A] flex items-center justify-center border-b text-center text-4xl flex-1 border-[#81520A] border rounded-t-xl -mt-2 uppercase'
-              onClick={toggleMenu}
-            >
-              Pssound System
-            </CustomLink>
-            <CustomLink
-              href='/resources'
-              className='bg-[#FE93E7] text-[#1D53FF] flex items-center justify-center border-b text-center text-4xl flex-1 border-[#1D53FF] border rounded-t-xl -mt-2 uppercase'
-              onClick={toggleMenu}
-            >
-              Resources
-            </CustomLink>
-            <CustomLink
-              href='/archive'
-              className='bg-[#81520A] text-[#FFCC00] flex items-center justify-center text-center text-4xl flex-1 border-[#FFCC00] border rounded-t-xl -mt-2 uppercase'
-              onClick={toggleMenu}
-            >
-              Archive
-            </CustomLink>
+              <div className='flex flex-col h-full'>
+                {sectionConfig.subMenus?.map((subMenu, index) => (
+                  <CustomLink
+                    key={subMenu.path}
+                    href={subMenu.path}
+                    className={`${
+                      pathname === subMenu.path
+                        ? subMenuColors.active
+                        : subMenuColors.inactive
+                    } border flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase ${
+                      index > 0 ? '-mt-2' : ''
+                    }`}
+                    onClick={toggleSubMenu}
+                  >
+                    {subMenu.name}
+                  </CustomLink>
+                ))}
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
-      {/* Database submenu */}
-      {isSubMenuOpen && activeSection === 'database' && (
-        <div className='fixed inset-0 z-30 bg-white pt-[82px]'>
-          <div className='flex flex-col h-full'>
-            {/* Each item takes 1/3 of the available height */}
-            <CustomLink
-              href='/database'
-              className='bg-[#d3cd7f] text-[#6600ff] flex items-center justify-center border-b text-center text-4xl h-1/3'
-              onClick={toggleSubMenu}
-            >
-              BROWSE
-            </CustomLink>
-            <CustomLink
-              href='/database/register'
-              className='bg-[#6600ff] text-white flex items-center justify-center border-b text-center text-4xl h-1/3'
-              onClick={toggleSubMenu}
-            >
-              REGISTER
-            </CustomLink>
-            <CustomLink
-              href='/database/guidelines'
-              className='bg-[#6600ff] text-white flex items-center justify-center text-center text-4xl h-1/3'
-              onClick={toggleSubMenu}
-            >
-              GUIDELINES
-            </CustomLink>
-          </div>
-        </div>
-      )}
-
-      {/* PSSOUND SYSTEM submenu */}
-      {isSubMenuOpen && activeSection === 'pssound-system' && (
-        <div className='fixed inset-0 z-30 bg-white pt-[82px]'>
-          <div className='flex flex-col h-full'>
-            {/* Each item takes 1/3 of the available height */}
-            <CustomLink
-              href='/pssound-system'
-              className='bg-[#07f25b] text-black flex items-center justify-center border-b text-center text-4xl h-1/3'
-              onClick={toggleSubMenu}
-            >
-              CALENDAR
-            </CustomLink>
-            <CustomLink
-              href='/pssound-system/request'
-              className='bg-[#07f25b] text-black flex items-center justify-center border-b text-center text-4xl h-1/3'
-              onClick={toggleSubMenu}
-            >
-              REQUEST
-            </CustomLink>
-            <CustomLink
-              href='/pssound-system/guidelines'
-              className='bg-[#07f25b] text-black flex items-center justify-center text-center text-4xl h-1/3'
-              onClick={toggleSubMenu}
-            >
-              GUIDELINES
-            </CustomLink>
-          </div>
-        </div>
-      )}
-
-      {/* Spacer for fixed headers */}
-      <div className={activeSection === 'home' ? 'h-[41px]' : 'h-[82px]'}></div>
+      {/* Spacer */}
+      <div
+        className={
+          activeSection === 'home'
+            ? 'h-[41px]'
+            : hasSubMenu
+              ? 'h-[75px]'
+              : 'h-[63px]' // shorter height for sections without submenu
+        }
+      />
     </div>
   )
 }

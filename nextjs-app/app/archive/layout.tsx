@@ -13,7 +13,7 @@ export default function ArchiveLayout({
       </div>
 
       {/* Content - takes remaining space and is scrollable */}
-      <div className='flex-1 border-[#FFCC00] border md:border-t-0 rounded-r-2xl bg-[#81520A] overflow-y-auto'>
+      <div className='flex-1 border-[#FFCC00] border md:border-t-0 rounded-r-2xl bg-[#81520A] overflow-y-auto no-scrollbar'>
         {children}
       </div>
     </div>

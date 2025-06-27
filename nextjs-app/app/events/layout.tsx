@@ -13,7 +13,7 @@ export default function EventsLayout({
       </div>
 
       {/* Content - takes remaining space and is scrollable */}
-      <div className='flex-1 border-[#4E4E4E] border md:border-t-0 rounded-r-2xl bg-[#00ffdd] overflow-y-auto'>
+      <div className='flex-1 border-[#4E4E4E] border md:border-t-0 rounded-r-2xl bg-[#00ffdd] overflow-y-auto no-scrollbar pt-16'>
         {children}
       </div>
     </div>

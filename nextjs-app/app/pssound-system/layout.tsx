@@ -25,7 +25,7 @@ export default function PssoundSystemLayout({
       </div>
 
       {/* Content - takes remaining space and is scrollable */}
-      <div className='flex-1 border-[#07F25B] border md:border-t-0 rounded-r-2xl bg-[#81520A] overflow-y-auto -mt-4'>
+      <div className='flex-1 border-[#07F25B] border md:border-t-0 rounded-r-2xl bg-[#81520A] overflow-y-auto pt-16 -mt-4 md:-mt-4 no-scrollbar'>
         {children}
       </div>
     </div>

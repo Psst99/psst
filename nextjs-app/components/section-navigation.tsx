@@ -11,7 +11,6 @@ export default function SectionNavigation({
   showSubNav = false,
   position = 'top',
 }: SectionNavigationProps) {
-  console.log(position, 'position')
   return (
     <div className='w-full'>
       {/* Main Navigation with overlapping tabs */}
@@ -78,6 +77,15 @@ export default function SectionNavigation({
           }`}
         >
           Archive
+        </CustomLink>
+
+        <CustomLink
+          href='/'
+          className={`bg-[#A20018] text-[#dfff3d] relative font-normal text-[18px] leading-[22px] uppercase tracking-normal px-2 py-1 border border-b-0 rounded-t-md flex items-center justify-center border-[#dfff3d] -ml-[1px] z-[4] ${
+            currentSection === 'archive' ? 'z-20' : 'z-10'
+          }`}
+        >
+          X
         </CustomLink>
       </div>
 

@@ -40,15 +40,6 @@ export default function SubNavigation({
           const marginLeft = idx > 0 ? '-ml-[1px]' : ''
           const marginTop = '-mt-[1px]'
 
-          console.log(
-            isActive,
-            'isActive',
-            item.href,
-            bgColor,
-            textColor,
-            `bg-[${bgColor}]`
-          )
-
           return (
             <CustomLink
               key={item.href}

@@ -24,7 +24,7 @@ export default function WorkshopsLayout({
       </div>
 
       {/* Content - takes remaining space and is scrollable */}
-      <div className='flex-1 border-[#F50806] border md:border-t-0 rounded-r-2xl bg-[#D2D2D2] overflow-y-auto -mt-4'>
+      <div className='flex-1 border-[#F50806] border md:border-t-0 rounded-r-2xl bg-[#D2D2D2] overflow-y-auto -mt-4 pt-32 md:pt-16 no-scrollbar'>
         {children}
       </div>
     </div>

@@ -13,7 +13,7 @@ export default function ResourcesLayout({
       </div>
 
       {/* Content - takes remaining space and is scrollable */}
-      <div className='flex-1 border-[#1D53FF] border md:border-t-0 rounded-r-2xl bg-[#fe93e7] overflow-y-auto'>
+      <div className='flex-1 border-[#1D53FF] border md:border-t-0 rounded-r-2xl bg-[#fe93e7] overflow-y-auto -mt-4 pt-16 no-scrollbar'>
         {children}
       </div>
     </div>

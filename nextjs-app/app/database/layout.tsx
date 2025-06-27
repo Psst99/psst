@@ -15,7 +15,7 @@ export default function DatabaseLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className='h-screen flex flex-col overflow-hidden'>
+    <div className='min-h-screen flex flex-col overflow-hidden'>
       <div className='flex-shrink-0 hidden md:block'>
         <SectionNavigation currentSection='database' />
         <SubNavigation
@@ -26,7 +26,7 @@ export default function DatabaseLayout({
       </div>
 
       {/* Main content with background starting below nav */}
-      <div className='flex-1 bg-[#d3cd7f] border-[#6600ff] border md:border-t-0 rounded-r-2xl overflow-y-auto pt-16 -mt-4 no-scrollbar'>
+      <div className='h-full flex-1 bg-[#d3cd7f] border-[#6600ff] border md:border-t-0 rounded-r-2xl overflow-y-auto pt-16 -mt-4 md:-mt-4 no-scrollbar relative'>
         {children}
       </div>
     </div>

@@ -18,6 +18,7 @@ import { handleError } from './client-utils'
 
 import localFont from 'next/font/local'
 import MobileHeader from '@/components/mobile-header'
+import { ViewTransitions } from 'next-view-transitions'
 
 /**
  * Generate metadata for the page.
@@ -74,30 +75,33 @@ export default async function RootLayout({
   const { isEnabled: isDraftMode } = await draftMode()
 
   return (
-    <html
-      lang='en'
-      className={`${inter.variable} bg-white text-black ${kleber.variable}`}
-    >
-      <body>
-        <section className='font-[family-name:var(--font-kleber)]'>
-          {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
-          <Toaster />
-          {isDraftMode && (
-            <>
-              <DraftModeToast />
-              {/*  Enable Visual Editing, only to be rendered when Draft Mode is enabled */}
-              <VisualEditing />
-            </>
-          )}
-          {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
-          <SanityLive onError={handleError} />
-          {/* <Header /> */}
-          <MobileHeader />
-          <main className='min-h-screen flex flex-col'>{children}</main>
-          {/* <Footer /> */}
-        </section>
-        <SpeedInsights />
-      </body>
-    </html>
+    <ViewTransitions>
+      <html
+        lang='en'
+        className={`${inter.variable} bg-white text-black ${kleber.variable}`}
+      >
+        <body>
+          <section className='font-[family-name:var(--font-kleber)]'>
+            {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
+            <Toaster />
+            {isDraftMode && (
+              <>
+                <DraftModeToast />
+                {/*  Enable Visual Editing, only to be rendered when Draft Mode is enabled */}
+                <VisualEditing />
+              </>
+            )}
+            {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
+            <SanityLive onError={handleError} />
+            {/* <Header /> */}
+            {/* <MobileHeader /> */}
+
+            {children}
+            {/* <Footer /> */}
+          </section>
+          <SpeedInsights />
+        </body>
+      </html>
+    </ViewTransitions>
   )
 }

@@ -12,7 +12,7 @@ export default function DatabaseContent() {
         {/* Left Sidebar - Full width on mobile, sidebar on desktop */}
         <div className='w-full md:w-80 space-y-3'>
           {/* Search */}
-          <div className='bg-white p-4 rounded-md relative'>
+          <div className='bg-white p-4 rounded-md relative hidden md:block'>
             <div className='text-center text-[#6600ff] font-bold mb-2 md:block hidden'>
               SEARCH
             </div>
@@ -23,6 +23,12 @@ export default function DatabaseContent() {
             />
             <button className='md:hidden absolute right-6 top-4 bg-[#6600ff] text-white p-2 rounded-full'>
               <Search size={20} />
+            </button>
+          </div>
+
+          <div className='flex items-center-justify-center w-full'>
+            <button className='md:hidden bg-[#6600ff] text-white p-3 rounded-full mx-auto'>
+              <Search size={25} className='rotate-90' />
             </button>
           </div>
 
@@ -188,23 +194,23 @@ export default function DatabaseContent() {
               href={`/database/${artist.id}`}
               className='block w-full'
             >
-              <div className='bg-white p-4 rounded-md hover:shadow-md transition-shadow'>
+              <div className='bg-white p-4 rounded-lg hover:shadow-md transition-shadow'>
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
-                  <h2 className='text-[#6600ff] text-2xl md:text-3xl font-bold'>
+                  <h2 className='text-[#6600ff] text-4xl md:text-3xl'>
                     {artist.name}
                   </h2>
-                  <div className='flex flex-wrap gap-1'>
+                  <div className='flex flex-wrap gap-2'>
                     {artist.roles.map((role) => (
                       <span
                         key={role}
-                        className='bg-[#6600ff] text-white px-2 py-0.5 rounded-md text-sm'
+                        className='bg-[#6600ff] text-white px-1 py-0 text-sm font-mono flex items-center gap-2'
                       >
                         {role}
                       </span>
                     ))}
                   </div>
                 </div>
-                <div className='flex flex-wrap gap-1 mt-2'>
+                <div className='flex flex-wrap gap-1 mt-4'>
                   {artist.tags.map((tag, index) => {
                     // Assign colors based on tag categories
                     let bgColor = ''
