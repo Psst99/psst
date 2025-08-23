@@ -1,0 +1,104 @@
+@import 'tailwindcss';
+
+/* @config '../tailwind.config.ts'; */
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* View Transitions - exactly like the working example */
+::view-transition-group(root) {
+  z-index: auto !important;
+}
+
+::view-transition-image-pair(root) {
+  isolation: isolate;
+  will-change: transform, opacity, scale;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+  animation: none !important;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+  animation: none !important;
+}
+
+.sub-navigation-underline::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--underline-color, currentColor);
+}
+
+.section-underline::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--underline-color, currentColor);
+}
+
+.mobile-section-underline::after {
+  content: '';
+  display: block;
+  position: absolute;
+  right: 0;
+  width: calc(50% + 1px);
+  bottom: -28px;
+  height: 28px;
+  /* background: var(--section-bg); */
+  border-top: 1px solid var(--section-border);
+  border-right: 1px solid var(--section-border);
+  border-top-right-radius: 0.5rem;
+}
+
+.mobile-subsection-underline::after {
+  content: '';
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 30px;
+  width: calc(50% + 1px);
+  /* bottom: -33px; */
+  height: 28px;
+  /* background: var(--subsection-bg); */
+  border-top: 1px solid var(--subsection-border);
+  border-right: 1px solid var(--subsection-border);
+  /* background: #00ffdd;
+  border-top: 1px solid #4e4e4e;
+  border-right: 1px solid #4e4e4e; */
+  border-top-right-radius: 0.5rem;
+}
