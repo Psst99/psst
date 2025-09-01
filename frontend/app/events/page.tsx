@@ -9,7 +9,7 @@ export default function EventsPage() {
   return (
     <>
       <main>
-        <Loading />
+        {/* <Loading /> */}
         <EventsContentAsync />
       </main>
     </>
