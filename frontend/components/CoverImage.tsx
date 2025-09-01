@@ -6,13 +6,15 @@ import { urlForImage } from '@/sanity/lib/utils'
 interface CoverImageProps {
   image: any
   priority?: boolean
+  className?: string
+  alt?: string
 }
 
 export default function CoverImage(props: CoverImageProps) {
   const { image: source, priority } = props
   const image = source?.asset?._ref ? (
     <Image
-      className='rounded-4xl shadow-md transition-shadow object-cover'
+      className='rounded-xl shadow-md transition-shadow object-cover'
       fill={true}
       alt={stegaClean(source?.alt) || ''}
       src={

@@ -93,7 +93,7 @@ export default async function RootLayout({
       <html lang='en' className={`${inter.variable} ${kleber.variable}`}>
         <body className='font-(family-name:--font-kleber)'>
           <WorkshopsProvider initialValue={hasActiveWorkshops}>
-            <div className='md:hidden'>
+            <div className='min-[83rem]:hidden'>
               <MobileHeader />
             </div>
             <section>

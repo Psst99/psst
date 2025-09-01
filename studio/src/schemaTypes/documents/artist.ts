@@ -20,6 +20,22 @@ export const artist = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'artistName',
+        maxLength: 96,
+        slugify: (input) =>
+          input
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[^a-z0-9-]/g, '')
+            .slice(0, 96),
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'pronouns',
       title: 'Pronouns',
       type: 'string',
@@ -47,7 +63,7 @@ export const artist = defineType({
       name: 'email',
       title: 'Email',
       type: 'string',
-      validation: (rule) => rule.required().email(),
+      // validation: (rule) => rule.required().email(),
     }),
     defineField({
       name: 'categories',
@@ -62,12 +78,44 @@ export const artist = defineType({
       validation: (Rule) => Rule.required().min(1),
     }),
 
+    // defineField({
+    //   name: 'links',
+    //   title: 'Links',
+    //   type: 'array',
+    //   of: [{type: 'url'}],
+    //   description: 'Social media, website, or other relevant links.',
+    // }),
     defineField({
       name: 'links',
       title: 'Links',
       type: 'array',
-      of: [{type: 'url'}],
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'url',
+              title: 'URL',
+              type: 'url',
+              validation: (rule) => rule.required(),
+            },
+            {
+              name: 'platform',
+              title: 'Platform',
+              type: 'string',
+              readOnly: true,
+            },
+          ],
+          preview: {
+            select: {
+              title: 'url',
+              subtitle: 'platform',
+            },
+          },
+        },
+      ],
       description: 'Social media, website, or other relevant links.',
+      validation: (Rule) => Rule.required().min(1),
     }),
     defineField({
       name: 'description',

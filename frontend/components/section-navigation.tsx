@@ -129,14 +129,14 @@ export default function SectionNavigation({
           Archive
         </CustomLink>
 
-        <CustomLink
+        {/* <CustomLink
           href='/'
           className={`bg-[#D2D2D2] text-[#F50806] relative font-normal text-[18px] leading-[22px] uppercase tracking-normal p-1 border border-b-0 rounded-t-md flex items-center justify-center border-[#F50806] -ml-px z-4 ${
             currentSection === 'archive' ? 'z-20' : 'z-10'
           }`}
         >
           <IoMdClose size={20} className='' />
-        </CustomLink>
+        </CustomLink> */}
       </div>
 
       {/* Mobile section title */}

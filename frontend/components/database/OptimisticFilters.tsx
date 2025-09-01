@@ -4,6 +4,7 @@ import { useOptimistic, useTransition, useEffect, useState } from 'react'
 import { slugifyTag } from '@/lib/tags'
 import { DatabaseSearchParams } from './DatabaseBrowseContentAsync'
 import OptimisticTagPill from './OptimisticTagPill'
+import { IoMdClose } from 'react-icons/io'
 
 type OptimisticFiltersProps = {
   categories: Array<{ _id: string; title: string; slug: string }>
@@ -45,6 +46,7 @@ export default function OptimisticFilters({
     }, 250)
 
     return () => clearTimeout(timeout)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue, optimisticParams.search])
 
   // Helper function to update URL params
@@ -116,19 +118,19 @@ export default function OptimisticFilters({
       data-pending={isPending ? '' : undefined}
     >
       {/* Search */}
-      <div className='bg-white py-1 pb-3 px-6 rounded-md'>
+      <div className='bg-white py-1 px-6 rounded-md'>
         <input
           type='text'
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className='w-full p-1 text-center text-[#6600ff] uppercase tracking-tight md:text-xl'
+          className='w-full p-1 text-center text-[#6600ff] uppercase tracking-tight text-xl'
           placeholder='Search'
         />
       </div>
 
       {/* Sort */}
-      <div className='hidden md:block bg-white py-1 pb-3 px-6 rounded-md'>
-        <div className='text-center text-[#6600ff] uppercase tracking-tight md:text-xl mb-2'>
+      <div className='bg-white py-1 pb-3 px-6 rounded-md'>
+        <div className='text-center text-[#6600ff] uppercase tracking-tight text-xl mb-2'>
           Sort
         </div>
         <div className='space-y-2 text-lg'>
@@ -150,24 +152,27 @@ export default function OptimisticFilters({
       </div>
 
       {/* Categories */}
-      <div className='bg-white py-1 pb-3 px-6 rounded-md hidden md:block'>
-        <div className='text-center text-[#6600ff] uppercase tracking-tight md:text-xl mb-2'>
+      <div className='bg-white py-1 pb-3 px-6 rounded-md'>
+        <div className='text-center text-[#6600ff] uppercase tracking-tight text-xl mb-2'>
           Categories
         </div>
-        <div className='flex flex-wrap gap-1.5 font-mono text-lg uppercase font-light leading-tight'>
+        <div className='flex flex-wrap gap-1.5 font-mono text-lg uppercase font-normal leading-tight'>
           {categories.map((cat) => {
             const isActive = selectedCategories.includes(cat.slug)
             return (
               <button
                 key={cat._id}
                 onClick={() => toggleCategory(cat.slug)}
-                className={`px-1 py-0 cursor-pointer transition-colors uppercase ${
+                className={`px-1 py-0 cursor-pointer transition-colors uppercase flex items-center justify-center gap-x-2 ${
                   isActive
-                    ? 'bg-[#6600ff] text-white'
-                    : 'bg-gray-200 text-[#6600ff] hover:bg-[#6600ff] hover:text-white'
+                    ? 'bg-[#d3cd7f] text-[#6600ff]'
+                    : 'text-[#fff] bg-[#6600ff]'
                 }`}
               >
                 {cat.title}
+                {isActive && (
+                  <IoMdClose className='h-3 w-3' aria-hidden='true' />
+                )}
               </button>
             )
           })}
@@ -175,8 +180,8 @@ export default function OptimisticFilters({
       </div>
 
       {/* Tags */}
-      <div className='bg-white py-1 pb-3 px-6 rounded-md max-h-[40vh] overflow-y-auto no-scrollbar'>
-        <div className='text-center text-[#6600ff] uppercase tracking-tight md:text-xl mb-2'>
+      <div className='bg-white py-1 pb-3 px-6 rounded-md max-h-[30vh] xl:max-h-[40vh] overflow-y-auto no-scrollbar'>
+        <div className='text-center text-[#6600ff] uppercase tracking-tight text-xl mb-2'>
           Tags
         </div>
         <div className='flex flex-wrap gap-1.5'>
@@ -204,7 +209,7 @@ export default function OptimisticFilters({
               search: undefined,
             })
           }}
-          className='w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors'
+          className='w-full bg-[#6600ff] text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors'
         >
           Clear All Filters
         </button>

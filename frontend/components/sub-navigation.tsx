@@ -9,7 +9,7 @@ interface SubNavigationItem {
 }
 
 interface SubNavigationProps {
-  items: SubNavigationItem[]
+  items: readonly SubNavigationItem[]
   mainColor: string
   accentColor: string
 }

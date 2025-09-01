@@ -45,7 +45,7 @@ export default function WorkshopsGrid({ workshops }: WorkshopsGridProps) {
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto'>
         {filteredWorkshops.map((item, idx) => (
           <div key={idx} className='bg-white p-4 sm:p-2 sm:px-4 rounded-lg'>
-            <h2 className='text-4xl md:text-3xl mb-2 text-[#f50806]'>
+            <h2 className='text-4xl md:text-3xl mb-2 text-[#f50806] capitalize'>
               {item.title}
             </h2>
             {item.date && (

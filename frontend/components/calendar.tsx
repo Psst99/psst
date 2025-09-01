@@ -79,8 +79,8 @@ export default function Calendar({ bookedDates }: CalendarProps) {
   }
 
   return (
-    <div className='pt-0 bg-[#81520a] p-2 sm:p-4 rounded-lg h-full w-full md:max-w-[85vw] mx-auto'>
-      <div className='grid grid-cols-7 gap-2 mb-2'>
+    <div className='pt-0 bg-[#81520a] p-2 sm:p-4 rounded-lg h-[80svh] w-full md:max-w-[85vw] mx-auto flex flex-col'>
+      <div className='grid grid-cols-7 gap-2 mb-2 shrink-0'>
         {days.map((day, index) => (
           <div
             key={day}
@@ -91,10 +91,8 @@ export default function Calendar({ bookedDates }: CalendarProps) {
           </div>
         ))}
       </div>
-      <div className='flex flex-col gap-1 h-[65vh] sm:h-full md:h-auto'>
-        {weeks}
-      </div>
-      <div className='mt-2 flex items-center justify-between gap-2 h-6 text-base leading-tight md:text-xl tracking-tight'>
+      <div className='flex flex-col gap-1 flex-1 min-h-0'>{weeks}</div>
+      <div className='mt-2 flex items-center justify-between gap-2 h-6 text-base leading-tight md:text-xl tracking-tight shrink-0'>
         <button
           onClick={prevMonth}
           className='bg-[#07f25b] text-[#81520a] px-2 sm:px-4 py-1 rounded-md flex items-center h-full'

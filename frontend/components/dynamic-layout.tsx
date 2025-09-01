@@ -47,7 +47,7 @@ export default function DynamicLayout({
     <>
       {/* Mobile background */}
       <div
-        className='fixed top-0 inset-0 -z-10 border-b-0 border-t-0 md:hidden'
+        className='fixed top-0 inset-0 -z-10 border-b-0 border-t-0 min-[83rem]:hidden'
         style={{
           backgroundColor: theme.bg,
           borderColor: theme.border,
@@ -56,7 +56,7 @@ export default function DynamicLayout({
 
       <div className='min-h-screen flex flex-col overflow-hidden'>
         {/* Desktop navigation */}
-        <div className='shrink-0 hidden md:block'>
+        <div className='shrink-0 hidden min-[83rem]:block'>
           <SectionNavigation currentSection={section} />
           {hasSubNav && finalSubNavItems && (
             <SubNavigation
@@ -70,8 +70,8 @@ export default function DynamicLayout({
         {/* Main content */}
         <div
           className={`
-            flex-1 border border-t-0 md:border-t md:rounded-r-2xl overflow-y-auto
-            ${hasSubNav ? 'py-16 pt-32 md:pt-16 md:-mt-4' : 'pt-16 pb-0 md:py-16 md:mt-0'}
+            flex-1 border border-t-0 min-[83rem]:border-t min-[83rem]:rounded-r-2xl overflow-y-auto
+            ${hasSubNav ? 'py-16 pt-32 min-[83rem]:pt-16 min-[83rem]:-mt-4' : 'pt-16 pb-0 min-[83rem]:py-16 min-[83rem]:mt-0'}
             ${hasSubNav ? 'no-scrollbar' : ''}
             z-10
           `}

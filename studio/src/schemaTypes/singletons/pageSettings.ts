@@ -6,16 +6,28 @@ export const pageSettings = defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'backgroundColor',
-      title: 'Page background color',
-      type: 'string', // Use 'color' if you have the color input plugin installed
-      description: 'Set a background color for the page (e.g., #ffffff for white).',
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'about',
+      name: 'description',
       title: 'Page description',
       type: 'array',
-      of: [{type: 'block'}],
+      of: [
+        {
+          type: 'block',
+          styles: [
+            {title: 'Heading', value: 'h2'},
+            {title: 'Paragraph', value: 'normal'},
+          ],
+          marks: {
+            annotations: [{type: 'textColor'}, {type: 'highlightColor'}],
+          },
+        },
+        {type: 'highlightedBox'},
+      ],
     }),
   ],
   preview: {

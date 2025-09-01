@@ -127,6 +127,13 @@ export const eventsPageQuery = `
 }
 `
 
+export const membershipPageQuery = `
+  *[_type == "membershipPage"][0]{
+    title,
+    description
+  }
+`
+
 export const resourcesPageQuery = `
 {
   "settings": *[_type == "pageSettings" && _id == "resources-pageSettings"][0]{
@@ -165,27 +172,38 @@ export const databaseGuidelinesQuery = `
     content
   }
 `
-export function getDatabaseBrowseQuery(orderClause: string) {
+export function getDatabaseBrowseQuery(
+  orderClause: string,
+  offset = 0,
+  limit = 20
+) {
   return `
   {
     "artists": *[
       _type == "artist" && approved == true &&
+
+      // TAGS (supports mode = "all" | "any")
       (
         count($tagSlugs) == 0 ||
-        ($mode == "all" && count($tagSlugs[slug in tags[]->slug.current]) == count($tagSlugs)) ||
-        ($mode == "any" && count(tags[@->slug.current in $tagSlugs]) > 0)
+        ($mode == "all" && count((tags[]->slug.current)[@ in $tagSlugs]) == count($tagSlugs)) ||
+        ($mode == "any" && array::intersects(tags[]->slug.current, $tagSlugs))
       ) &&
+
+      // TEXT SEARCH
       (
-        $search == "" || 
-        artistName match "*" + $search + "*" || 
+        $search == "" ||
+        artistName match "*" + $search + "*" ||
         description match "*" + $search + "*"
       ) &&
+
+      // CATEGORIES (require ALL selected categories)
       (
         count($categorySlugs) == 0 ||
-        count(categories[@->slug.current in $categorySlugs]) > 0
+        count((categories[]->slug.current)[@ in $categorySlugs]) == count($categorySlugs)
       )
     ]
     ${orderClause}
+    [${offset}...${offset + limit}]
     {
       _id,
       artistName,
@@ -200,16 +218,30 @@ export function getDatabaseBrowseQuery(orderClause: string) {
       _createdAt
     },
 
+    "totalCount": count(*[
+      _type == "artist" && approved == true &&
+      (
+        count($tagSlugs) == 0 ||
+        ($mode == "all" && count((tags[]->slug.current)[@ in $tagSlugs]) == count($tagSlugs)) ||
+        ($mode == "any" && array::intersects(tags[]->slug.current, $tagSlugs))
+      ) &&
+      (
+        $search == "" ||
+        artistName match "*" + $search + "*" ||
+        description match "*" + $search + "*"
+      ) &&
+      (
+        count($categorySlugs) == 0 ||
+        count((categories[]->slug.current)[@ in $categorySlugs]) == count($categorySlugs)
+      )
+    ]),
+
     "categories": *[_type == "category"] | order(title asc) {
-      _id,
-      title,
-      "slug": slug.current
+      _id, title, "slug": slug.current
     },
 
     "tags": *[_type == "tag"] | order(title asc) {
-      _id,
-      title,
-      "slug": slug.current
+      _id, title, "slug": slug.current
     }
   }
   `

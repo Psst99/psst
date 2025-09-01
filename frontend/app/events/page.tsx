@@ -7,10 +7,8 @@ import SectionList from '@/components/section-list'
 export default function EventsPage() {
   return (
     <>
-      <main className=''>
-        <Suspense fallback={<EventsSkeleton />}>
-          <EventsContentAsync />
-        </Suspense>
+      <main>
+        <EventsContentAsync />
       </main>
     </>
   )

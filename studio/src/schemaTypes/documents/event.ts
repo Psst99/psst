@@ -15,16 +15,16 @@ export const event = defineType({
       type: 'string',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: {
-        source: 'title',
-        maxLength: 96,
-      },
-      validation: (Rule) => Rule.required(),
-    }),
+    // defineField({
+    //   name: 'slug',
+    //   title: 'Slug',
+    //   type: 'slug',
+    //   options: {
+    //     source: 'title',
+    //     maxLength: 96,
+    //   },
+    //   validation: (Rule) => Rule.required(),
+    // }),
     defineField({
       name: 'date',
       title: 'Date',
@@ -54,7 +54,7 @@ export const event = defineType({
       name: 'tags',
       title: 'Tags',
       type: 'array',
-      of: [{type: 'reference', to: [{type: 'tag'}]}],
+      of: [{type: 'reference', to: [{type: 'eventTag'}]}],
     }),
     defineField({
       name: 'url',

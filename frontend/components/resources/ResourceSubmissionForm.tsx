@@ -48,7 +48,7 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
     resolver: zodResolver(resourceSubmissionSchema),
     defaultValues: {
       title: '',
-      url: '',
+      link: '',
       email: '',
       tags: [],
       description: '',

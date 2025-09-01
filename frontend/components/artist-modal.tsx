@@ -1,18 +1,21 @@
+// filepath: /Users/aymen/dev/psst/frontend/components/artist-modal.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
-import { X } from './icons'
+import { useCallback, useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import { createPortal } from 'react-dom'
+import { IoMdClose } from 'react-icons/io'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import Tag from './Tag'
 
 interface ArtistModalProps {
   artist: any
-  onClose?: () => void
 }
 
-export default function ArtistModal({ artist, onClose }: ArtistModalProps) {
+export default function ArtistModal({ artist }: ArtistModalProps) {
   const [isVisible, setIsVisible] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100)
@@ -23,17 +26,24 @@ export default function ArtistModal({ artist, onClose }: ArtistModalProps) {
     }
   }, [])
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsVisible(false)
     setTimeout(() => {
-      if (onClose) onClose()
-      // router.push('/database/browse')
       router.back()
     }, 300)
-  }
+  }, [router])
 
-  return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center'>
+  // Use it in your effect
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [handleClose])
+
+  const modalContent = (
+    <div className='fixed inset-0 z-50 flex items-center justify-center px-4'>
       {/* Overlay */}
       <div
         className={`absolute inset-0 bg-[#6600ff]/50 transition-opacity duration-300 ${
@@ -44,11 +54,11 @@ export default function ArtistModal({ artist, onClose }: ArtistModalProps) {
 
       {/* Artist modal */}
       <div
-        className={`relative bg-white w-full max-w-3xl rounded-lg p-4 sm:p-8 transition-transform duration-300 ease-out ${
+        className={`relative bg-white w-full max-w-3xl rounded-3xl p-8 sm:p-8 transition-transform duration-300 ease-out ${
           isVisible ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
-        <h1 className='text-[#6600ff] text-3xl sm:text-4xl font-bold mb-4'>
+        <h1 className='text-[#6600ff] text-4xl sm:text-4xl font-bold mb-4'>
           {artist.artistName}
         </h1>
 
@@ -57,7 +67,7 @@ export default function ArtistModal({ artist, onClose }: ArtistModalProps) {
           {artist.categories?.map((cat: any) => (
             <span
               key={cat._id}
-              className='bg-[#6600ff] text-white px-3 py-1 rounded-md text-sm'
+              className='bg-[#6600ff] text-white py-0 font-mono font-normal px-1 text-lg uppercase'
             >
               {cat.title}
             </span>
@@ -87,30 +97,28 @@ export default function ArtistModal({ artist, onClose }: ArtistModalProps) {
         </div>
 
         {/* Description */}
-        <p className='text-[#6600ff] mb-8 text-base sm:text-lg'>
+        <p className='text-[#6600ff] mb-8 text-lg leading-snug max-h-[30vh] overflow-y-auto no-scrollbar'>
           {artist.description}
         </p>
 
         {/* Tags */}
-        <div className='flex flex-wrap gap-2 mb-16 sm:mb-8'>
+        <div className='flex flex-wrap gap-2 mb-16'>
           {artist.tags?.map((tag: any) => (
-            <span
-              key={tag._id}
-              className='bg-[#A20018] text-[#00FFDD] px-2 py-0.5 rounded-full text-xs'
-            >
-              {tag.title}
-            </span>
+            <Tag key={tag._id} label={tag.title} size='sm' />
           ))}
         </div>
 
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className='absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-[#6600ff] text-white w-10 h-10 rounded-full flex items-center justify-center'
-        >
-          <X size={20} />
-        </button>
+        <div className='absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-[#6600ff]'>
+          <button onClick={handleClose} className='text-[#fff] text-3xl'>
+            <IoMdClose
+              className='h-12 w-12 mt-0 -mb-1 mx-0'
+              aria-hidden='true'
+            />
+          </button>
+        </div>
       </div>
     </div>
   )
+
+  return createPortal(modalContent, document.body)
 }

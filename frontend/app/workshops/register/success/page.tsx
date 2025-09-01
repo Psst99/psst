@@ -26,8 +26,8 @@ export default function WorkshopSuccessPage() {
             Workshop Registration Successful!
           </h1>
           <p className='text-gray-600 mb-6'>
-            Thank you for registering for the workshop. Your application is
-            being reviewed and you'll hear back from us soon.
+            {`Thank you for registering for the workshop. Your application is
+            being reviewed and you'll hear back from us soon.`}
           </p>
 
           <div className='space-y-3'>

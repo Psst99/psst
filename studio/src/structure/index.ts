@@ -237,6 +237,8 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
                 ),
 
               S.divider(),
+              S.documentTypeListItem('eventTag').title('Tags').icon(TagIcon),
+              S.divider(),
               S.listItem()
                 .title('Page settings')
                 .icon(CogIcon)
@@ -270,6 +272,31 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
                     .filter('_type == "pssoundCalendar"'),
                 ),
               S.divider(),
+              S.listItem()
+                .title('Membership Requests')
+                .icon(UserIcon)
+                .child(
+                  S.documentTypeList('pssoundMembership')
+                    .title('Pending Memberships')
+                    .filter(
+                      '_type == "pssoundMembership" && (!defined(approved) || approved == false)',
+                    ),
+                ),
+
+              S.listItem()
+                .title('Accepted Memberships')
+                .icon(UserIcon)
+                .child(
+                  S.documentTypeList('pssoundMembership')
+                    .title('Accepted Memberships')
+                    .filter('_type == "pssoundMembership" && approved == true'),
+                ),
+
+              S.listItem()
+                .title('Membership page')
+                .icon(CogIcon)
+                .child(S.document().schemaType('membershipPage')),
+              S.divider(),
 
               S.listItem()
                 .title('Guidelines')
@@ -297,27 +324,41 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
           S.list()
             .title('Resources')
             .items([
+              S.listItem().title('Pending submissions').icon(ClockIcon).child(
+                S.documentTypeList('resource')
+                  .title('Pending submissions')
+                  .filter(
+                    '_type == "resource" && (!defined(approved) || approved == false) && defined(email)',
+                  ), // Added email check to distinguish submissions
+              ),
+
               S.listItem()
-                .title('Pending submissions')
-                .icon(ClockIcon)
+                .title('Approved Resources')
+                .icon(ListIcon)
                 .child(
                   S.documentTypeList('resource')
-                    .title('Pending resources')
-                    .filter('_type == "resource" && (!defined(approved) || approved == false)'),
+                    .title('Approved Resources')
+                    .filter('_type == "resource" && approved == true'),
                 ),
 
-              S.documentTypeListItem('resource').title('All Resources').icon(ListIcon),
+              S.listItem()
+                .title('All Resources')
+                .icon(ListIcon)
+                .child(
+                  S.documentTypeList('resource')
+                    .title('All Resources')
+                    .filter('_type == "resource"'),
+                ),
 
               S.divider(),
 
-              // 4. Guidelines
               S.listItem()
                 .title('Guidelines')
                 .icon(BookIcon)
                 .child(S.document().schemaType('guidelines').documentId('resources-guidelines')),
 
               S.divider(),
-              // 6. Page Settings
+
               S.listItem()
                 .title('Page settings')
                 .icon(CogIcon)

@@ -15,11 +15,27 @@ export const resource = defineType({
       name: 'description',
       title: 'Description',
       type: 'text',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'link',
       title: 'External Link',
       type: 'url',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{type: 'string'}],
+      validation: (Rule) => Rule.min(1),
+    }),
+    defineField({
+      name: 'email',
+      title: 'Submitter Email',
+      type: 'string',
+      validation: (Rule) => Rule.email(),
+      description: 'Email of person who submitted this resource',
     }),
     defineField({
       name: 'file',
@@ -28,6 +44,7 @@ export const resource = defineType({
       options: {
         accept: '.pdf,.doc,.docx,.jpg,.png,.zip',
       },
+      description: 'Alternative to external link - upload a file directly',
     }),
     defineField({
       name: 'approved',
@@ -47,12 +64,13 @@ export const resource = defineType({
   preview: {
     select: {
       title: 'title',
-      subtitle: 'approved',
+      approved: 'approved',
+      hasEmail: 'email',
     },
-    prepare({title, subtitle}) {
+    prepare({title, approved, hasEmail}) {
       return {
         title,
-        subtitle: subtitle ? 'Approved' : 'Pending approval',
+        subtitle: approved ? 'Approved' : hasEmail ? 'Pending submission' : 'Draft',
       }
     },
   },

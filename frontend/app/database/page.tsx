@@ -1,72 +1,10 @@
-import DatabaseContent from '@/components/database/database-content'
 import GuidelinesContentAsync from '@/components/database/GuidelinesContentAsync'
-import { Suspense } from 'react'
 
 export default function DatabasePage() {
   return (
-    // <div className='p-6 md:px-20 text-[#6600ff]'>
-    //   <div className='md:flex md:items-start md:gap-20'>
-    //     <div className='w-full text-base leading-tight md:text-xl'>
-    //       <p className='text-xl md:text-3xl'>
-    //         For several years now, PSST MLLE has been collecting names of MaGe
-    //         (Marginalised Genders: women and marginalised gender identities and
-    //         expressions) artists on a document. Initially intended for internal
-    //         use, we realised that it would be useful to share it and make it
-    //         available to everyone.
-    //       </p>
-    //       <p className='mt-16'>
-    //         With this database, we intend to create a tool to not only connect
-    //         with each other and strengthen our communities, but also to make
-    //         this unity visible outside of our circles, answering once and for
-    //         all to the mainstream scenes’ argument that we are not numerous or
-    //         visible enough.
-    //       </p>
-    //       <p className='mt-5'>
-    //         This database aims to bring together MaGe artists in the Belgian
-    //         music scene and the various sectors that revolve around it. So far,
-    //         the main categories are DJ, producer, live artist, scenography,
-    //         technician, safety and collective. But we expect these to grow and
-    //         evolve thanks to your contributions.
-    //       </p>
-    //       <p className='mt-5'>
-    //         On that note, this database is a work in progress and the website
-    //         will keep evolving and improving. Feel free to send your feedback
-    //         to database@psstmlle.space.
-    //       </p>
-    //     </div>
-
-    //     <div className='w-full'>
-    //       <p className='text-2xl md:text-3xl'>How to browse and search?</p>
-    //       <p className='mt-5 text-base leading-tight md:text-xl'>
-    //         You can BROWSE by clicking on the main categories stated above. A
-    //         list of names will show up. You can then click on each profile in
-    //         order to check out their bio, websites, socials, sometimes their
-    //         email addresses or any other useful link. To SEARCH, you can type in
-    //         a music genre, a category, a specific job, or even the name of an
-    //         artist and the list will narrow down to show exclusively the results
-    //         which contain your search.
-    //       </p>
-
-    //       <p className='mt-16 text-2xl md:text-3xl'>
-    //         How to browse and search?
-    //       </p>
-    //       <p className='mt-5 text-base leading-tight md:text-xl'>
-    //         You can BROWSE by clicking on the main categories stated above. A
-    //         list of names will show up. You can then click on each profile in
-    //         order to check out their bio, websites, socials, sometimes their
-    //         email addresses or any other useful link. To SEARCH, you can type in
-    //         a music genre, a category, a specific job, or even the name of an
-    //         artist and the list will narrow down to show exclusively the results
-    //         which contain your search.
-    //       </p>
-    //     </div>
-    //   </div>
-    // </div>
     <div className='p-6 md:px-20 text-[#6600ff]'>
       <div className='md:flex md:items-start md:gap-20'>
-        <Suspense fallback={<div>Loading…</div>}>
-          <GuidelinesContentAsync />
-        </Suspense>
+        <GuidelinesContentAsync />
       </div>
     </div>
   )

@@ -13,9 +13,9 @@ export default async function ArchiveContentAsync() {
         {settings?.title}
       </h1>
 
-      <CmsContent value={settings?.description} />
+      <CmsContent value={settings?.description} color='#FFCC00' />
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 w-full mx-auto mt-10'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto mt-16'>
         {archiveMedia?.length > 0 ? (
           archiveMedia.map((item: any) => (
             <div key={item._id} className='flex flex-col h-full'>
@@ -27,11 +27,11 @@ export default async function ArchiveContentAsync() {
                   className='w-full h-full object-cover mb-4'
                 />
               )}
-              {item.title && (
+              {/* {item.title && (
                 <h2 className='text-xl font-bold mb-2 text-[#FFCC00]'>
                   {item.title}
                 </h2>
-              )}
+              )} */}
               {item.description && (
                 <div className='mb-2'>
                   <CmsContent value={item.description} />

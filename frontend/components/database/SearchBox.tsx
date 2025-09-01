@@ -20,7 +20,7 @@ export function SearchBox({ search }: { search: string }) {
     }, 250) // 250ms debounce
 
     return () => clearTimeout(timeout)
-  }, [value])
+  }, [value, params, router])
 
   return (
     <input

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import CustomLink from './custom-link'
+import Link from 'next/link'
 
 // Types
 type Section =
@@ -16,15 +17,24 @@ type Section =
   | 'resources'
   | 'archive'
 
+type ConfigurableSection = Exclude<Section, 'home'>
+
 // Configuration
-const SECTION_CONFIG = {
+const SECTION_CONFIG: Record<
+  ConfigurableSection,
+  {
+    name: string
+    color: string
+    subMenus?: { path: string; name: string }[]
+  }
+> = {
   database: {
     name: 'DATABASE',
     color: 'bg-[#6600ff] text-[#D3CD7F] border-[#D3CD7F]',
     subMenus: [
-      { path: '/database', name: 'Browse' },
+      { path: '/database/browse', name: 'Browse' },
       { path: '/database/register', name: 'Register' },
-      { path: '/database/guidelines', name: 'Guidelines' },
+      { path: '/database', name: 'Guidelines' },
     ],
   },
 
@@ -49,20 +59,25 @@ const SECTION_CONFIG = {
     name: 'PSSOUND SYSTEM',
     color: 'bg-[#07f25b] text-[#81520A] border-[#81520A]',
     subMenus: [
-      { path: '/pssound-system', name: 'Calendar' },
+      { path: '/pssound-system', name: 'Guidelines' },
       { path: '/pssound-system/request', name: 'Request' },
-      { path: '/pssound-system/guidelines', name: 'Guidelines' },
+      { path: '/pssound-system/membership', name: 'Membership' },
     ],
   },
   resources: {
     name: 'RESOURCES',
     color: 'bg-[#fe93e7] text-[#1D53FF] border-[#1D53FF]',
+    subMenus: [
+      { path: '/resources', name: 'Guidelines' },
+      { path: '/resources/browse', name: 'Browse' },
+      { path: '/resources/submit', name: 'Submit' },
+    ],
   },
   archive: {
     name: 'ARCHIVE',
     color: 'bg-[#81520a] text-[#FFCC00] border-[#FFCC00]',
   },
-} as const
+}
 
 const MAIN_MENU_ITEMS = [
   { path: '/database', section: 'database' as const },
@@ -87,7 +102,8 @@ export default function MobileHeader() {
   }
 
   const activeSection = getActiveSection()
-  const sectionConfig = SECTION_CONFIG[activeSection]
+  const sectionConfig =
+    activeSection !== 'home' ? SECTION_CONFIG[activeSection] : null
   const hasSubMenu =
     sectionConfig?.subMenus && sectionConfig.subMenus.length > 0
 
@@ -140,6 +156,17 @@ export default function MobileHeader() {
           buttonBg: 'bg-[#f50806]',
           buttonText: 'text-[#D2D2D2]',
         }
+      case 'resources':
+        return {
+          active: 'bg-[#1D53FF] text-[#fe93e7] border-[#fe93e7]', // Border matches text
+          inactive: 'bg-[#fe93e7] text-[#1D53FF] border-[#1D53FF]', // Border matches text
+          headerBg: 'bg-[#1D53FF]',
+          headerText: 'text-[#fe93e7]',
+          headerBorder: 'border-[#fe93e7]',
+          hamburgerBorder: 'border-[#1D53FF]',
+          buttonBg: 'bg-[#fe93e7]',
+          buttonText: 'text-[#1D53FF]',
+        }
       case 'pssound-system':
         return {
           active: 'bg-[#81520A] text-[#07f25b] border-[#07f25b]', // Border matches text
@@ -170,13 +197,13 @@ export default function MobileHeader() {
 
   return (
     <div
-      className={`h-[29px] bg-white fixed md:hidden left-0 right-0 z-50 ${isHome ? 'bottom-0' : 'top-0 tracking-tighter'}`}
+      className={`h-[29px] bg-white fixed left-0 right-0 z-50 ${isHome ? 'bottom-0' : 'top-0 tracking-tighter'}`}
     >
       {/* Top Header */}
       <div className='flex w-full h-full mb-0'>
         <CustomLink
           href='/psst'
-          className={`bg-[#DFFF3D] text-[#A20018] border-[#A20018] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center pb-0 text-lg w-full ${activeSection !== 'home' ? '' : ''}`}
+          className={`bg-[#DFFF3D] text-[#A20018] border-[#A20018] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center pb-12 text-lg w-full ${activeSection !== 'home' ? '' : ''}`}
         >
           PSST
         </CustomLink>
@@ -189,7 +216,9 @@ export default function MobileHeader() {
       </div>
       {activeSection === 'psst' && (
         <div className='flex w-full h-full mb-0 bg-[#D2D2D2] border-r-[#1D53FF] border-r border-l border-l-[#A20018]'>
-          <CustomLink href='/psst' className='w-1/2 bg-[#DFFF3D]'></CustomLink>
+          <CustomLink href='/psst' className='w-1/2 bg-[#DFFF3D]'>
+            &nbsp;
+          </CustomLink>
           <button
             onClick={toggleMenu}
             className='border-[#A20018] bg-[#DFFF3D] flex-1 border rounded-t-0 rounded-tr-3xl border-l-0 border-b-0 text-center  text-lg z-50 pb-0 w-full -mr-[1px]'
@@ -228,7 +257,7 @@ export default function MobileHeader() {
             {/* Subsection Row */}
             {hasSubMenu && currentSubsection && (
               <div
-                className='flex w-full -mt-1.5 -mb-8 relative'
+                className='flex w-full -mt-1.5 -mb-8 relative bg-transparent'
                 style={
                   {
                     '--subsection-bg':
@@ -242,15 +271,15 @@ export default function MobileHeader() {
                 }
               >
                 <div
-                  className={`flex-1 text-lg ${subMenuColors.headerBg} ${subMenuColors.headerText} px-4 py-0.5 text-center rounded-t-lg border border-b-0 ${subMenuColors.headerBorder}`}
+                  className={`flex-1 text-lg ${subMenuColors.headerBg} ${subMenuColors.headerText} px-4 py-0.5 text-center rounded-t-lg border border-b-0 relative subsection-vertical-border pb-[17px] ${subMenuColors.headerBorder}`}
                 >
                   {currentSubsection.name.toUpperCase()}
                 </div>
                 <button
                   onClick={toggleSubMenu}
-                  className={`${subMenuColors.buttonBg} ${subMenuColors.buttonText} ${subMenuColors.hamburgerBorder} px-4 py-1 border flex items-center justify-center w-1/2 rounded-tr-lg border-l-0 border-b-0 mobile-subsection-underline h-full`}
+                  className={`${subMenuColors.buttonBg} ${subMenuColors.buttonText} ${subMenuColors.hamburgerBorder} px-4 py-1 pb-2 border flex items-center justify-center w-1/2 rounded-tr-lg border-l-0 border-b-0 mobile-subsection-underline h-full`}
                 >
-                  <span className='-mt-0.75'>≡</span>
+                  <span className='-mt-[0.12rem]'>≡</span>
                 </button>
               </div>
             )}
@@ -287,16 +316,16 @@ export default function MobileHeader() {
             >
               {MAIN_MENU_ITEMS.filter((item) => item.section !== 'psst').map(
                 ({ path, section }, index) => (
-                  <CustomLink
+                  <Link
                     key={section}
                     href={path}
-                    className={`${SECTION_CONFIG[section].color} flex items-center justify-center text-center text-4xl flex-1 border rounded-t-3xl uppercase ${
+                    className={`${SECTION_CONFIG[section].color} flex items-center justify-center text-center text-4xl flex-1 border rounded-t-3xl uppercase first:rounded-t-lg ${
                       index > 0 ? '-mt-5' : ''
                     }`}
                     onClick={closeMenus}
                   >
                     {SECTION_CONFIG[section].name}
-                  </CustomLink>
+                  </Link>
                 )
               )}
             </div>
@@ -309,10 +338,6 @@ export default function MobileHeader() {
         {isSubMenuOpen && hasSubMenu && (
           <div
             key='submenu-overlay'
-            // initial={{ opacity: 0 }}
-            // animate={{ opacity: 1 }}
-            // exit={{ opacity: 0 }}
-            // transition={{ duration: 0.2 }}
             className='fixed inset-0 z-60'
             onClick={handleOverlayClick}
           >
@@ -325,12 +350,12 @@ export default function MobileHeader() {
                 duration: 0.7,
                 ease: [0.76, 0, 0.24, 1],
               }}
-              className='fixed inset-0 pt-[58px] z-70'
+              className='fixed inset-0 pt-[56px] z-70'
               onClick={(e) => e.stopPropagation()}
             >
               <div className='flex flex-col h-full'>
                 {sectionConfig.subMenus?.map((subMenu, index) => (
-                  <CustomLink
+                  <Link
                     key={subMenu.path}
                     href={subMenu.path}
                     className={`${
@@ -340,10 +365,10 @@ export default function MobileHeader() {
                     } border flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase ${
                       index > 0 ? '-mt-2' : ''
                     }`}
-                    onClick={toggleSubMenu}
+                    onClick={closeMenus}
                   >
                     {subMenu.name}
-                  </CustomLink>
+                  </Link>
                 ))}
               </div>
             </motion.div>

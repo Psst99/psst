@@ -9,7 +9,20 @@ export const guidelines = defineType({
       name: 'content',
       title: 'Content',
       type: 'array',
-      of: [{type: 'block'}],
+      of: [
+        {
+          type: 'block',
+          styles: [
+            {title: 'Heading', value: 'h2'},
+            {title: 'Paragraph', value: 'normal'},
+            {title: 'Large paragraph', value: 'largeParagraph'},
+          ],
+          marks: {
+            annotations: [{type: 'textColor'}, {type: 'highlightColor'}],
+          },
+        },
+        {type: 'highlightedBox'},
+      ],
     }),
   ],
   preview: {

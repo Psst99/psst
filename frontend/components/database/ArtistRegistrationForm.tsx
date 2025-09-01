@@ -125,16 +125,19 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
     }
   }
 
-  const categoryOptions = categories.map((c) => ({
-    id: c._id,
-    label: c.title,
-    color: 'bg-[#6600ff] text-white', // or any logic you want
-  }))
-  const tagOptions = tags.map((t) => ({
-    id: t._id,
-    label: t.title,
-    color: 'bg-[#A20018] text-[#00FFDD]', // or any logic you want
-  }))
+  const categoryOptions =
+    categories?.map((c) => ({
+      id: c._id,
+      label: c.title,
+      color: 'bg-[#6600ff] text-white',
+    })) ?? []
+
+  const tagOptions =
+    tags?.map((t) => ({
+      id: t._id,
+      label: t.title,
+      color: 'bg-[#A20018] text-[#00FFDD]',
+    })) ?? []
 
   return (
     <div className='p-4 h-full w-full md:max-w-[65vw] mx-auto'>

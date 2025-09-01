@@ -10,10 +10,8 @@ import PsstContentAsync from '@/components/psst/PsstContentAsync'
 
 export default function PsstPage() {
   return (
-    <main className='p-6 rounded-md max-w-4xl mx-auto'>
-      <Suspense fallback={<PsstSkeleton />}>
-        <PsstContentAsync />
-      </Suspense>
+    <main className='mx-4 xl:max-w-[65vw] xl:mx-auto'>
+      <PsstContentAsync />
     </main>
   )
 }

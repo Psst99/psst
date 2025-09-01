@@ -11,6 +11,17 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FormField } from '@/components/form/FormField'
 import { TextInput } from '@/components/form/TextInput'
+import { StyledCheckbox } from '../StyledCheckbox'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
+
+import { IoAddCircle } from 'react-icons/io5'
+import { RiDeleteBack2Fill } from 'react-icons/ri'
 
 interface PssoundRequestFormProps {
   bookedDates: string[]
@@ -105,25 +116,33 @@ export default function PssoundRequestForm({
         className='space-y-4'
       >
         <FormField
-          bgClassName='bg-[#07f25b]'
+          bgClassName='bg-[#07f25b] flex flex-col xl:flex-row items-center'
           label='Choose your collective'
           error={errors.collective}
         >
-          <select
-            {...register('collective')}
-            className='w-full bg-[#07f25b] text-[#81520A] border border-[#81520A] rounded px-2 py-1'
-            defaultValue=''
-          >
-            <option value='' disabled>
-              -- Select a collective --
-            </option>
-            {collectives.map((col) => (
-              <option key={col._id} value={col.collectiveName}>
-                {col.collectiveName}
-              </option>
-            ))}
-          </select>
+          <div className='bg-white'>
+            <Select
+              onValueChange={(value) => setValue('collective', value)}
+              defaultValue={watch('collective')}
+            >
+              <SelectTrigger className='w-full bg-[#fff] text-[#81520A] border-0 border-[#81520A] rounded px-2 py-1 text-3xl'>
+                <SelectValue placeholder='Select your collective' />
+              </SelectTrigger>
+              <SelectContent className='bg-[#07f25b] text-[#81520A] border border-[#81520A] rounded text-3xl'>
+                {collectives.map((col) => (
+                  <SelectItem
+                    key={col._id}
+                    value={col.collectiveName}
+                    className='text-3xl'
+                  >
+                    {col.collectiveName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </FormField>
+
         <FormField
           bgClassName='bg-[#07f25b]'
           label='Event Title'
@@ -178,34 +197,67 @@ export default function PssoundRequestForm({
         </FormField>
 
         <FormField
-          bgClassName='bg-[#07f25b]'
-          label='Is the event political? Specify'
+          bgClassName='bg-[#07f25b] items-center'
+          label='Is the event political?'
           error={undefined}
         >
-          <div className='flex gap-4 flex-wrap'>
-            {['feminist', 'queer', 'racial', 'disability'].map((key) => (
-              <label key={key} className='flex items-center gap-1'>
-                <input
-                  type='checkbox'
+          <div className='flex flex-col gap-4'>
+            {/* All checkboxes in same row */}
+            <div className='flex gap-x-4 flex-wrap px-4 py-2'>
+              {['feminist', 'queer', 'racial', 'disability'].map((key) => (
+                <StyledCheckbox
+                  key={key}
+                  label={key}
                   {...register(`isPolitical.${key}` as const)}
-                  className='accent-[#81520A]'
                 />
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-              </label>
-            ))}
+              ))}
+
+              {/* Fundraiser checkbox */}
+              <StyledCheckbox
+                label='fundraiser'
+                checked={!!watch('isPolitical.fundraiser')}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setValue('isPolitical.fundraiser', ' ')
+                  } else {
+                    setValue('isPolitical.fundraiser', '')
+                  }
+                }}
+              />
+
+              {/* Other checkbox */}
+              <StyledCheckbox
+                label='other'
+                checked={!!watch('isPolitical.other')}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setValue('isPolitical.other', ' ')
+                  } else {
+                    setValue('isPolitical.other', '')
+                  }
+                }}
+              />
+            </div>
+
+            {/* Text inputs appear below when checked */}
+            {watch('isPolitical.fundraiser') && (
+              <TextInput
+                registration={register('isPolitical.fundraiser')}
+                placeholder='Fundraiser (specify)'
+                inputClassName='text-[#07f25b]'
+                fieldClassName='bg-[#07f25b]'
+              />
+            )}
+
+            {watch('isPolitical.other') && (
+              <TextInput
+                registration={register('isPolitical.other')}
+                placeholder='Other (specify)'
+                inputClassName='text-[#07f25b]'
+                fieldClassName='bg-[#07f25b]'
+              />
+            )}
           </div>
-          <TextInput
-            registration={register('isPolitical.fundraiser')}
-            placeholder='Fundraiser (specify)'
-            inputClassName='text-[#07f25b]'
-            fieldClassName='bg-[#07f25b]'
-          />
-          <TextInput
-            registration={register('isPolitical.other')}
-            placeholder='Other (specify)'
-            inputClassName='text-[#07f25b]'
-            fieldClassName='bg-[#07f25b]'
-          />
         </FormField>
 
         <FormField
@@ -215,7 +267,8 @@ export default function PssoundRequestForm({
         >
           {fields.map((field, idx) => (
             <div key={field.id} className='flex flex-col gap-1 mb-2'>
-              <div className='flex gap-2'>
+              <div className='flex w-full relative'>
+                {/* Name field - no right rounded corners */}
                 <TextInput
                   registration={register(
                     `marginalizedArtists.${idx}.name` as const
@@ -223,43 +276,60 @@ export default function PssoundRequestForm({
                   placeholder='Name'
                   inputClassName='text-[#07f25b]'
                   fieldClassName='bg-[#07f25b]'
+                  className='!rounded-none border-r-0 flex-1'
                 />
-                <TextInput
-                  registration={register(
-                    `marginalizedArtists.${idx}.link` as const
-                  )}
-                  placeholder='Link (URL or leave blank)'
-                  inputClassName='text-[#07f25b]'
-                  fieldClassName='bg-[#07f25b]'
-                />
-                <button
-                  type='button'
-                  onClick={() => remove(idx)}
-                  className='text-[#81520A] underline'
-                >
-                  Remove
-                </button>
+
+                {/* Link field - no left rounded corners */}
+                <div className='flex-[2] relative'>
+                  <TextInput
+                    registration={register(
+                      `marginalizedArtists.${idx}.link` as const
+                    )}
+                    placeholder='Link (URL or leave blank)'
+                    inputClassName='text-[#07f25b]'
+                    fieldClassName='bg-[#07f25b]'
+                    className='!rounded-none !rounded-tr-xl pr-10 flex-1'
+                  />
+
+                  {/* Trash icon inside the input */}
+                  <button
+                    type='button'
+                    onClick={() => remove(idx)}
+                    className='absolute right-3 top-1/2 -translate-y-1/2 text-[#81520A] hover:text-[#A20018] transition-colors'
+                    aria-label='Remove artist'
+                  >
+                    <RiDeleteBack2Fill />
+                  </button>
+                </div>
               </div>
-              {/* Show name error */}
-              {errors.marginalizedArtists?.[idx]?.name && (
-                <span className='text-red-600 text-sm'>
-                  {errors.marginalizedArtists[idx]?.name?.message}
-                </span>
-              )}
-              {/* Show link error */}
-              {errors.marginalizedArtists?.[idx]?.link && (
-                <span className='text-red-600 text-sm'>
-                  {errors.marginalizedArtists[idx]?.link?.message}
-                </span>
-              )}
+
+              {/* Error messages */}
+              <div className='flex gap-2'>
+                <div className='flex-1'>
+                  {errors.marginalizedArtists?.[idx]?.name && (
+                    <span className='text-[#81520A] text-xs italic'>
+                      {errors.marginalizedArtists[idx]?.name?.message}
+                    </span>
+                  )}
+                </div>
+                <div className='flex-[2]'>
+                  {errors.marginalizedArtists?.[idx]?.link && (
+                    <span className='text-[#81520A] text-xs italic'>
+                      {errors.marginalizedArtists[idx]?.link?.message}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
+
           <button
             type='button'
             onClick={() => append({ name: '', link: '' })}
-            className='text-[#81520A] underline'
+            className='text-[#81520A] flex items-center gap-1 hover:underline -mt-3 py-1 text-sm xl:text-base px-2'
           >
-            + Add another artist
+            <IoAddCircle />
+            Add another artist
           </button>
         </FormField>
 
@@ -293,7 +363,7 @@ export default function PssoundRequestForm({
             dateFormat='yyyy-MM-dd'
             minDate={new Date()}
             placeholderText='Select event date'
-            className='border rounded px-2 py-1'
+            className='px-4 py-2 text-[#81520A] text-sm xl:text-base'
           />
         </FormField>
 
@@ -312,7 +382,7 @@ export default function PssoundRequestForm({
             dateFormat='yyyy-MM-dd'
             minDate={new Date()}
             placeholderText='Select pick-up date'
-            className='border rounded px-2 py-1'
+            className='px-4 py-2 text-[#81520A] text-sm xl:text-base'
           />
         </FormField>
 
@@ -331,7 +401,7 @@ export default function PssoundRequestForm({
             dateFormat='yyyy-MM-dd'
             minDate={new Date()}
             placeholderText='Select return date'
-            className='border rounded px-2 py-1'
+            className='px-4 py-2 text-[#81520A] text-sm xl:text-base'
           />
         </FormField>
 
@@ -345,45 +415,25 @@ export default function PssoundRequestForm({
             errors.membershipCert
           }
         >
-          <div className='flex flex-col gap-2'>
-            <label>
-              <input
-                type='checkbox'
+          <div className='flex justify-center items-center h-full w-full p-4 text-sm xl:text-base'>
+            <div className='flex flex-col gap-2 w-full'>
+              <StyledCheckbox
+                label='I certify that I have a vehicle to transport the sound safely (minimum 8 m³).'
                 {...register('vehicleCert')}
-                className='accent-[#81520A]'
-              />{' '}
-              I certify that I have a vehicle to transport the sound safely
-              (minimum 8 m³).
-            </label>
-            <label>
-              <input
-                type='checkbox'
+              />
+              <StyledCheckbox
+                label='I certify that at least 3 people will manage pick-up, build-up, build-down and return of the system.'
                 {...register('teamCert')}
-                className='accent-[#81520A]'
-              />{' '}
-              I certify that at least 3 people will manage pick-up, build-up,
-              build-down and return of the system.
-            </label>
-            <label>
-              <input
-                type='checkbox'
+              />
+              <StyledCheckbox
+                label='I certify that all persons involved have read and signed the charter of principles.'
                 {...register('charterCert')}
-                className='accent-[#81520A]'
-              />{' '}
-              I certify that all persons involved have read and signed the
-              charter of principles.
-            </label>
-            <label>
-              <input
-                type='checkbox'
+              />
+              {/* <StyledCheckbox
+                label={`If you don't have a membership yet: You understand the community-based financial aspect of the project and wish to make an annual contribution adapted to your means (between 75 and 150 euros).`}
                 {...register('membershipCert')}
-                className='accent-[#81520A]'
-              />{' '}
-              If you don’t have a membership yet: You understand the
-              community-based financial aspect of the project and wish to make
-              an annual contribution adapted to your means (between 75 and 150
-              euros).
-            </label>
+              /> */}
+            </div>
           </div>
         </FormField>
 

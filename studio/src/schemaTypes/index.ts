@@ -22,6 +22,11 @@ import {resource} from './documents/resource'
 
 import archiveMedia from './documents/archiveMedia'
 import {archiveTag} from './documents/archiveTag'
+import {highlightedBox} from './objects/highlightedBox'
+import {pssoundMembership} from './documents/pssoundMembership'
+import {resourceSubmission} from './documents/resourceSubmission'
+import {eventTag} from './documents/eventTag'
+import {membershipPage} from './singletons/membershipPage'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -30,6 +35,7 @@ export const schemaTypes = [
   settings,
   guidelines,
   pageSettings,
+  membershipPage,
   // Documents
   psstPage,
   category,
@@ -37,6 +43,7 @@ export const schemaTypes = [
   post,
   artist,
   tag,
+  eventTag,
   workshopTag,
   workshop,
   workshopRegistration,
@@ -47,9 +54,12 @@ export const schemaTypes = [
   resource,
   archiveMedia,
   archiveTag,
+  resourceSubmission,
   // Objects
   blockContent,
   infoSection,
   callToAction,
   link,
+  highlightedBox,
+  pssoundMembership,
 ]

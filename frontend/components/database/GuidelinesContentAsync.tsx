@@ -9,7 +9,7 @@ export default async function GuidelinesContentAsync() {
 
   return (
     <div className='w-full'>
-      <div className='grid grid-cols-2 gap-12 text-base leading-tight md:text-xl'>
+      <div className='grid grid-cols-1 xl:grid-cols-2 gap-12 text-base leading-tight md:text-xl'>
         <CmsContent value={guidelines?.content} color='#6600ff' />
       </div>
     </div>

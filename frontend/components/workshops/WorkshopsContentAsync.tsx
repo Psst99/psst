@@ -22,7 +22,7 @@ export default async function WorkshopsContentAsync() {
 
   return (
     <div className='p-6 text-[#f50806] md:mx-16'>
-      <h1 className='text-3xl md:text-4xl mb-6 text-center mt-16 md:mt-0'>
+      <h1 className='text-3xl md:text-4xl mb-6 text-center'>
         {settings?.title || 'Workshops'}
       </h1>
 

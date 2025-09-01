@@ -6,46 +6,58 @@ export const psstPage = defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'about',
-      title: 'About PSST',
-      type: 'array',
-      of: [
-        {
-          type: 'block',
-          marks: {
-            annotations: [
-              {type: 'textColor'},
-              {
-                type: 'highlightColor',
-              },
-            ],
-          },
-        },
-      ],
-    }),
-    defineField({
       name: 'charter',
       title: 'Charter',
       type: 'array',
       of: [
         {
           type: 'block',
+          styles: [
+            {title: 'Heading', value: 'h2'},
+            {title: 'Paragraph', value: 'normal'},
+          ],
           marks: {
-            annotations: [
-              {type: 'textColor'},
-              {
-                type: 'highlightColor',
-              },
-            ],
+            annotations: [{type: 'textColor'}, {type: 'highlightColor'}],
           },
         },
+        {type: 'highlightedBox'},
+      ],
+    }),
+    defineField({
+      name: 'about',
+      title: 'About PSST',
+      type: 'array',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            {title: 'Heading', value: 'h2'},
+            {title: 'Paragraph', value: 'normal'},
+          ],
+          marks: {
+            annotations: [{type: 'textColor'}, {type: 'highlightColor'}],
+          },
+        },
+        {type: 'highlightedBox'},
       ],
     }),
     defineField({
       name: 'legal',
       title: 'Legal Mentions',
-      type: 'text',
-      description: 'Plain text only – for listing subsidies, copyright, etc.',
+      type: 'array',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            {title: 'Heading', value: 'h2'},
+            {title: 'Paragraph', value: 'normal'},
+          ],
+          marks: {
+            annotations: [{type: 'textColor'}, {type: 'highlightColor'}],
+          },
+        },
+        {type: 'highlightedBox'},
+      ],
     }),
   ],
   preview: {

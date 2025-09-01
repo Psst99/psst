@@ -6,10 +6,10 @@ export const eventsPage = defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'backgroundColor',
-      title: 'Background Color',
-      type: 'string', // Use 'color' if you have the color input plugin installed
-      description: 'Set a background color for the Workshops page (e.g., #ffffff for white).',
+      name: 'title',
+      title: 'Title',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'about',

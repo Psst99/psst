@@ -9,7 +9,8 @@ import {
 } from '@/lib/schemas/pssoundMembership'
 import { FormField } from '@/components/form/FormField'
 import { TextInput } from '@/components/form/TextInput'
-import { StyledCheckbox } from '../ui/StyledCheckbox'
+import { StyledCheckbox } from '../StyledCheckbox'
+import CmsContent from '../CmsContent'
 
 export default function PssoundMembershipForm() {
   const {
@@ -54,7 +55,7 @@ export default function PssoundMembershipForm() {
   }
 
   return (
-    <div className='p-4 h-full w-full md:max-w-[65vw] mx-auto'>
+    <div className='h-full w-full md:max-w-[65vw] mx-auto mt-16'>
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
         <FormField
           label='Name of your collective / association'
@@ -68,10 +69,10 @@ export default function PssoundMembershipForm() {
         <FormField
           label='Is your project political?'
           error={errors.isPolitical}
-          bgClassName='bg-[#07f25b]'
+          bgClassName='bg-[#07f25b] items-center'
         >
-          <div className='h-full flex items-center'>
-            <div className='flex flex-wrap gap-8 p-4'>
+          <div className='flex flex-col gap-4'>
+            <div className='flex gap-x-4 flex-wrap px-4 py-2'>
               {['feminist', 'queer', 'racial', 'disability', 'other'].map(
                 (opt) => (
                   <StyledCheckbox

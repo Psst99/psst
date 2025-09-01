@@ -10,14 +10,15 @@ export const pssoundRequestSchema = z.object({
   eventLink: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   eventLocation: z.string().min(2, 'Event location is required'),
   eventDescription: z.string().min(10, 'Description is required'),
-  isPolitical: z.object({
-    feminist: z.boolean(),
-    queer: z.boolean(),
-    racial: z.boolean(),
-    disability: z.boolean(),
-    fundraiser: z.string().optional(),
-    other: z.string().optional(),
-  }),
+  isPolitical: z.record(z.union([z.boolean(), z.string()])),
+  // isPolitical: z.object({
+  //   feminist: z.boolean(),
+  //   queer: z.boolean(),
+  //   racial: z.boolean(),
+  //   disability: z.boolean(),
+  //   fundraiser: z.string().optional(),
+  //   other: z.string().optional(),
+  // }),
   marginalizedArtists: z
     .array(marginalizedArtistSchema)
     .min(1, 'At least one artist required'),

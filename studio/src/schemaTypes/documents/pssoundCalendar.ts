@@ -1,5 +1,3 @@
-// ./schemas/documents/pssoundCalendar.ts
-
 import {defineField, defineType} from 'sanity'
 
 export const pssoundCalendar = defineType({
@@ -30,6 +28,12 @@ export const pssoundCalendar = defineType({
       title: 'Notes',
       type: 'text',
       description: 'Optional internal note for this blocked period.',
+    }),
+    defineField({
+      name: 'request',
+      title: 'Related Request',
+      type: 'reference',
+      to: [{type: 'pssoundRequest'}],
     }),
   ],
   preview: {

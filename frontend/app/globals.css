@@ -90,15 +90,27 @@
   display: block;
   position: absolute;
   right: 0;
-  top: 30px;
+  top: 28px;
   width: calc(50% + 1px);
   /* bottom: -33px; */
-  height: 28px;
-  /* background: var(--subsection-bg); */
+  height: 20px;
+  background: var(--subsection-bg);
   border-top: 1px solid var(--subsection-border);
   border-right: 1px solid var(--subsection-border);
-  /* background: #00ffdd;
-  border-top: 1px solid #4e4e4e;
-  border-right: 1px solid #4e4e4e; */
+  /* border-top: 1px solid #4e4e4e; */
+  /* border-right: 1px solid #4e4e4e; */
   border-top-right-radius: 0.5rem;
+}
+
+.subsection-vertical-border::after {
+  content: '';
+  display: block;
+  position: absolute;
+  right: -1px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  height: 5px;
+  z-index: 10000;
+  background: var(--subsection-border);
 }

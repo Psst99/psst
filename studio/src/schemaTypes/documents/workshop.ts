@@ -52,13 +52,13 @@ export const workshop = defineType({
       type: 'number',
       validation: (Rule) => Rule.min(1).required(),
     }),
-    defineField({
-      name: 'published',
-      title: 'Published?',
-      type: 'boolean',
-      initialValue: false,
-      description: 'Uncheck to keep the workshop hidden from the public page',
-    }),
+    // defineField({
+    //   name: 'published',
+    //   title: 'Published?',
+    //   type: 'boolean',
+    //   initialValue: false,
+    //   description: 'Uncheck to keep the workshop hidden from the public page',
+    // }),
   ],
   preview: {
     select: {
