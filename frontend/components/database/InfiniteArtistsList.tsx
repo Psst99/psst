@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useTransition, useCallback } from 'react'
 import { useInView } from 'react-intersection-observer'
+import { BiLoaderCircle } from 'react-icons/bi'
 
 import CustomLink from '../custom-link'
 import {
@@ -128,11 +129,10 @@ export default function InfiniteArtistsList({
 
       {/* Loading indicator and sentinel */}
       {hasNextPage && (
-        <div ref={ref} className='flex justify-center py-8'>
+        <div ref={ref} className='flex justify-center py-4'>
           {isLoadingMore ? (
-            <div className='flex items-center gap-2 text-[#6600ff]'>
-              <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-[#6600ff]'></div>
-              <span>Loading more artists...</span>
+            <div className='flex items-center justify-center gap-2 text-[#6600ff]/75'>
+              <BiLoaderCircle className='animate-spin h-6 w-6' />
             </div>
           ) : (
             <div className='text-gray-400 text-sm'>Scroll for more...</div>
