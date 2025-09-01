@@ -55,7 +55,7 @@ export default function ArtistModal({ artist }: ArtistModalProps) {
       {/* Artist modal */}
       <div
         className={`relative bg-white w-full max-w-3xl rounded-3xl p-8 sm:p-8 transition-transform duration-300 ease-out ${
-          isVisible ? 'translate-y-0' : 'translate-y-full'
+          isVisible ? 'translate-y-0' : 'translate-y-[100vh]'
         }`}
       >
         <h1 className='text-[#6600ff] text-4xl sm:text-4xl font-bold mb-4'>

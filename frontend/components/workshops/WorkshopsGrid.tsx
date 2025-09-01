@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import WorkshopsFilter from './WorkshopsFilter'
+import Tag from '../Tag'
 
 interface Workshop {
   title: string
@@ -59,12 +60,12 @@ export default function WorkshopsGrid({ workshops }: WorkshopsGridProps) {
                   (tag: any, tagIdx: number) =>
                     tag &&
                     tag.title && (
-                      <span
+                      <Tag
                         key={tag._id || tagIdx}
-                        className='bg-[#1d53ff] text-white px-2 py-0.5 rounded-full text-xs block w-fit'
-                      >
-                        {tag.title}
-                      </span>
+                        label={tag.title}
+                        size='sm'
+                        className='block w-fit'
+                      />
                     )
                 )}
               </div>

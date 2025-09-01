@@ -172,6 +172,19 @@ export const databaseGuidelinesQuery = `
     content
   }
 `
+
+export const pssoundGuidelinesQuery = `
+  *[_type == "guidelines" && _id == "pssound-guidelines"][0]{
+    content
+  }
+`
+
+export const resourcesGuidelinesQuery = `
+  *[_type == "guidelines" && _id == "resources-guidelines"][0]{
+    content
+  }
+`
+
 export function getDatabaseBrowseQuery(
   orderClause: string,
   offset = 0,

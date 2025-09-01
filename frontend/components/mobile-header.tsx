@@ -109,7 +109,22 @@ export default function MobileHeader() {
 
   const getCurrentSubsection = () => {
     if (!hasSubMenu) return null
-    return sectionConfig.subMenus?.find((sub) => sub.path === pathname)
+
+    // Check for exact match first
+    const exactMatch = sectionConfig.subMenus?.find(
+      (sub) => sub.path === pathname
+    )
+    if (exactMatch) return exactMatch
+
+    // For artist modal paths
+    if (pathname.includes('/artists/') && activeSection === 'database') {
+      // Return the "Browse" subsection when in artist modal
+      return sectionConfig.subMenus?.find(
+        (sub) => sub.path === '/database/browse'
+      )
+    }
+
+    return null
   }
 
   const currentSubsection = getCurrentSubsection()
@@ -195,6 +210,66 @@ export default function MobileHeader() {
 
   const isHome = activeSection === 'home'
 
+  // Home page implementation with unified animation
+  if (isHome) {
+    return (
+      <div className='min-[83rem]:hidden'>
+        <motion.div
+          className='fixed left-0 right-0 z-50 bottom-0 w-full h-svh'
+          initial={{ y: isMenuOpen ? 0 : 'calc(100% - 29px)' }}
+          animate={{ y: isMenuOpen ? 0 : 'calc(100% - 29px)' }}
+          transition={{
+            duration: 0.7,
+            ease: [0.76, 0, 0.24, 1],
+          }}
+        >
+          {/* Top Header */}
+          <div className='flex w-full h-[29px] mb-0 bg-white'>
+            <CustomLink
+              href='/psst'
+              className='bg-[#DFFF3D] text-[#A20018] border-[#A20018] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center pb-12 text-lg w-full'
+            >
+              PSST
+            </CustomLink>
+            <button
+              onClick={toggleMenu}
+              className='bg-[#D2D2D2] text-[#1D53FF] border-[#1D53FF] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center -ml-px text-lg pb-16 w-full z-0'
+            >
+              {isMenuOpen ? 'CLOSE' : 'MENU'}
+            </button>
+          </div>
+
+          {/* Main Menu */}
+          <div className='bg-transparent h-full relative z-50'>
+            <div
+              className='flex flex-col h-full'
+              onClick={(e) => e.stopPropagation()}
+            >
+              {MAIN_MENU_ITEMS.filter((item) => item.section !== 'psst').map(
+                ({ path, section }, index) => (
+                  <Link
+                    key={section}
+                    href={path}
+                    className={`${SECTION_CONFIG[section].color} flex items-center justify-center text-center text-4xl flex-1 border rounded-t-3xl uppercase first:rounded-t-lg ${
+                      index > 0 ? '-mt-5' : ''
+                    }`}
+                    onClick={closeMenus}
+                  >
+                    {SECTION_CONFIG[section].name}
+                  </Link>
+                )
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Spacer for bottom */}
+        <div className='h-[41px]' />
+      </div>
+    )
+  }
+
+  // Regular implementation for non-home pages
   return (
     <div
       className={`h-[29px] bg-white fixed left-0 right-0 z-50 ${isHome ? 'bottom-0' : 'top-0 tracking-tighter'}`}
@@ -209,7 +284,7 @@ export default function MobileHeader() {
         </CustomLink>
         <button
           onClick={toggleMenu}
-          className={`bg-[#D2D2D2] text-[#1D53FF] border-[#1D53FF] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center -ml-px text-lg z-50 pb-0 w-full  ${activeSection !== 'home' ? '' : ''}`}
+          className={`bg-[#D2D2D2] text-[#1D53FF] border-[#1D53FF] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center -ml-px text-lg z-50 pb-8 w-full  ${activeSection !== 'home' ? '' : ''}`}
         >
           {isMenuOpen ? 'CLOSE' : 'MENU'}
         </button>

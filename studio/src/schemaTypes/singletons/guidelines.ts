@@ -16,6 +16,7 @@ export const guidelines = defineType({
             {title: 'Heading', value: 'h2'},
             {title: 'Paragraph', value: 'normal'},
             {title: 'Large paragraph', value: 'largeParagraph'},
+            {title: 'Large question', value: 'largeQuestion'},
           ],
           marks: {
             annotations: [{type: 'textColor'}, {type: 'highlightColor'}],

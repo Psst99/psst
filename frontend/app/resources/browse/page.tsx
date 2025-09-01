@@ -1,9 +1,13 @@
 import ResourcesContentAsync from '@/components/resources/ResourcesContentAsync'
+import Loading from './loading'
 
 export default async function ResourcesBrowsePage() {
   return (
-    <main>
-      <ResourcesContentAsync />
-    </main>
+    <>
+      {/* <Loading /> */}
+      <main>
+        <ResourcesContentAsync />
+      </main>
+    </>
   )
 }

@@ -10,24 +10,32 @@ const getBlockComponents = (color: string): PortableTextComponents => ({
   block: {
     normal: ({ children }) => (
       <p
-        className='text-base leading-tight min-[83rem]:text-xl mb-10 w-full min-[83rem]:max-w-[65vw] mx-auto min-[83rem]:mt-16'
-        style={{ color }}
+        className='text-base leading-tight min-[83rem]:text-xl w-full min-[83rem]:max-w-[65vw] mx-auto mb-4'
+        style={{ color, breakInside: 'avoid' }}
       >
         {children}
       </p>
     ),
     h2: ({ children }) => (
       <h2
-        className='text-3xl min-[83rem]:text-4xl mb-6 text-center tracking-tight'
-        style={{ color }}
+        className='text-3xl min-[83rem]:text-3xl mb-6 text-center tracking-tight'
+        style={{ color, breakAfter: 'avoid', breakInside: 'avoid' }}
       >
         {children}
       </h2>
     ),
     largeParagraph: ({ children }) => (
       <p
-        className='text-3xl min-[83rem]:text-4xl mb-6 text-left tracking-tight'
-        style={{ color }}
+        className='text-2xl min-[83rem]:text-3xl mb-16 text-left tracking-tight'
+        style={{ color, breakInside: 'avoid' }}
+      >
+        {children}
+      </p>
+    ),
+    largeQuestion: ({ children }) => (
+      <p
+        className='text-2xl min-[83rem]:text-3xl mb-4 text-left tracking-tight mt-16'
+        style={{ color, breakInside: 'avoid' }}
       >
         {children}
       </p>
@@ -52,7 +60,12 @@ const getBlockComponents = (color: string): PortableTextComponents => ({
   },
   types: {
     highlightedBox: ({ value }) => (
-      <div className='bg-[#A20018] text-[#dfff3d] p-4 rounded-3xl mb-8 min-[83rem]:text-xl'>
+      <div
+        className='bg-[#A20018] text-[#dfff3d] p-4 rounded-3xl mb-8 min-[83rem]:text-xl'
+        style={{
+          breakInside: 'avoid',
+        }}
+      >
         <PortableText
           value={value.content}
           components={getHighlightedBlockComponents()}
@@ -75,7 +88,7 @@ const getHighlightedBlockComponents = (): PortableTextComponents => ({
       </p>
     ),
     h2: ({ children }) => (
-      <h2 className='text-3xl min-[83rem]:text-4xl mb-6 text-center tracking-tight text-[#dfff3d]'>
+      <h2 className='text-3xl min-[83rem]:text-3xl mb-6 text-center tracking-tight text-[#dfff3d]'>
         {children}
       </h2>
     ),

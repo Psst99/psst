@@ -1,9 +1,7 @@
 import { notFound } from 'next/navigation'
-
 import { sanityFetch } from '@/sanity/lib/live'
 import { artistBySlugQuery } from '@/sanity/lib/queries'
-import TestModal from '@/components/test-modal'
-import ArtistModal from '@/components/artist-modal'
+import ArtistModal from '@/components/ArtistModal'
 
 export default async function ModalSlugRoute({
   params,

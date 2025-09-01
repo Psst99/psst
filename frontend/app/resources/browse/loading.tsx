@@ -2,7 +2,7 @@ export default function Loading() {
   return (
     <div className='p-6 text-[#FE93E7] md:mx-16 animate-pulse'>
       {/* Title */}
-      <div className='h-10 w-1/3 mx-auto mb-6 mt-16 md:mt-0 bg-[#FE93E7]/25 rounded' />
+      <div className='h-10 w-1/3 mx-auto mb-6 bg-[#FE93E7]/25 rounded' />
       {/* Description skeleton */}
       <div className='space-y-4 my-16 md:max-w-[65vw] mx-auto'>
         {[...Array(3)].map((_, i) => (

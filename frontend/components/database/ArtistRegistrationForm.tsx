@@ -197,23 +197,25 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
         >
           <MultiSelectDropdown
             name='categories'
+            placeholder='Select your categorie(s)'
             control={control}
             options={categoryOptions}
-            renderTag={(option, onRemove) => (
-              <span
-                key={option.id}
-                className={`${option.color} p-1.25 py-0.25 font-mono text-lg uppercase font-thin leading-tight flex items-center gap-3`}
-              >
-                {option.label}
-                <button
-                  type='button'
-                  onClick={onRemove}
-                  className='text-current hover:opacity-70'
-                >
-                  ×
-                </button>
-              </span>
-            )}
+            type='category'
+            // renderTag={(option, onRemove) => (
+            //   <span
+            //     key={option.id}
+            //     className={`${option.color} p-1.25 py-0.25 font-mono text-lg uppercase font-thin leading-tight text-[#6600ff] flex items-center gap-3`}
+            //   >
+            //     {option.label}
+            //     <button
+            //       type='button'
+            //       onClick={onRemove}
+            //       className='text-current hover:opacity-70'
+            //     >
+            //       ×
+            //     </button>
+            //   </span>
+            // )}
           />
         </FormField>
 
@@ -226,6 +228,8 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
             name='tags'
             control={control}
             options={tagOptions}
+            type='tag'
+            placeholder='Select your tag(s)'
           />
         </FormField>
 

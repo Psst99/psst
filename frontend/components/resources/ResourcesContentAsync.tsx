@@ -1,6 +1,7 @@
 import { resourcesPageQuery } from '@/sanity/lib/queries'
 import { sanityFetch } from '@/sanity/lib/live'
 import CmsContent from '@/components/CmsContent'
+import Tag from '../Tag'
 
 type ResourceItem = {
   title: string
@@ -45,12 +46,12 @@ export default async function ResourcesContentAsync() {
             {item.tags && item.tags.length > 0 && (
               <div className='flex flex-wrap gap-2 mt-3'>
                 {item.tags.map((tag: string, tagIdx: number) => (
-                  <span
-                    key={tagIdx} // Changed from tag._id to tagIdx
-                    className='bg-[#FE93E7] text-white px-2 py-0.5 rounded-full text-xs block w-fit'
-                  >
-                    {tag} {/* Changed from tag.title to just tag */}
-                  </span>
+                  <Tag
+                    key={tagIdx}
+                    label={tag}
+                    size='sm'
+                    className='block w-fit'
+                  />
                 ))}
               </div>
             )}
