@@ -26,7 +26,7 @@ const getBlockComponents = (color: string): PortableTextComponents => ({
     ),
     largeParagraph: ({ children }) => (
       <p
-        className='text-2xl min-[83rem]:text-3xl mb-16 text-left tracking-tight'
+        className='text-2xl min-[83rem]:text-3xl mb-16 text-left tracking-tight leading-[1.75rem] xl:leading-[2.25rem] '
         style={{ color, breakInside: 'avoid' }}
       >
         {children}
