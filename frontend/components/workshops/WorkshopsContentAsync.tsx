@@ -5,10 +5,7 @@ import WorkshopsGrid from '@/components/workshops/WorkshopsGrid'
 
 export default async function WorkshopsContentAsync() {
   const { data: page } = await sanityFetch({ query: workshopsPageQuery })
-
   const { settings, workshops } = page
-
-  console.log('workshops', workshops)
 
   const items =
     workshops?.map((workshop: any) => ({

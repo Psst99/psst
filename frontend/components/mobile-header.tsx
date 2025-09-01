@@ -101,7 +101,7 @@ export default function MobileHeader() {
     return 'home'
   }
 
-  const activeSection = getActiveSection()
+  const activeSection: Section = getActiveSection()
   const sectionConfig =
     activeSection !== 'home' ? SECTION_CONFIG[activeSection] : null
   const hasSubMenu =
@@ -278,13 +278,13 @@ export default function MobileHeader() {
       <div className='flex w-full h-full mb-0'>
         <CustomLink
           href='/psst'
-          className={`bg-[#DFFF3D] text-[#A20018] border-[#A20018] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center pb-12 text-lg w-full ${activeSection !== 'home' ? '' : ''}`}
+          className={`bg-[#DFFF3D] text-[#A20018] border-[#A20018] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center pb-12 text-lg w-full`}
         >
           PSST
         </CustomLink>
         <button
           onClick={toggleMenu}
-          className={`bg-[#D2D2D2] text-[#1D53FF] border-[#1D53FF] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center -ml-px text-lg z-50 pb-8 w-full  ${activeSection !== 'home' ? '' : ''}`}
+          className={`bg-[#D2D2D2] text-[#1D53FF] border-[#1D53FF] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center -ml-px text-lg z-50 pb-8 w-full`}
         >
           {isMenuOpen ? 'CLOSE' : 'MENU'}
         </button>
@@ -302,7 +302,7 @@ export default function MobileHeader() {
       )}
 
       {/* Section Header */}
-      {activeSection !== 'home' &&
+      {(activeSection as Section) !== 'home' &&
         activeSection !== 'psst' &&
         sectionConfig && (
           <div
@@ -454,7 +454,7 @@ export default function MobileHeader() {
       {/* Spacer */}
       <div
         className={
-          activeSection === 'home'
+          (activeSection as Section) === 'home'
             ? 'h-[41px]'
             : hasSubMenu
               ? 'h-[75px]'

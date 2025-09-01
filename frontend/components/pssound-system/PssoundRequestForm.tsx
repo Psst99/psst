@@ -82,7 +82,6 @@ export default function PssoundRequestForm({
   const returnDate = watch('returnDate') ? new Date(watch('returnDate')) : null
 
   const onSubmit = async (data: PssoundRequestFormData) => {
-    console.log('Submitting data:', data)
     if (
       isDateBooked(data.eventDate, bookedDates) ||
       isDateBooked(data.pickupDate, bookedDates) ||

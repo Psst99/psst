@@ -10,8 +10,6 @@ export default async function ModalSlugRoute({
 }) {
   const slug = (await params).slug
 
-  console.log('slug:', slug)
-
   try {
     const { data: artist } = await sanityFetch({
       query: artistBySlugQuery,
