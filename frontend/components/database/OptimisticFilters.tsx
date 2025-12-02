@@ -1,15 +1,17 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { useOptimistic, useTransition, useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { slugifyTag } from '@/lib/tags'
 import { DatabaseSearchParams } from './DatabaseBrowseContentAsync'
 import OptimisticTagPill from './OptimisticTagPill'
-import { IoMdClose } from 'react-icons/io'
+import { IoMdClose, IoMdShuffle } from 'react-icons/io'
 
 type OptimisticFiltersProps = {
   categories: Array<{ _id: string; title: string; slug: string }>
   tags: Array<{ _id: string; title: string; slug: string }>
   initialParams: DatabaseSearchParams
+  totalCount: number
 }
 
 const SORTS = [
@@ -22,6 +24,7 @@ export default function OptimisticFilters({
   categories,
   tags,
   initialParams,
+  totalCount,
 }: OptimisticFiltersProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -31,6 +34,16 @@ export default function OptimisticFilters({
 
   // Local state for search input (for debouncing)
   const [searchValue, setSearchValue] = useState(optimisticParams.search ?? '')
+
+  // State for shuffled tags
+  const [shuffledTags, setShuffledTags] = useState(() =>
+    [...tags].sort(() => Math.random() - 0.5)
+  )
+
+  // Shuffle function
+  const shuffleTags = () => {
+    setShuffledTags([...tags].sort(() => Math.random() - 0.5))
+  }
 
   // Update search value when optimistic params change (e.g., browser navigation)
   useEffect(() => {
@@ -128,6 +141,13 @@ export default function OptimisticFilters({
         />
       </div>
 
+      {/* Total Count Display */}
+      <div className='bg-white py-2 px-6 rounded-md'>
+        <div className='text-center text-[#6600ff] tracking-tight text-lg lowercase'>
+          {totalCount} {totalCount === 1 ? 'Entry' : 'Entries'}
+        </div>
+      </div>
+
       {/* Sort */}
       <div className='bg-white py-1 pb-3 px-6 rounded-md'>
         <div className='text-center text-[#6600ff] uppercase tracking-tight text-xl mb-2'>
@@ -165,8 +185,8 @@ export default function OptimisticFilters({
                 onClick={() => toggleCategory(cat.slug)}
                 className={`px-1 py-0 cursor-pointer transition-colors uppercase flex items-center justify-center gap-x-2 ${
                   isActive
-                    ? 'bg-[#d3cd7f] text-[#6600ff]'
-                    : 'text-[#fff] bg-[#6600ff]'
+                    ? 'text-[#fff] bg-[#6600ff]'
+                    : 'bg-[#d3cd7f] text-[#6600ff]'
                 }`}
               >
                 {cat.title}
@@ -179,21 +199,42 @@ export default function OptimisticFilters({
         </div>
       </div>
 
-      {/* Tags */}
+      {/* Tags with Shuffle */}
       <div className='bg-white py-1 pb-3 px-6 rounded-md max-h-[30vh] xl:max-h-[40vh] overflow-y-auto no-scrollbar'>
-        <div className='text-center text-[#6600ff] uppercase tracking-tight text-xl mb-2'>
-          Tags
+        <div className='text-center text-[#6600ff] uppercase tracking-tight text-xl mb-2 flex items-center justify-center gap-1'>
+          <span>Tags</span>{' '}
+          <button
+            onClick={shuffleTags}
+            className='text-[#6600ff] hover:text-[#d3cd7f] transition-colors'
+            title='Shuffle tags'
+          >
+            <IoMdShuffle className='bg-[#6600ff] text-[#d3cd7f] rounded-lg h-6 w-6 cursor-pointer' />
+          </button>
         </div>
-        <div className='flex flex-wrap gap-1.5'>
-          {tags.map((tag) => (
-            <OptimisticTagPill
-              key={tag._id}
-              label={tag.title}
-              selectedSlugs={new Set(selectedTags)}
-              onToggle={toggleTag}
-            />
-          ))}
-        </div>
+        <motion.div className='flex flex-wrap gap-1.5' layout>
+          <AnimatePresence mode='popLayout'>
+            {shuffledTags.map((tag) => (
+              <motion.div
+                key={tag._id}
+                layout
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{
+                  layout: { duration: 0.3 },
+                  opacity: { duration: 0.2 },
+                  scale: { duration: 0.2 },
+                }}
+              >
+                <OptimisticTagPill
+                  label={tag.title}
+                  selectedSlugs={new Set(selectedTags)}
+                  onToggle={toggleTag}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       {/* Clear all filters button */}

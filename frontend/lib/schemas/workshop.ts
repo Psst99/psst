@@ -1,20 +1,14 @@
-import { z } from 'zod'
+import {z} from 'zod'
 
 export const workshopRegistrationSchema = z.object({
-  workshopId: z.string().min(1, 'Workshop selection is required'),
+  workshop: z.object({
+    _type: z.literal('reference'),
+    _ref: z.string(),
+  }),
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email address'),
-  phone: z.string().optional(),
-  experience: z.enum(['beginner', 'intermediate', 'advanced'], {
-    errorMap: () => ({ message: 'Please select your experience level' }),
-  }),
-  motivation: z
-    .string()
-    .min(1, 'Please tell us why you want to join')
-    .max(1000),
-  notes: z.string().optional(),
+  selectedDates: z.array(z.string()).min(1, 'Select at least one date'),
+  message: z.string().min(1, 'Please tell us why you want to join').max(1000), // Change from motivation
 })
 
-export type WorkshopRegistrationData = z.infer<
-  typeof workshopRegistrationSchema
->
+export type WorkshopRegistrationData = z.infer<typeof workshopRegistrationSchema>

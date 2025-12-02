@@ -58,7 +58,7 @@ export const SECTIONS: Record<string, SectionConfig> = {
     hasSubNavigation: true,
     subNavItems: [
       { label: 'Browse', href: '/database' },
-      { label: 'Register', href: '/database/register' },
+      { label: 'Register', href: '/database/submit' },
       { label: 'Guidelines', href: '/database/guidelines' },
     ],
     mobileColors: {

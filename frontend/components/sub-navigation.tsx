@@ -1,7 +1,7 @@
 'use client'
 
 import CustomLink from './custom-link'
-import { usePathname } from 'next/navigation'
+import {usePathname} from 'next/navigation'
 
 interface SubNavigationItem {
   label: string
@@ -14,19 +14,15 @@ interface SubNavigationProps {
   accentColor: string
 }
 
-export default function SubNavigation({
-  items,
-  mainColor,
-  accentColor,
-}: SubNavigationProps) {
+export default function SubNavigation({items, mainColor, accentColor}: SubNavigationProps) {
   const pathname = usePathname()
 
   return (
     <div
       className={`shrink-0 hidden md:block rounded-tr-2xl rounded-tl-md border-t pb-4`}
-      style={{ backgroundColor: mainColor, borderColor: accentColor }}
+      style={{backgroundColor: mainColor, borderColor: accentColor}}
     >
-      <div className='flex relative w-full'>
+      <div className="flex relative w-full">
         {items.map((item, idx) => {
           // const isActive =
           //   pathname === item.href ||
@@ -36,8 +32,7 @@ export default function SubNavigation({
 
           const isActive =
             pathname === item.href ||
-            (item.href === `/${pathname.split('/')[1]}` &&
-              items.every((i) => i.href !== pathname))
+            (item.href === `/${pathname.split('/')[1]}` && items.every((i) => i.href !== pathname))
 
           const bgColor = isActive ? accentColor : mainColor
           const textColor = isActive ? mainColor : accentColor

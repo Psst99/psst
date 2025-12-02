@@ -13,9 +13,7 @@ export default async function PsstContentAsync() {
 
   return (
     <>
-      <CmsContent value={charter} />
-      <CmsContent value={about} />
-      <CmsContent value={legal} />
+      <CmsContent value={about} section='psst' />
     </>
   )
 }

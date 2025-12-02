@@ -18,12 +18,14 @@ interface MobileFiltersModalProps {
     title: string
   }>
   initialParams: DatabaseSearchParams
+  totalCount: number
 }
 
 export default function MobileFiltersModal({
   categories,
   tags,
   initialParams,
+  totalCount,
 }: MobileFiltersModalProps) {
   const [open, setOpen] = useState(false)
 
@@ -71,6 +73,7 @@ export default function MobileFiltersModal({
                 categories={categoriesWithSlug}
                 tags={tagsWithSlug}
                 initialParams={initialParams}
+                totalCount={totalCount}
               />
             </div>
           </div>,

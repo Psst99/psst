@@ -1,9 +1,9 @@
-import PssoundGuidelinesContentAsync from '@/components/pssound-system/PssoundGuidelinesContentAsync'
+import PssoundAboutContentAsync from '@/components/pssound-system/PssoundAboutContentAsync'
 
-export default function PssoundGuidelinesPage() {
+export default function PssoundSystemPage() {
   return (
     <div className='p-6 md:px-20 text-[#07f25b]'>
-      <PssoundGuidelinesContentAsync />
+      <PssoundAboutContentAsync />
     </div>
   )
 }

@@ -5,17 +5,22 @@ import Tag from '@/components/Tag'
 
 type OptimisticTagPillProps = {
   label: string
-  selectedSlugs: Set<string>
+  selectedSlugs: string[] | Set<string>
   onToggle: (label: string) => void
 }
 
-export default function OptimisticTagPill({
+export default function ResourcesOptimisticTagPill({
   label,
   selectedSlugs,
   onToggle,
 }: OptimisticTagPillProps) {
   const slug = slugifyTag(label)
-  const isActive = selectedSlugs.has(slug)
+
+  // Ensure we have a Set to use has() method on
+  const slugsSet =
+    selectedSlugs instanceof Set ? selectedSlugs : new Set(selectedSlugs)
+
+  const isActive = slugsSet.has(slug)
 
   return (
     <Tag

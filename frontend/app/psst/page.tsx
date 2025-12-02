@@ -1,17 +1,14 @@
-import { Suspense } from 'react'
-import Link from 'next/link'
-import { PortableText } from '@portabletext/react'
+import {redirect} from 'next/navigation'
+import {sanityFetch} from '@/sanity/lib/live'
+import {psstSectionsQuery} from '@/sanity/lib/queries'
 
-import { psstPageQuery } from '@/sanity/lib/queries'
-import { sanityFetch } from '@/sanity/lib/live'
-import PsstContent from '@/components/CmsContent'
-import PsstSkeleton from '@/components/psst/PsstSkeleton'
-import PsstContentAsync from '@/components/psst/PsstContentAsync'
+export default async function PsstPage() {
+  const {data} = await sanityFetch({query: psstSectionsQuery})
 
-export default function PsstPage() {
-  return (
-    <main className='mx-4 xl:max-w-[65vw] xl:mx-auto'>
-      <PsstContentAsync />
-    </main>
-  )
+  if (data && data.length > 0) {
+    const firstSection = data[0]
+    redirect(`/psst/${firstSection.slug}`)
+  }
+
+  return <div>No sections found</div>
 }

@@ -1,7 +1,7 @@
 export const sectionThemes = {
   home: {
-    bg: '#ffffff',
-    accent: '#000000',
+    bg: '#1D53FF',
+    accent: '#07F25B',
     border: '#cccccc',
   },
   psst: {
@@ -42,24 +42,31 @@ export const sectionThemes = {
 } as const
 
 export const subNavigation = {
+  // psst: [
+  //   {label: 'About', href: '/psst'},
+  //   {label: 'Manifesto', href: '/psst/manifesto'},
+  //   {label: 'Acknowledgements', href: '/psst/acknowledgements'},
+  // ],
   database: [
-    { label: 'Guidelines', href: '/database' },
-    { label: 'Browse', href: '/database/browse' },
-    { label: 'Register', href: '/database/register' },
+    {label: 'Guidelines', href: '/database'},
+    {label: 'Browse', href: '/database/browse'},
+    {label: 'Submit', href: '/database/submit'},
   ],
   workshops: [
-    { label: 'Browse', href: '/workshops' },
-    { label: 'Register', href: '/workshops/register' },
+    {label: 'Browse', href: '/workshops'},
+    {label: 'Register', href: '/workshops/register'},
   ],
   'pssound-system': [
-    { label: 'Guidelines', href: '/pssound-system' },
-    { label: 'Request', href: '/pssound-system/request' },
-    { label: 'Membership', href: '/pssound-system/membership' },
+    {label: 'About', href: '/pssound-system'},
+    {label: 'Manifesto', href: '/pssound-system/manifesto'},
+    {label: 'Request', href: '/pssound-system/request'},
+    // { label: 'Membership', href: '/pssound-system/membership' },
+    {label: 'Archive', href: '/pssound-system/archive'},
   ],
   resources: [
-    { label: 'Guidelines', href: '/resources' },
-    { label: 'Browse', href: '/resources/browse' },
-    { label: 'Submit', href: '/resources/submit' },
+    {label: 'Guidelines', href: '/resources'},
+    {label: 'Browse', href: '/resources/browse'},
+    {label: 'Submit', href: '/resources/submit'},
   ],
 } as const
 

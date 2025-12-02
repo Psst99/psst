@@ -1,4 +1,4 @@
-import { defineQuery } from 'next-sanity'
+import {defineQuery} from 'next-sanity'
 
 export const settingsQuery = defineQuery(`*[_type == "settings"][0]`)
 
@@ -96,11 +96,20 @@ export const pagesSlugs = defineQuery(`
   {"slug": slug.current}
 `)
 
+// export const psstPageQuery = `
+//   *[_type == "psstPage"][0]{
+//     about,
+//     charter,
+//     legal
+//   }
+// `
+
 export const psstPageQuery = `
   *[_type == "psstPage"][0]{
-    about,
-    charter,
-    legal
+    sections[]->{
+      title,
+      "slug": slug.current
+    }
   }
 `
 
@@ -113,6 +122,7 @@ export const eventsPageQuery = `
   "events": *[_type == "event"] | order(date desc){
     _id,
     title,
+    slug,
     date,
     location,
     "image": image.asset->url,
@@ -125,6 +135,19 @@ export const eventsPageQuery = `
     }
   }
 }
+`
+
+export const eventBySlugQuery = `
+  *[_type == "event" && slug.current == $slug][0]{
+    _id,
+    title,
+    "slug": slug.current,
+    date,
+    location,
+    description,
+    coverImage,
+    tags[] -> { _id, title, slug }
+  }
 `
 
 export const membershipPageQuery = `
@@ -185,31 +208,29 @@ export const resourcesGuidelinesQuery = `
   }
 `
 
-export function getDatabaseBrowseQuery(
-  orderClause: string,
-  offset = 0,
-  limit = 20
-) {
+export function getDatabaseBrowseQuery(orderClause: string, offset = 0, limit = 20) {
   return `
   {
     "artists": *[
       _type == "artist" && approved == true &&
 
-      // TAGS (supports mode = "all" | "any")
+      // TAGS (supports mode = "all" | "any") - unchanged
       (
         count($tagSlugs) == 0 ||
         ($mode == "all" && count((tags[]->slug.current)[@ in $tagSlugs]) == count($tagSlugs)) ||
         ($mode == "any" && array::intersects(tags[]->slug.current, $tagSlugs))
       ) &&
 
-      // TEXT SEARCH
+      // TEXT SEARCH - UPDATED: now includes name, bio, tags, and categories
       (
         $search == "" ||
         artistName match "*" + $search + "*" ||
-        description match "*" + $search + "*"
+        description match "*" + $search + "*" ||
+        tags[]->title match "*" + $search + "*" ||
+        categories[]->title match "*" + $search + "*"
       ) &&
 
-      // CATEGORIES (require ALL selected categories)
+      // CATEGORIES (require ALL selected categories) - unchanged
       (
         count($categorySlugs) == 0 ||
         count((categories[]->slug.current)[@ in $categorySlugs]) == count($categorySlugs)
@@ -238,10 +259,13 @@ export function getDatabaseBrowseQuery(
         ($mode == "all" && count((tags[]->slug.current)[@ in $tagSlugs]) == count($tagSlugs)) ||
         ($mode == "any" && array::intersects(tags[]->slug.current, $tagSlugs))
       ) &&
+      // TEXT SEARCH - UPDATED: same as above
       (
         $search == "" ||
         artistName match "*" + $search + "*" ||
-        description match "*" + $search + "*"
+        description match "*" + $search + "*" ||
+        tags[]->title match "*" + $search + "*" ||
+        categories[]->title match "*" + $search + "*"
       ) &&
       (
         count($categorySlugs) == 0 ||
@@ -265,16 +289,19 @@ export const databaseBrowseQuery = /* groq */ `
 {
   "artists": *[
     _type == "artist" && approved == true && (
-      // no filtering if no tagSlugs provided
+      // no filtering if no tagSlugs provided - unchanged
       count($tagSlugs) == 0 ||
       // ALL tags must match
       ($mode == "all" && count($tagSlugs[slug in tags[]->slug.current]) == count($tagSlugs)) ||
       // ANY tag matches
       ($mode == "any" && count(tags[@->slug.current in $tagSlugs]) > 0)
     ) && (
+      // TEXT SEARCH - UPDATED: now includes name, bio, tags, and categories
       $search == "" || 
       artistName match "*" + $search + "*" || 
-      description match "*" + $search + "*"
+      description match "*" + $search + "*" ||
+      tags[]->title match "*" + $search + "*" ||
+      categories[]->title match "*" + $search + "*"
     ) && (
       $category == "" || $category in categories[]->slug.current
     )
@@ -303,6 +330,7 @@ export const databaseBrowseQuery = /* groq */ `
     title,
     "slug": slug.current
   }
+}
 `
 
 export const databaseRegisterQuery = `
@@ -350,28 +378,29 @@ export const workshopsPageQuery = `
     title,
     description
   },
-  "workshops": *[_type == "workshop"] | order(date desc){
+  "workshops": *[_type == "workshop"] | order(dates[0] desc){
     _id,
     title,
-    date,
-    location,
-    description,
-    tags[]->{
-      _id,
-      title,
-      slug
-    }
+    slug,
+    dates,
+    tags[] -> { _id, title, slug }
   }
 }
 `
 
 export const nextWorkshopQuery = `
-  *[_type == "workshop" && date >= now()] | order(date asc)[0]{
+  *[_type == "workshop" && count(dates[@ >= now()]) > 0] | order(dates[0] asc)[0]{
     _id,
     title,
     description,
-    date
+    dates,
+    coverImage,
+    totalSpots
   }
+`
+
+export const hasUpcomingWorkshopsQuery = `
+  count(*[_type == "workshop" && count(dates[@ >= now()]) > 0]) > 0
 `
 
 export const allBlockedDatesQuery = `
@@ -385,4 +414,147 @@ export const allApprovedCollectivesQuery = `
     _id,
     collectiveName
   }
+`
+export const homepageQuery = `
+  *[_type == "homepage"][0]{
+    content,
+  }
+`
+export const workshopBySlugQuery = `
+  *[_type == "workshop" && slug.current == $slug][0]{
+    _id,
+    title,
+    dates,
+    tags[] -> { _id, title, slug },
+    description,
+    coverImage,
+    photos,
+    totalSpots,
+    "slug": slug.current,
+  }
+`
+
+export const pssoundArchiveQuery = `
+{
+  "settings": *[_type == "pageSettings" && _id == "pssound-archive-pageSettings"][0]{
+    title,
+    description
+  },
+  "archive": *[_type == "pssoundArchive"] | order(date desc){
+    _id,
+    title,
+    "slug": slug.current,
+    date,
+    coverImage,
+    description,
+    tags[]->{
+      _id,
+      title,
+      "slug": slug.current
+    }
+  }
+}
+`
+
+export const pssoundArchiveBySlugQuery = `
+  *[_type == "pssoundArchive" && slug.current == $slug][0]{
+    _id,
+    title,
+    "slug": slug.current,
+    date,
+    coverImage,
+    description,
+    tags[] -> { _id, title, slug }
+  }
+`
+
+export const pssoundArchivePageQuery = `
+{
+  "settings": *[_type == "pssoundArchivePage"][0]{
+    title,
+    about
+  },
+  "archive": *[_type == "pssoundArchive"] | order(date desc){
+    _id,
+    title,
+    "slug": slug.current,
+    date,
+    coverImage,
+    description,
+    tags[]->{
+      _id,
+      title,
+      slug
+    }
+  }
+}
+`
+
+export const pssoundArchiveItemQuery = `
+  *[_type == "pssoundArchive" && _id == $id][0]{
+    _id,
+    title,
+    date,
+    coverImage,
+    description,
+    tags[] -> { _id, title, slug }
+  }
+`
+
+export const pssoundAboutQuery = `
+{
+  "settings": *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
+    title,
+    description
+  }
+}
+`
+
+export const pssoundManifestoQuery = `
+{
+  "settings": *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
+    title,
+    description
+  }
+}
+`
+
+export const psstSectionsQuery = `
+  *[_type == "psstSection"] | order(orderRank asc){
+    title,
+    "slug": slug.current
+  }
+`
+export const psstSectionBySlugQuery = `
+  *[_type == "psstSection" && slug.current == $slug][0]{
+    title,
+    content,
+    layout
+  }
+`
+export const upcomingWorkshopsQuery = defineQuery(`
+  *[_type == "workshop" && count(dates[@ >= now()]) > 0] | order(dates[0] asc){
+    _id,
+    title,
+    "slug": slug.current,
+    coverImage,
+    dates,
+    totalSpots,
+    "registrationsCount": count(*[_type == "workshopRegistration" && workshop._ref == ^._id && status == "approved"])
+  }
+`)
+
+export const resourcesSubmitQuery = `
+{
+  "categories": [
+    {"_id": "text", "title": "TEXT"},
+    {"_id": "video", "title": "VIDEO"},
+    {"_id": "sound", "title": "SOUND"},
+    {"_id": "website", "title": "WEBSITE"}
+  ],
+  "tags": *[_type == "resourceTag"] | order(title asc){
+    _id,
+    title
+  }
+}
 `

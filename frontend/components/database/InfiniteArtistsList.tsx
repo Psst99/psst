@@ -1,15 +1,12 @@
 'use client'
 
-import { useState, useEffect, useTransition, useCallback } from 'react'
-import { useInView } from 'react-intersection-observer'
-import { BiLoaderCircle } from 'react-icons/bi'
+import {useState, useEffect, useTransition, useCallback} from 'react'
+import {useInView} from 'react-intersection-observer'
+import {BiLoaderCircle} from 'react-icons/bi'
 
 import CustomLink from '../custom-link'
-import {
-  getArtistsPaginated,
-  PaginatedArtistsParams,
-} from '@/app/database/(browse)/browse/actions'
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
+import {getArtistsPaginated, PaginatedArtistsParams} from '@/app/database/(browse)/browse/actions'
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll'
 import Link from 'next/link'
 import Tag from '../Tag'
 
@@ -48,7 +45,7 @@ export default function InfiniteArtistsList({
     setHasNextPage(initialArtists.length >= 20) // Assuming page size of 20
   }, [initialArtists, searchParams])
 
-  const { ref, inView } = useInView({
+  const {ref, inView} = useInView({
     threshold: 0.1,
     rootMargin: '100px',
   })
@@ -83,43 +80,39 @@ export default function InfiniteArtistsList({
 
   if (artists.length === 0) {
     return (
-      <div className='bg-white p-8 rounded-lg text-center text-gray-500'>
+      <div className="bg-white p-8 rounded-lg text-center text-gray-500">
         No artists found matching your criteria.
       </div>
     )
   }
 
   return (
-    <div className='space-y-3 w-full group-has-[[data-pending]]:opacity-50 group-has-[[data-pending]]:transition-opacity mt-10 lg:mt-0'>
+    <div className="space-y-3 w-full group-has-[[data-pending]]:opacity-50 group-has-[[data-pending]]:transition-opacity mt-10 lg:mt-0">
       {artists.map((artist: any, index: number) => (
         <Link
           key={`${artist._id}-${index}`} // Include index to handle potential duplicates
           href={`/database/artists/${artist.slug?.current}`}
-          className='block w-full'
+          className="block w-full"
           scroll={false}
         >
-          <div className='bg-white p-4 rounded-lg hover:shadow-md transition-shadow'>
-            <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
-              <h2 className='text-[#6600ff] text-4xl md:text-3xl w-full xl:w-1/3'>
+          <div className="bg-white p-4 rounded-lg hover:shadow-md transition-shadow">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <h2 className="text-[#6600ff] text-4xl md:text-3xl w-full xl:w-1/3">
                 {artist.artistName}
               </h2>
-              <div className='flex flex-wrap gap-2 w-full xl:w-1/3'>
+              <div className="flex flex-wrap gap-2 w-full xl:w-1/3">
                 {artist.categories?.map((cat: any) => (
                   <span
                     key={cat._id}
-                    className='bg-[#6600ff] text-white px-1 py-0 text-lg uppercase font-thin font-mono flex items-center gap-1.25 leading-tight'
+                    className="bg-[#6600ff] text-white px-1 py-0 text-lg uppercase font-thin font-mono flex items-center gap-1.25 leading-tight"
                   >
                     {cat.title}
                   </span>
                 ))}
               </div>
-              <div className='flex flex-wrap gap-1 mt-4 w-full xl:w-1/3'>
+              <div className="flex flex-wrap gap-1 w-full xl:w-1/3">
                 {artist.tags?.map((tag: any, idx: number) => (
-                  <Tag
-                    key={tag._key || `fallback-${idx}`}
-                    label={tag.title}
-                    size='sm'
-                  />
+                  <Tag key={tag._key || `fallback-${idx}`} label={tag.title} size="sm" />
                 ))}
               </div>
             </div>
@@ -129,20 +122,20 @@ export default function InfiniteArtistsList({
 
       {/* Loading indicator and sentinel */}
       {hasNextPage && (
-        <div ref={ref} className='flex justify-center py-4'>
+        <div ref={ref} className="flex justify-center py-4">
           {isLoadingMore ? (
-            <div className='flex items-center justify-center gap-2 text-[#6600ff]/75'>
-              <BiLoaderCircle className='animate-spin h-6 w-6' />
+            <div className="flex items-center justify-center gap-2 text-[#6600ff]/75">
+              <BiLoaderCircle className="animate-spin h-6 w-6" />
             </div>
           ) : (
-            <div className='text-gray-400 text-sm'>Scroll for more...</div>
+            <div className="text-gray-400 text-sm">Scroll for more...</div>
           )}
         </div>
       )}
 
       {/* End message */}
       {!hasNextPage && artists.length > 20 && (
-        <div className='text-center py-8 text-gray-500'>
+        <div className="text-center py-8 text-gray-500">
           {`You've reached the end! Found ${artists.length} artists.`}
         </div>
       )}

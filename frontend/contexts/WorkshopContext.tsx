@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState } from 'react'
+import {createContext, useContext, useState} from 'react'
 
 const WorkshopsContext = createContext({
   hasActiveWorkshops: false,
@@ -17,9 +17,7 @@ export function WorkshopsProvider({
   const [hasActiveWorkshops, setHasActiveWorkshops] = useState(initialValue)
 
   return (
-    <WorkshopsContext.Provider
-      value={{ hasActiveWorkshops, setHasActiveWorkshops }}
-    >
+    <WorkshopsContext.Provider value={{hasActiveWorkshops, setHasActiveWorkshops}}>
       {children}
     </WorkshopsContext.Provider>
   )

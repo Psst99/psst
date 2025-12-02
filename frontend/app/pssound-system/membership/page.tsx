@@ -14,7 +14,7 @@ export default async function MembershipPage() {
         <h1 className='text-3xl md:text-4xl mb-6 text-center capitalize'>
           {page.title}
         </h1>
-        <CmsContent value={page.description} color='#07f25b' />
+        <CmsContent value={page.description} section='pssound-system' />
         <div className='mt-8'>
           <PssoundMembershipForm />
         </div>

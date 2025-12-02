@@ -1,6 +1,5 @@
-// components/form/TextInput.tsx
 import React from 'react'
-import { UseFormRegisterReturn } from 'react-hook-form'
+import {UseFormRegisterReturn} from 'react-hook-form'
 
 interface TextInputProps {
   registration: UseFormRegisterReturn
@@ -11,6 +10,7 @@ interface TextInputProps {
   inputClassName?: string
   fieldClassName?: string
   className?: string
+  disabled?: boolean
 }
 
 export const TextInput: React.FC<TextInputProps> = ({
@@ -22,6 +22,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   inputClassName = 'text-[#6600ff]',
   fieldClassName = 'bg-[#6600ff]',
   className = '',
+  disabled = false,
 }) => {
   const baseClasses = `w-full rounded-t-none rounded-b-xl ${inputClassName} ${fieldClassName} ${className} px-4 py-2 text-2xl md:text-3xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-full`
 
@@ -32,6 +33,7 @@ export const TextInput: React.FC<TextInputProps> = ({
         rows={rows}
         className={`${baseClasses} resize-none -mb-2`}
         placeholder={placeholder}
+        disabled={disabled}
       />
     )
   }
@@ -42,6 +44,7 @@ export const TextInput: React.FC<TextInputProps> = ({
       type={type}
       className={baseClasses}
       placeholder={placeholder}
+      disabled={disabled}
     />
   )
 }

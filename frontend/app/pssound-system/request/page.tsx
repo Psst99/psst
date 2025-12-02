@@ -1,7 +1,6 @@
 import Calendar from '@/components/calendar'
 import { eachDayOfInterval, parseISO, format } from 'date-fns'
-
-import RequestRegistrationForm from '@/components/pssound-system/PssoundRequestForm'
+import PssoundCombinedForm from '@/components/pssound-system/PssoundCombinedForm'
 import { sanityFetch } from '@/sanity/lib/live'
 import {
   allApprovedCollectivesQuery,
@@ -29,7 +28,7 @@ export default async function SoundSystemRequestPage() {
       <Calendar bookedDates={blockedDates} />
 
       <div className='p-4 mt-16'>
-        <RequestRegistrationForm
+        <PssoundCombinedForm
           bookedDates={blockedDates}
           collectives={collectives}
         />

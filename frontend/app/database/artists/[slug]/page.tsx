@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
 import { artistBySlugQuery } from '@/sanity/lib/queries'
 import { sanityFetch } from '@/sanity/lib/live'
-
 import ArtistModal from '@/components/ArtistModal'
 
 export default async function ArtistPage({

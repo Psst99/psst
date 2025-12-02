@@ -10,7 +10,7 @@ export default async function ResourcesGuidelinesContentAsync() {
   return (
     <div className='w-full'>
       <div className='columns-1 xl:columns-2 gap-20 text-base leading-tight md:text-xl'>
-        <CmsContent value={guidelines?.content} color='#FE93E7' />
+        <CmsContent value={guidelines?.content} section='resources' />
       </div>
     </div>
   )

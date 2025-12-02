@@ -1,6 +1,6 @@
-import { getDatabaseBrowseQuery } from '@/sanity/lib/queries'
-import { sanityFetch } from '@/sanity/lib/live'
-import { X } from '@/components/icons'
+import {getDatabaseBrowseQuery} from '@/sanity/lib/queries'
+import {sanityFetch} from '@/sanity/lib/live'
+import {X} from '@/components/icons'
 import CustomLink from '../custom-link'
 import OptimisticFilters from './OptimisticFilters'
 import InfiniteArtistsList from './InfiniteArtistsList'
@@ -20,6 +20,8 @@ export default async function DatabaseBrowseContentAsync({
   searchParams?: DatabaseSearchParams
 }) {
   const sp = await searchParams
+
+  console.log(sp, 'search params')
 
   const tagSlugs = (sp.tags ?? '')
     .split(',')
@@ -48,7 +50,7 @@ export default async function DatabaseBrowseContentAsync({
     }
   }
 
-  const { data } = await sanityFetch({
+  const {data} = await sanityFetch({
     query: getDatabaseBrowseQuery(getOrderClause(sort)),
     params: {
       tagSlugs,
@@ -58,7 +60,7 @@ export default async function DatabaseBrowseContentAsync({
     },
   })
 
-  const { artists, categories, tags } = data
+  const {artists, categories, tags, totalCount} = data
 
   // Pass the current search params to the client component
   const currentSearchParams = {
@@ -70,14 +72,15 @@ export default async function DatabaseBrowseContentAsync({
   }
 
   return (
-    <div className='p-4 lg:px-16 pt-0 w-full mx-auto group'>
-      <div className='flex flex-col md:flex-row gap-8'>
+    <div className="p-4 lg:px-16 pt-0 w-full mx-auto group">
+      <div className="flex flex-col md:flex-row gap-8">
         {/* Desktop sidebar */}
-        <div className='hidden md:block'>
+        <div className="hidden md:block">
           <OptimisticFilters
             categories={categories}
             tags={tags}
             initialParams={currentSearchParams}
+            totalCount={totalCount}
           />
         </div>
 
@@ -86,6 +89,7 @@ export default async function DatabaseBrowseContentAsync({
           categories={categories}
           tags={tags}
           initialParams={currentSearchParams}
+          totalCount={totalCount}
         />
         <InfiniteArtistsList
           initialArtists={artists}

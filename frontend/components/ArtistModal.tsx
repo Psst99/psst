@@ -1,4 +1,3 @@
-// filepath: /Users/aymen/dev/psst/frontend/components/artist-modal.tsx
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'

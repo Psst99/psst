@@ -31,7 +31,7 @@ export default async function ResourcesContentAsync() {
       <h1 className='text-3xl md:text-4xl mb-6 text-center'>
         {settings?.title}
       </h1>
-      <CmsContent value={settings?.about} color='#FE93E7' />
+      <CmsContent value={settings?.about} section='resources' />
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto mt-20'>
         {items.map((item, idx) => (
           <div key={idx} className='bg-white p-4 sm:p-2 sm:px-4 rounded-lg'>
@@ -57,7 +57,7 @@ export default async function ResourcesContentAsync() {
             )}
             {item.description && (
               <div className='mt-2'>
-                <CmsContent value={item.description} />
+                <CmsContent value={item.description} section='resources' />
               </div>
             )}
             {item.url && (
