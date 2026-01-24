@@ -9,15 +9,10 @@ import SubNavigation from './sub-navigation'
 
 interface DynamicLayoutProps {
   children: React.ReactNode
-  hasUpcomingWorkshops?: boolean
   dynamicSubNavItems?: Array<{label: string; href: string}>
 }
 
-export default function DynamicLayout({
-  children,
-  hasUpcomingWorkshops = false,
-  dynamicSubNavItems,
-}: DynamicLayoutProps) {
+export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLayoutProps) {
   const pathname = usePathname()
 
   // Pass dynamicSubNavItems to getSectionConfig - it will handle everything
@@ -25,16 +20,8 @@ export default function DynamicLayout({
 
   const isRootArchive = pathname === '/archive'
 
-  // Only handle workshops dynamically here
-  const finalSubNavItems = useMemo(() => {
-    if (section === 'workshops') {
-      const baseItems = [{label: 'Browse', href: '/workshops'}]
-      return hasUpcomingWorkshops
-        ? [...baseItems, {label: 'Register', href: '/workshops/register'}]
-        : baseItems
-    }
-    return subNavItems || []
-  }, [section, hasUpcomingWorkshops, subNavItems])
+  // Use subNavItems directly, no more dynamic workshop logic
+  const finalSubNavItems = subNavItems || []
 
   // Special handling for home page
   if (section === 'home') {

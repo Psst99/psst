@@ -11,24 +11,24 @@ export default defineType({
       type: 'string',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({
-      name: 'description',
-      title: 'Page description',
-      type: 'array',
-      of: [
-        {
-          type: 'block',
-          styles: [
-            {title: 'Heading', value: 'h 2'},
-            {title: 'Paragraph', value: 'normal'},
-          ],
-          marks: {
-            annotations: [{type: 'textColor'}, {type: 'highlightColor'}],
-          },
-        },
-        {type: 'highlightedBox'},
-      ],
-    }),
+    // defineField({
+    //   name: 'description',
+    //   title: 'Page description',
+    //   type: 'array',
+    //   of: [
+    //     {
+    //       type: 'block',
+    //       styles: [
+    //         {title: 'Heading', value: 'h 2'},
+    //         {title: 'Paragraph', value: 'normal'},
+    //       ],
+    //       marks: {
+    //         annotations: [{type: 'textColor'}, {type: 'highlightColor'}],
+    //       },
+    //     },
+    //     {type: 'highlightedBox'},
+    //   ],
+    // }),
     defineField({
       name: 'image',
       title: 'Image',
@@ -37,12 +37,12 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
 
-    defineField({
-      name: 'tags',
-      title: 'Tags',
-      type: 'array',
-      of: [{type: 'reference', to: [{type: 'archiveTag'}]}],
-    }),
+    // defineField({
+    //   name: 'tags',
+    //   title: 'Tags',
+    //   type: 'array',
+    //   of: [{type: 'reference', to: [{type: 'archiveTag'}]}],
+    // }),
   ],
   preview: {
     select: {

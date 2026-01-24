@@ -15,11 +15,59 @@ export const guidelines = defineType({
           styles: [
             {title: 'Heading', value: 'h2'},
             {title: 'Paragraph', value: 'normal'},
-            {title: 'Large paragraph', value: 'largeParagraph'},
-            {title: 'Large question', value: 'largeQuestion'},
           ],
           marks: {
-            annotations: [{type: 'textColor'}, {type: 'highlightColor'}],
+            decorators: [
+              {title: 'Strong', value: 'strong'},
+              {title: 'Emphasis', value: 'em'},
+            ],
+            annotations: [
+              {type: 'textColor'},
+              {type: 'highlightColor'},
+              {
+                name: 'link',
+                type: 'object',
+                title: 'Link',
+                fields: [
+                  {
+                    name: 'linkType',
+                    type: 'string',
+                    title: 'Link Type',
+                    options: {
+                      list: [
+                        {title: 'Internal Page', value: 'internal'},
+                        {title: 'External URL', value: 'external'},
+                      ],
+                      layout: 'radio',
+                    },
+                    initialValue: 'internal',
+                  },
+                  {
+                    name: 'internalLink',
+                    type: 'string',
+                    title: 'Internal Page',
+                    description: 'e.g., /database, /workshops, /psst/about',
+                    hidden: ({parent}) => parent?.linkType !== 'internal',
+                  },
+                  {
+                    name: 'href',
+                    type: 'url',
+                    title: 'External URL',
+                    hidden: ({parent}) => parent?.linkType !== 'external',
+                    validation: (Rule) =>
+                      Rule.uri({
+                        scheme: ['http', 'https', 'mailto', 'tel'],
+                      }),
+                  },
+                  {
+                    name: 'openInNewTab',
+                    type: 'boolean',
+                    title: 'Open in new tab',
+                    initialValue: false,
+                  },
+                ],
+              },
+            ],
           },
         },
         {type: 'highlightedBox'},

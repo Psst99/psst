@@ -72,5 +72,19 @@ export const pssoundMembership = defineType({
       type: 'boolean',
       initialValue: false,
     },
+    defineField({
+      name: 'startDate',
+      title: 'Membership start date',
+      type: 'date',
+      description: 'Date when membership begins (valid for one year)',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          // Make start date required only when membership is approved
+          if (context.document?.approved && !value) {
+            return 'Start date is required for approved memberships'
+          }
+          return true
+        }),
+    }),
   ],
 })

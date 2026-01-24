@@ -1,41 +1,32 @@
 'use client'
-import { useTransitionRouter } from 'next-view-transitions'
+import {useTransitionRouter} from 'next-view-transitions'
 import Link from 'next/link'
-import { ReactNode, MouseEvent, CSSProperties } from 'react'
-import { usePathname } from 'next/navigation'
+import {ReactNode, MouseEvent, CSSProperties} from 'react'
+import {usePathname} from 'next/navigation'
 
 interface CustomLinkProps {
   href: string
   children: ReactNode
   className?: string
-  style?: React.CSSProperties & { [key: string]: any }
+  style?: React.CSSProperties & {[key: string]: any}
   onClick?: (e: MouseEvent<HTMLAnchorElement>) => void
 }
 
-export default function CustomLink({
-  href,
-  children,
-  className,
-  style,
-  onClick,
-}: CustomLinkProps) {
+export default function CustomLink({href, children, className, style, onClick}: CustomLinkProps) {
   const router = useTransitionRouter()
   const pathname = usePathname()
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-
-    // Call the parent onClick first (like closing menus)
+    // Call parent handler (closing menus etc.)
     if (onClick) onClick(e)
 
-    // Only use the custom animation if on the homepage
+    // Only hijack navigation on the homepage where you want the custom transition
     if (pathname === '/') {
-      router.push(href, {
-        onTransitionReady: pageAnimation,
-      })
-    } else {
-      router.push(href)
+      e.preventDefault()
+      router.push(href, {onTransitionReady: pageAnimation})
     }
+    // Otherwise: DO NOT preventDefault.
+    // Let Next <Link> perform a normal navigation (critical for @modal / parallel routes).
   }
 
   return (
@@ -65,7 +56,7 @@ const pageAnimation = () => {
       easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
       fill: 'forwards',
       pseudoElement: '::view-transition-old(root)',
-    }
+    },
   )
 
   document.documentElement.animate(
@@ -82,6 +73,6 @@ const pageAnimation = () => {
       easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
       fill: 'forwards',
       pseudoElement: '::view-transition-new(root)',
-    }
+    },
   )
 }

@@ -10,6 +10,9 @@ import {
   EnvelopeIcon,
   EditIcon,
   ArchiveIcon,
+  HomeIcon,
+  CheckmarkIcon,
+  FolderIcon,
 } from '@sanity/icons'
 import {
   BsFillSpeakerFill,
@@ -20,10 +23,12 @@ import {
 import {PiNotebookDuotone} from 'react-icons/pi'
 import {LuLibrary, LuLightbulb} from 'react-icons/lu'
 import {CgUnavailable} from 'react-icons/cg'
-import {CiBoxList, CiSettings} from 'react-icons/ci'
+import {CiBoxList} from 'react-icons/ci'
+
+import {orderableDocumentListDeskItem, orderRankField} from '@sanity/orderable-document-list'
+import pluralize from 'pluralize-esm'
 
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
-import pluralize from 'pluralize-esm'
 
 /**
  * Structure builder is useful whenever you want to control how documents are grouped and
@@ -33,16 +38,32 @@ import pluralize from 'pluralize-esm'
 
 // const DISABLED_TYPES = ['settings', 'psstPage', 'assist.instruction.context']
 
-export const structure: StructureResolver = (S: StructureBuilder) =>
+export const structure: StructureResolver = (S: StructureBuilder, context) =>
   S.list()
     .title('CMS')
     .items([
       S.listItem()
-        .title('Psst')
-        .child(S.document().schemaType('psstPage').documentId('psstPage')) // Make sure this matches the documentId for the singleton
-        .icon(BsFillInfoCircleFill),
+        .title('Homepage')
+        .child(S.document().schemaType('homepage').documentId('homepage'))
+        .icon(HomeIcon),
 
-      // ————— DATABASE SECTION —————
+      S.listItem()
+        .title('Psst')
+        .icon(BsFillInfoCircleFill)
+        .child(
+          S.list()
+            .title('Psst')
+            .items([
+              orderableDocumentListDeskItem({
+                type: 'psstSection',
+                title: 'Tabs',
+                S,
+                context,
+              }),
+            ]),
+        ),
+
+      // Database section
       S.listItem()
         .title('Database')
         .icon(ListIcon)
@@ -50,7 +71,7 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
           S.list()
             .title('Database')
             .items([
-              // ————— ARTISTS SECTION —————
+              // Artists section
               S.listItem()
                 .title('Artists')
                 .icon(UserIcon)
@@ -107,41 +128,6 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
             ]),
         ),
 
-      // ————— WORKSHOPS SECTION —————
-      // S.listItem()
-      //   .title('Workshops')
-      //   .icon(LuLightbulb)
-      //   .child(
-      //     S.list()
-      //       .title('Workshops')
-      //       .items([
-      //         // All workshops
-      //         S.documentTypeListItem('workshop').title('Workshops'),
-
-      //         // Workshop Registrations grouped by workshop
-      //         S.listItem()
-      //           .title('Workshop Registrations')
-      //           .icon(ClockIcon)
-      //           .child(
-      //             S.documentTypeList('workshop')
-      //               .title('Select Workshop')
-      //               .child((workshopId) =>
-      //                 S.documentList()
-      //                   .title('Registrations')
-      //                   .filter('_type == "workshopRegistration" && workshop._ref == $workshopId')
-      //                   .params({workshopId}),
-      //               ),
-      //           ),
-
-      //         S.divider(),
-      //         S.listItem()
-      //           .title('Page settings')
-      //           .icon(CogIcon)
-      //           .child(
-      //             S.document().schemaType('pageSettings').documentId('workshops-pageSettings'),
-      //           ),
-      //       ]),
-      //   ),
       S.listItem()
         .title('Workshops')
         .icon(LuLightbulb)
@@ -156,7 +142,7 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
                   S.documentTypeList('workshop')
                     .title('All Workshops')
                     .filter('_type == "workshop"')
-                    .defaultOrdering([{field: 'date', direction: 'desc'}]),
+                    .defaultOrdering([{field: 'dates', direction: 'desc'}]),
                 ),
               S.listItem()
                 .title('Upcoming')
@@ -164,8 +150,8 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
                 .child(
                   S.documentTypeList('workshop')
                     .title('Upcoming Workshops')
-                    .filter('_type == "workshop" && date >= now()')
-                    .defaultOrdering([{field: 'date', direction: 'asc'}]),
+                    .filter('_type == "workshop" && count(dates[@ >= now()]) > 0') // Changed to check if any date in array is upcoming
+                    .defaultOrdering([{field: 'dates', direction: 'asc'}]), // Changed 'date' to 'dates'
                 ),
               S.listItem()
                 .title('Past')
@@ -173,26 +159,103 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
                 .child(
                   S.documentTypeList('workshop')
                     .title('Past Workshops')
-                    .filter('_type == "workshop" && date < now()')
-                    .defaultOrdering([{field: 'date', direction: 'desc'}]),
+                    .filter('_type == "workshop" && count(dates[@ < now()]) > 0') // Changed to check if any date in array is past
+                    .defaultOrdering([{field: 'dates', direction: 'desc'}]), // Changed 'date' to 'dates'
                 ),
               S.divider(),
+
               S.listItem()
-                .title('Workshop Registrations')
+                .title('Registrations')
                 .icon(ClockIcon)
                 .child(
-                  S.documentTypeList('workshop')
-                    .title('Select Workshop')
-                    .child((workshopId) =>
-                      S.documentList()
-                        .title('Registrations')
-                        .filter('_type == "workshopRegistration" && workshop._ref == $workshopId')
-                        .params({workshopId}),
-                    ),
+                  S.list()
+                    .title('Registration Management')
+                    .items([
+                      S.listItem()
+                        .title('Pending Review')
+                        .icon(ClockIcon)
+                        .child(
+                          S.documentList()
+                            .title('Pending Registrations')
+                            .filter('_type == "workshopRegistration" && status == "pending"')
+                            .defaultOrdering([{field: 'registrationDate', direction: 'desc'}]),
+                        ),
+                      S.listItem()
+                        .title('Approved')
+                        .icon(CheckmarkIcon)
+                        .child(
+                          S.documentList()
+                            .title('Approved Registrations')
+                            .filter('_type == "workshopRegistration" && status == "approved"')
+                            .defaultOrdering([{field: 'registrationDate', direction: 'desc'}]),
+                        ),
+                      S.listItem()
+                        .title('All Registrations')
+                        .icon(ListIcon)
+                        .child(
+                          S.documentList()
+                            .title('All Registrations')
+                            .filter('_type == "workshopRegistration"')
+                            .defaultOrdering([{field: 'registrationDate', direction: 'desc'}]),
+                        ),
+                      S.divider(),
+                      S.listItem()
+                        .title('By Workshop')
+                        .icon(FolderIcon)
+                        .child(
+                          S.documentTypeList('workshop')
+                            .title('Select Workshop')
+                            .child((workshopId) =>
+                              S.list()
+                                .title('Registration Status')
+                                .items([
+                                  S.listItem()
+                                    .title('Pending')
+                                    .child(
+                                      S.documentList()
+                                        .title('Pending Registrations')
+                                        .filter(
+                                          '_type == "workshopRegistration" && workshop._ref == $workshopId && status == "pending"',
+                                        )
+                                        .params({workshopId})
+                                        .defaultOrdering([
+                                          {field: 'registrationDate', direction: 'desc'},
+                                        ]),
+                                    ),
+                                  S.listItem()
+                                    .title('Approved')
+                                    .child(
+                                      S.documentList()
+                                        .title('Approved Registrations')
+                                        .filter(
+                                          '_type == "workshopRegistration" && workshop._ref == $workshopId && status == "approved"',
+                                        )
+                                        .params({workshopId})
+                                        .defaultOrdering([
+                                          {field: 'registrationDate', direction: 'desc'},
+                                        ]),
+                                    ),
+                                  S.listItem()
+                                    .title('All for this Workshop')
+                                    .child(
+                                      S.documentList()
+                                        .title('All Registrations')
+                                        .filter(
+                                          '_type == "workshopRegistration" && workshop._ref == $workshopId',
+                                        )
+                                        .params({workshopId})
+                                        .defaultOrdering([
+                                          {field: 'registrationDate', direction: 'desc'},
+                                        ]),
+                                    ),
+                                ]),
+                            ),
+                        ),
+                    ]),
                 ),
               S.divider(),
               S.listItem()
-                .title('Page settings')
+                .title('Settings')
                 .icon(CogIcon)
                 .child(
                   S.document().schemaType('pageSettings').documentId('workshops-pageSettings'),
@@ -254,65 +317,132 @@ export const structure: StructureResolver = (S: StructureBuilder) =>
           S.list()
             .title('Pssound System')
             .items([
+              // Content Pages Group
               S.listItem()
-                .title('Requests')
+                .title('Pages')
+                .icon(BookIcon)
+                .child(
+                  S.list()
+                    .title('Pages')
+                    .items([
+                      S.listItem()
+                        .title('About')
+                        .icon(InfoOutlineIcon)
+                        .child(
+                          S.document()
+                            .schemaType('pageSettings')
+                            .documentId('pssound-about-pageSettings'),
+                        ),
+                      S.listItem()
+                        .title('Manifesto')
+                        .icon(EditIcon)
+                        .child(
+                          S.document()
+                            .schemaType('pageSettings')
+                            .documentId('pssound-manifesto-pageSettings'),
+                        ),
+                    ]),
+                ),
+
+              // Request System Group
+              S.listItem()
+                .title('Request')
                 .icon(BsFillInboxFill)
                 .child(
-                  S.documentTypeList('pssoundRequest')
-                    .title('New Requests')
-                    .filter('_type == "pssoundRequest" && !defined(archived) || archived == false'),
+                  S.list()
+                    .title('Request System')
+                    .items([
+                      S.listItem()
+                        .title('Sound System Requests')
+                        .icon(BsFillInboxFill)
+                        .child(
+                          S.documentTypeList('pssoundRequest')
+                            .title('New Requests')
+                            .filter(
+                              '_type == "pssoundRequest" && !defined(archived) || archived == false',
+                            ),
+                        ),
+                      S.listItem()
+                        .title('Blocked dates')
+                        .icon(CgUnavailable)
+                        .child(
+                          S.documentTypeList('pssoundCalendar')
+                            .title('Blocked dates')
+                            .filter('_type == "pssoundCalendar"'),
+                        ),
+                      S.divider(),
+                      S.listItem()
+                        .title('Membership Requests')
+                        .icon(UserIcon)
+                        .child(
+                          S.documentTypeList('pssoundMembership')
+                            .title('Pending Memberships')
+                            .filter(
+                              '_type == "pssoundMembership" && (!defined(approved) || approved == false)',
+                            ),
+                        ),
+                      S.listItem()
+                        .title('Accepted Memberships')
+                        .icon(UserIcon)
+                        .child(
+                          S.documentTypeList('pssoundMembership')
+                            .title('Accepted Memberships')
+                            .filter('_type == "pssoundMembership" && approved == true'),
+                        ),
+                    ]),
                 ),
 
+              // Archive Group
               S.listItem()
-                .title('Blocked dates')
-                .icon(CgUnavailable)
+                .title('Archive')
+                .icon(ArchiveIcon)
                 .child(
-                  S.documentTypeList('pssoundCalendar')
-                    .title('Blocked dates')
-                    .filter('_type == "pssoundCalendar"'),
+                  S.list()
+                    .title('Archive')
+                    .items([
+                      S.listItem()
+                        .title('Archive items')
+                        .icon(ListIcon)
+                        .child(
+                          S.documentTypeList('pssoundArchive')
+                            .title('Archive Items')
+                            .filter('_type == "pssoundArchive"')
+                            .defaultOrdering([{field: 'date', direction: 'desc'}]),
+                        ),
+                      S.listItem()
+                        .title('Page settings')
+                        .icon(CogIcon)
+                        .child(
+                          S.document()
+                            .schemaType('pageSettings')
+                            .documentId('pssound-archive-pageSettings'),
+                        ),
+                    ]),
                 ),
+
+              // Documentation
               S.divider(),
               S.listItem()
-                .title('Membership Requests')
-                .icon(UserIcon)
-                .child(
-                  S.documentTypeList('pssoundMembership')
-                    .title('Pending Memberships')
-                    .filter(
-                      '_type == "pssoundMembership" && (!defined(approved) || approved == false)',
-                    ),
-                ),
-
-              S.listItem()
-                .title('Accepted Memberships')
-                .icon(UserIcon)
-                .child(
-                  S.documentTypeList('pssoundMembership')
-                    .title('Accepted Memberships')
-                    .filter('_type == "pssoundMembership" && approved == true'),
-                ),
-
-              S.listItem()
-                .title('Membership page')
-                .icon(CogIcon)
-                .child(S.document().schemaType('membershipPage')),
-              S.divider(),
-
-              S.listItem()
-                .title('Guidelines')
-                .icon(CiBoxList)
-                .child(S.document().schemaType('guidelines').documentId('pssound-guidelines')),
-
-              S.listItem()
-                .title('User manual')
+                .title('Documentation')
                 .icon(PiNotebookDuotone)
-                .child(S.document().schemaType('pssoundManual').documentId('pssound-manual')),
-
-              S.divider(),
-              S.listItem()
-                .title('Page settings')
-                .icon(CogIcon)
-                .child(S.document().schemaType('pageSettings').documentId('pssound-pageSettings')),
+                .child(
+                  S.list()
+                    .title('Documentation')
+                    .items([
+                      S.listItem()
+                        .title('Guidelines')
+                        .icon(CiBoxList)
+                        .child(
+                          S.document().schemaType('guidelines').documentId('pssound-guidelines'),
+                        ),
+                      S.listItem()
+                        .title('User manual')
+                        .icon(PiNotebookDuotone)
+                        .child(
+                          S.document().schemaType('pssoundManual').documentId('pssound-manual'),
+                        ),
+                    ]),
+                ),
             ]),
         ),
 

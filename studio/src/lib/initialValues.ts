@@ -2,7 +2,7 @@
  * Demo data used as placeholders and initial values for the blog
  */
 
-export const title = 'Blog.'
+export const title = 'Psst'
 
 export const description = [
   {
@@ -13,7 +13,7 @@ export const description = [
         _key: '4a58edd077880',
         _type: 'span',
         marks: [],
-        text: 'A statically generated blog example using ',
+        text: 'Intersectional feminist platform deconstructing the dance floor, standing up for representation and inclusion.',
       },
       {
         _key: '4a58edd077881',

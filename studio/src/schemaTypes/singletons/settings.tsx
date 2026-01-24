@@ -16,7 +16,7 @@ export const settings = defineType({
   fields: [
     defineField({
       name: 'title',
-      description: 'This field is the title of your blog.',
+      description: 'This field is the title of your website.',
       title: 'Title',
       type: 'string',
       initialValue: demo.title,
@@ -24,7 +24,7 @@ export const settings = defineType({
     }),
     defineField({
       name: 'description',
-      description: 'Used both for the <meta> description tag for SEO, and the blog subheader.',
+      description: 'Used both for the <meta> description tag for SEO, and the website subheader.',
       title: 'Description',
       type: 'array',
       initialValue: demo.description,
@@ -94,6 +94,14 @@ export const settings = defineType({
           ),
         }),
       ],
+    }),
+    defineField({
+      name: 'soundcloudPlaylistUrl',
+      title: 'SoundCloud Playlist URL',
+      type: 'url',
+      description:
+        'Paste the full SoundCloud playlist link here (e.g. https://soundcloud.com/youruser/sets/yourplaylist)',
+      validation: (rule) => rule.uri({scheme: ['http', 'https']}),
     }),
   ],
   preview: {

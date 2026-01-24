@@ -1,19 +1,35 @@
-import {defineField, defineType} from 'sanity'
+import {defineType, defineField} from 'sanity'
+import {orderRankField} from '@sanity/orderable-document-list'
 
-export const membershipPage = defineType({
-  name: 'membershipPage',
-  title: 'Membership',
+export default defineType({
+  name: 'psstSection',
+  title: 'PSST Section',
   type: 'document',
   fields: [
+    orderRankField({type: 'psstSection'}),
+
+    defineField({name: 'title', type: 'string', validation: (Rule) => Rule.required()}),
     defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
+      name: 'slug',
+      type: 'slug',
+      options: {source: 'title'},
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'description',
-      title: 'Page description',
+      name: 'layout',
+      title: 'Layout',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'Default', value: 'default'},
+          {title: 'Guidelines (Columns)', value: 'guidelines'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'default',
+    }),
+    defineField({
+      name: 'content',
       type: 'array',
       of: [
         {
@@ -80,11 +96,4 @@ export const membershipPage = defineType({
       ],
     }),
   ],
-  preview: {
-    prepare() {
-      return {
-        title: 'Membership',
-      }
-    },
-  },
 })

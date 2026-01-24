@@ -20,6 +20,7 @@ import {
 } from 'sanity/presentation'
 import {assist} from '@sanity/assist'
 import StudioLogoNew from './src/components/StudioLogo'
+import {colorOptions} from './src/lib/theme'
 
 // Environment variables for project configuration
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
@@ -129,15 +130,8 @@ export default defineConfig({
     visionTool(),
     colorInput(),
     simplerColorInput({
-      // Note: These are all optional
       defaultColorFormat: 'rgba',
-      defaultColorList: [
-        {label: 'Light', value: '#ffffff'},
-        {label: 'Dark', value: '#333333'},
-        {label: 'Brand', value: '#ca786d'},
-        {label: 'Accent', value: '#626754'},
-        {label: 'Custom...', value: 'custom'},
-      ],
+      defaultColorList: colorOptions,
       enableSearch: true,
       showColorValue: true,
     }),

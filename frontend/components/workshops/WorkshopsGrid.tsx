@@ -4,6 +4,7 @@ import {useState, useMemo} from 'react'
 import {useRouter} from 'next/navigation'
 import WorkshopsFilter from './WorkshopsFilter'
 import Tag from '../Tag'
+import WorkshopModalSkeleton from './WorkshopModalSkeleton'
 
 interface Workshop {
   _id: string
@@ -21,14 +22,13 @@ interface WorkshopsGridProps {
 
 export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
   const router = useRouter()
-  // Change to array to allow multiple selections
   const [activeFilters, setActiveFilters] = useState<string[]>([])
+  const [pendingWorkshopSlug, setPendingWorkshopSlug] = useState<string | null>(null)
 
   const filteredWorkshops = useMemo(() => {
-    if (activeFilters.length === 0) return workshops // Show all if no filters selected
+    if (activeFilters.length === 0) return workshops
 
     return workshops.filter((workshop) => {
-      // Include workshop if it matches any selected filter
       if (activeFilters.includes('upcoming') && workshop.isUpcoming) return true
       if (activeFilters.includes('past') && !workshop.isUpcoming) return true
       return false
@@ -37,33 +37,71 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
 
   const toggleFilter = (filter: string) => {
     setActiveFilters((prev) => {
-      // If the clicked filter is already active, deselect it (empty array)
       if (prev.includes(filter)) {
         return []
       }
-      // Otherwise, select only this filter (replace any existing selection)
       return [filter]
     })
   }
 
-  const handleWorkshopClick = (workshop: Workshop) => {
-    // if (workshop.isUpcoming) {
-    //   router.push(`/workshops/register/${workshop.slug || workshop._id}`)
-    // } else {
-    //   router.push(`/workshops/${workshop.slug || workshop._id}`)
-    // }
-    // Always go to detail page (modal) for both upcoming and past workshops
-    router.push(`/workshops/${workshop.slug || workshop._id}`)
+  const handleWorkshopHover = (workshop: Workshop) => {
+    // Prefetch on hover for instant feel
+    router.prefetch(`/workshops/w/${workshop.slug || workshop._id}`)
   }
+
+  const handleWorkshopClick = (workshop: Workshop) => {
+    const slug = workshop.slug || workshop._id
+    // Show optimistic modal immediately
+    setPendingWorkshopSlug(slug)
+    // Then navigate
+    router.push(`/workshops/w/${slug}`)
+    // Clear pending after navigation starts
+    setTimeout(() => setPendingWorkshopSlug(null), 100)
+  }
+
+  // Helper to format date range
+  const formatDateRange = (dates: string[]) => {
+    if (!dates || dates.length === 0) return null
+
+    // Parse all dates
+    const parsedDates = dates.map((d) => new Date(d)).sort((a, b) => a.getTime() - b.getTime())
+    const firstDate = parsedDates[0]
+    const lastDate = parsedDates[parsedDates.length - 1]
+
+    const formatOptions: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }
+
+    if (dates.length === 1) {
+      return firstDate.toLocaleDateString('en-US', formatOptions)
+    }
+
+    return `From ${firstDate.toLocaleDateString('en-US', formatOptions)} to ${lastDate.toLocaleDateString('en-US', formatOptions)}`
+  }
+
+  // Show message when filtering for upcoming but there are none
+  const showEmptyUpcoming = activeFilters.includes('upcoming') && filteredWorkshops.length === 0
 
   return (
     <>
       <WorkshopsFilter activeFilters={activeFilters} onFilterToggle={toggleFilter} />
 
+      {showEmptyUpcoming && (
+        <div className="text-center py-16">
+          <p className="text-base leading-tight min-[83rem]:text-xl text-[#F50806]">
+            There's no upcoming workshops at the moment, keep an eye on this page and our socials
+            for future opportunities.
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto">
         {filteredWorkshops.map((item) => (
           <div
             key={item._id}
+            onMouseEnter={() => handleWorkshopHover(item)}
             onClick={() => handleWorkshopClick(item)}
             className={`
               p-4 sm:p-2 sm:px-4 rounded-lg cursor-pointer transition-all relative overflow-hidden
@@ -82,17 +120,14 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
               </h2>
 
               {item.dates && item.dates.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {item.dates.map((date, idx) => (
-                    <span
-                      key={idx}
-                      className={`mt-1 px-1 py-0 text-sm font-mono 
-                        ${item.isUpcoming ? 'bg-[#D2D2D2]' : 'bg-[#D2D2D2]'}
-                      `}
-                    >
-                      {date}
-                    </span>
-                  ))}
+                <div className="mb-2">
+                  <span
+                    className={`mt-1 px-2 py-1 text-sm font-mono inline-block
+                      ${item.isUpcoming ? 'bg-[#D2D2D2] text-[#f50806]' : 'bg-[#D2D2D2] text-[#f50806]'}
+                    `}
+                  >
+                    {formatDateRange(item.dates)}
+                  </span>
                 </div>
               )}
 
@@ -116,6 +151,9 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
           </div>
         ))}
       </div>
+
+      {/* Show optimistic modal skeleton while pending */}
+      {pendingWorkshopSlug && <WorkshopModalSkeleton />}
 
       {/* CSS for animated gradient */}
       <style jsx global>{`

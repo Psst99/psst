@@ -30,7 +30,7 @@ export default function SectionNavigation({
       {/* Main Navigation with overlapping tabs */}
 
       <div className="flex relative w-full">
-        <CustomLink
+        {/* <CustomLink
           href="/"
           className={`bg-[#D2D2D2] text-[#1D53FF] relative font-normal text-[18px] leading-[22px] uppercase tracking-normal px-10 py-1 border-[#1D53FF] border border-b-0 rounded-t-md flex items-center justify-center ${
             currentSection === 'home' ? 'z-20 section-underline' : 'z-10'
@@ -38,7 +38,7 @@ export default function SectionNavigation({
           style={currentSection === 'home' ? {'--underline-color': SECTION_COLORS.home} : {}}
         >
           Home
-        </CustomLink>
+        </CustomLink> */}
         <CustomLink
           href="/psst"
           className={`bg-[#DFFF3D] text-[#A20018] relative z-10 font-normal text-[18px] leading-[22px] uppercase tracking-normal px-10 py-1 border-[#A20018] border border-b-0 rounded-t-md flex -ml-px items-center justify-center ${
@@ -46,7 +46,7 @@ export default function SectionNavigation({
           }`}
           style={currentSection === 'psst' ? {'--underline-color': SECTION_COLORS.psst} : {}}
         >
-          Psst
+          PSƧT
         </CustomLink>
 
         <CustomLink
@@ -59,6 +59,32 @@ export default function SectionNavigation({
           }
         >
           Database
+        </CustomLink>
+
+        <CustomLink
+          href="/resources"
+          className={`bg-[#FE93E7] text-[#1D53FF] relative font-normal text-[18px] leading-[22px] uppercase tracking-normal px-10 py-1 border border-b-0 rounded-t-md flex items-center justify-center border-[#1D53FF] -ml-px z-5 ${
+            currentSection === 'resources' ? 'z-20 section-underline' : 'z-10'
+          }`}
+          style={
+            currentSection === 'resources' ? {'--underline-color': SECTION_COLORS.resources} : {}
+          }
+        >
+          Resources
+        </CustomLink>
+
+        <CustomLink
+          href="/pssound-system"
+          className={`bg-[#07F25B] text-[#81520A] relative font-normal text-[18px] leading-[22px] uppercase tracking-normal px-10 py-1 border border-b-0 rounded-t-md flex items-center justify-center border-[#81520A] -ml-px z-6 ${
+            currentSection === 'pssound-system' ? 'z-20 section-underline' : 'z-10'
+          }`}
+          style={
+            currentSection === 'pssound-system'
+              ? {'--underline-color': SECTION_COLORS['pssound-system']}
+              : {}
+          }
+        >
+          PSƧOUND System
         </CustomLink>
 
         <CustomLink
@@ -81,32 +107,6 @@ export default function SectionNavigation({
           style={currentSection === 'events' ? {'--underline-color': SECTION_COLORS.events} : {}}
         >
           Events
-        </CustomLink>
-
-        <CustomLink
-          href="/pssound-system"
-          className={`bg-[#07F25B] text-[#81520A] relative font-normal text-[18px] leading-[22px] uppercase tracking-normal px-10 py-1 border border-b-0 rounded-t-md flex items-center justify-center border-[#81520A] -ml-px z-6 ${
-            currentSection === 'pssound-system' ? 'z-20 section-underline' : 'z-10'
-          }`}
-          style={
-            currentSection === 'pssound-system'
-              ? {'--underline-color': SECTION_COLORS['pssound-system']}
-              : {}
-          }
-        >
-          Pssound System
-        </CustomLink>
-
-        <CustomLink
-          href="/resources"
-          className={`bg-[#FE93E7] text-[#1D53FF] relative font-normal text-[18px] leading-[22px] uppercase tracking-normal px-10 py-1 border border-b-0 rounded-t-md flex items-center justify-center border-[#1D53FF] -ml-px z-5 ${
-            currentSection === 'resources' ? 'z-20 section-underline' : 'z-10'
-          }`}
-          style={
-            currentSection === 'resources' ? {'--underline-color': SECTION_COLORS.resources} : {}
-          }
-        >
-          Resources
         </CustomLink>
 
         <CustomLink

@@ -9,12 +9,7 @@ import {Toaster} from 'sonner'
 import DraftModeToast from '@/components/DraftModeToast'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
-import {
-  hasUpcomingWorkshopsQuery,
-  psstSectionsQuery,
-  settingsQuery,
-  upcomingWorkshopsQuery,
-} from '@/sanity/lib/queries'
+import {psstSectionsQuery, settingsQuery} from '@/sanity/lib/queries'
 import {resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from './client-utils'
 
@@ -53,26 +48,11 @@ const kleber = localFont({
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const {isEnabled: isDraftMode} = await draftMode()
 
-  const [
-    {data: settings},
-    {data: hasUpcoming},
-    {data: psstSections},
-    {data: upcomingWorkshops = []},
-  ] = await Promise.all([
+  const [{data: settings}, {data: psstSections}] = await Promise.all([
     sanityFetch({query: settingsQuery, stega: false}).catch(() => ({data: null})),
-    sanityFetch({query: hasUpcomingWorkshopsQuery, stega: false}).catch(() => ({data: false})),
     sanityFetch({query: psstSectionsQuery, stega: false}).catch(() => ({data: []})),
-    sanityFetch({query: upcomingWorkshopsQuery, stega: false}).catch(() => ({data: []})),
   ])
 
-  // const hasUpcomingWorkshops = Boolean(hasUpcoming)
-  // Check if there are upcoming workshops WITH available spots
-  const workshopsWithSpots = (upcomingWorkshops || []).filter((workshop: any) => {
-    const available = (workshop.totalSpots || 0) - (workshop.registrationsCount || 0)
-    return available > 0
-  })
-
-  const hasUpcomingWorkshops = workshopsWithSpots.length > 0
   const soundcloudPlaylistUrl = settings?.soundcloudPlaylistUrl
 
   const dynamicSubNavItems = Array.isArray(psstSections)
@@ -96,12 +76,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             )}
             <SanityLive onError={handleError} />
 
-            <DynamicLayout
-              hasUpcomingWorkshops={hasUpcomingWorkshops}
-              dynamicSubNavItems={dynamicSubNavItems}
-            >
-              {children}
-            </DynamicLayout>
+            <DynamicLayout dynamicSubNavItems={dynamicSubNavItems}>{children}</DynamicLayout>
 
             <CustomSoundcloudPlayer playlistUrl={soundcloudPlaylistUrl} />
           </section>

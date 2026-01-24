@@ -57,9 +57,9 @@ export const SECTIONS: Record<string, SectionConfig> = {
     },
     hasSubNavigation: true,
     subNavItems: [
-      { label: 'Browse', href: '/database' },
-      { label: 'Register', href: '/database/submit' },
-      { label: 'Guidelines', href: '/database/guidelines' },
+      {label: 'Browse', href: '/database'},
+      {label: 'Register', href: '/database/submit'},
+      {label: 'Guidelines', href: '/database/guidelines'},
     ],
     mobileColors: {
       active: 'bg-[#d3cd7f] text-[#6600ff] border-[#6600ff]',
@@ -83,8 +83,8 @@ export const SECTIONS: Record<string, SectionConfig> = {
     },
     hasSubNavigation: true,
     subNavItems: [
-      { label: 'Browse', href: '/workshops' },
-      // { label: 'Register', href: '/workshops/register' },
+      {label: 'Browse', href: '/workshops'},
+      {label: 'Register', href: '/workshops/register'},
     ],
     mobileColors: {
       active: 'bg-[#D2D2D2] text-[#f50806] border-[#f50806]',
@@ -118,9 +118,9 @@ export const SECTIONS: Record<string, SectionConfig> = {
     },
     hasSubNavigation: true,
     subNavItems: [
-      { label: 'Calendar', href: '/pssound-system' },
-      { label: 'Request', href: '/pssound-system/request' },
-      { label: 'Guidelines', href: '/pssound-system/guidelines' },
+      {label: 'Calendar', href: '/pssound-system'},
+      {label: 'Request', href: '/pssound-system/request'},
+      {label: 'Guidelines', href: '/pssound-system/guidelines'},
     ],
   },
   resources: {

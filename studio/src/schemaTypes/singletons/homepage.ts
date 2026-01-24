@@ -1,19 +1,13 @@
-import {defineField, defineType} from 'sanity'
+import {defineType, defineField} from 'sanity'
 
-export const membershipPage = defineType({
-  name: 'membershipPage',
-  title: 'Membership',
+export default defineType({
+  name: 'homepage',
+  title: 'Homepage',
   type: 'document',
   fields: [
     defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'string',
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'description',
-      title: 'Page description',
+      name: 'content',
+      title: 'Content',
       type: 'array',
       of: [
         {
@@ -83,7 +77,7 @@ export const membershipPage = defineType({
   preview: {
     prepare() {
       return {
-        title: 'Membership',
+        title: 'Homepage',
       }
     },
   },

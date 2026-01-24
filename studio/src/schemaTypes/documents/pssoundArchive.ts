@@ -1,13 +1,11 @@
-// ./schemas/documents/event.ts
-
 import {defineField, defineType} from 'sanity'
-import {CalendarIcon} from '@sanity/icons'
+import {ArchiveIcon} from '@sanity/icons'
 
-export const event = defineType({
-  name: 'event',
-  title: 'Event',
+export const pssoundArchive = defineType({
+  name: 'pssoundArchive',
+  title: 'PSSoundArchive',
   type: 'document',
-  icon: CalendarIcon,
+  icon: ArchiveIcon,
   fields: [
     defineField({
       name: 'title',
@@ -28,17 +26,12 @@ export const event = defineType({
     defineField({
       name: 'date',
       title: 'Date',
-      type: 'datetime',
+      type: 'date',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'location',
-      title: 'Location',
-      type: 'string',
-    }),
-    defineField({
-      name: 'image',
-      title: 'Header Image',
+      name: 'coverImage',
+      title: 'Cover Image',
       type: 'image',
       options: {
         hotspot: true,
@@ -54,24 +47,19 @@ export const event = defineType({
       name: 'tags',
       title: 'Tags',
       type: 'array',
-      of: [{type: 'reference', to: [{type: 'eventTag'}]}],
-    }),
-    defineField({
-      name: 'url',
-      title: 'External Link (Optional)',
-      type: 'url',
+      of: [{type: 'reference', to: {type: 'tag'}}],
     }),
   ],
   preview: {
     select: {
       title: 'title',
+      media: 'coverImage',
       date: 'date',
-      media: 'image',
     },
-    prepare({title, date, media}) {
+    prepare({title, media, date}) {
       return {
         title,
-        subtitle: date ? new Date(date).toLocaleString() : 'No date set',
+        subtitle: date ? new Date(date).toLocaleDateString() : 'No date',
         media,
       }
     },
