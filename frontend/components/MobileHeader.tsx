@@ -172,27 +172,27 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
 
       {/* PSST subsection header row */}
       {activeSection === 'psst' && hasSubMenu && currentSubsection && (
-        <div className="fixed top-[35px] left-0 right-0 z-50 w-full">
-          <div className="flex w-full relative bg-transparent border-0 -mt-1.5">
-            {/* Left label: must use PSST page vars */}
-            <SectionScope section="psst" variant="page" asChild>
-              <div className="flex-1 text-lg px-4 py-0.5 text-center rounded-t-lg border border-b-0 relative subsection-vertical-border pb-[17px] tab-inactive section-border">
+        // panelVariant="subtab" makes:
+        // --panel-bg = theme.fg (red), --panel-fg = theme.bg (yellow)
+        <SectionScope section="psst" variant="page" panelVariant="subtab" className="contents">
+          <div className="fixed top-[35px] left-0 right-0 z-50 w-full overflow-visible">
+            <div className="flex w-full relative bg-transparent border-0 -mt-1.5 overflow-visible">
+              {/* Left: subsection label = same as content background (RED) */}
+              <div className="flex-1 text-lg px-4 py-0.5 text-center rounded-t-lg border border-b-0 relative subsection-vertical-border pb-[17px] panel-bg panel-fg panel-border">
                 {currentSubsection.label.toUpperCase()}
               </div>
-            </SectionScope>
 
-            {/* Right hamburger: must also use PSST page vars */}
-            <SectionScope section="psst" variant="page" asChild>
+              {/* Right: hamburger half = inverted (YELLOW) + connector */}
               <button
                 onClick={toggleSubMenu}
-                className="px-4 py-1 pb-2 border flex items-center justify-center w-1/2 rounded-tr-lg border-l-0 border-b-0 mobile-subsection-underline h-full tab-active"
+                className="px-4 py-1 pb-2 border flex items-center justify-center w-1/2 rounded-tr-lg border-l-0 border-b-0 h-full mobile-subsection-underline invert-panel invert-panel-border"
                 aria-label="Open PSST tabs"
               >
                 <span className="-mt-[0.12rem]">≡</span>
               </button>
-            </SectionScope>
+            </div>
           </div>
-        </div>
+        </SectionScope>
       )}
 
       {/* Section Header for non-home + non-psst pages */}
