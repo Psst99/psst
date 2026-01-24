@@ -14,9 +14,9 @@ import {resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from './client-utils'
 
 import localFont from 'next/font/local'
-import MobileHeader from '@/components/mobile-header'
+import MobileHeader from '@/components/MobileHeader'
 import {ViewTransitions} from 'next-view-transitions'
-import DynamicLayout from '@/components/dynamic-layout'
+import DynamicLayout from '@/components/DynamicLayout'
 import CustomSoundcloudPlayer from '@/components/CustomSoundcloudPlayer'
 
 export async function generateMetadata(): Promise<Metadata> {

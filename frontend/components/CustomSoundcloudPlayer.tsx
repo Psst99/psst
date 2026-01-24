@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useMemo, useRef, useState} from 'react'
 
 declare global {
   interface Window {
@@ -10,22 +10,51 @@ declare global {
   }
 }
 
+type TrackInfo = {
+  title?: string
+  artist?: string
+  artwork?: string
+  permalink_url?: string
+}
+
+type Point = {x: number; y: number}
+
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n))
+}
+
 export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: string}) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
   const [widget, setWidget] = useState<any>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [trackInfo, setTrackInfo] = useState<{
-    title?: string
-    artist?: string
-    artwork?: string
-    permalink_url?: string
-  }>({})
+  const [trackInfo, setTrackInfo] = useState<TrackInfo>({})
   const [isExpanded, setIsExpanded] = useState(false)
+
+  // Drag state
+  const [pos, setPos] = useState<Point>({x: 0, y: 0}) // interpreted as offsets from bottom/right
+  const dragRef = useRef<{
+    dragging: boolean
+    startPointer: Point
+    startPos: Point
+    bounds: {maxX: number; maxY: number}
+  }>({
+    dragging: false,
+    startPointer: {x: 0, y: 0},
+    startPos: {x: 0, y: 0},
+    bounds: {maxX: 0, maxY: 0},
+  })
 
   const SOUNDCLOUD_PLAYLIST_URL =
     playlistUrl || 'https://soundcloud.com/soundcloud-hustle/sets/boomin-feel-good-hip-hop'
-  const SOUNDCLOUD_IFRAME_URL = `https://w.soundcloud.com/player/?url=${encodeURIComponent(SOUNDCLOUD_PLAYLIST_URL)}&auto_play=false&show_artwork=true`
+
+  const SOUNDCLOUD_IFRAME_URL = useMemo(() => {
+    return `https://w.soundcloud.com/player/?url=${encodeURIComponent(
+      SOUNDCLOUD_PLAYLIST_URL,
+    )}&auto_play=false&show_artwork=true`
+  }, [SOUNDCLOUD_PLAYLIST_URL])
 
   useEffect(() => {
     if (!window.SC || !window.SC.Widget) {
@@ -41,34 +70,36 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       if (!iframeRef.current) return
       const w = window.SC.Widget(iframeRef.current)
       setWidget(w)
+
       w.bind(window.SC.Widget.Events.READY, () => {
         setLoading(false)
         w.getCurrentSound((sound: any) => {
-          if (sound) {
-            setTrackInfo({
-              title: sound.title,
-              artist: sound.user?.username,
-              artwork: sound.artwork_url,
-              permalink_url: sound.permalink_url,
-            })
-          }
+          if (!sound) return
+          setTrackInfo({
+            title: sound.title,
+            artist: sound.user?.username,
+            artwork: sound.artwork_url,
+            permalink_url: sound.permalink_url,
+          })
         })
       })
+
       w.bind(window.SC.Widget.Events.PLAY, () => setIsPlaying(true))
       w.bind(window.SC.Widget.Events.PAUSE, () => setIsPlaying(false))
+
       w.bind(window.SC.Widget.Events.PLAY, () => {
         w.getCurrentSound((sound: any) => {
-          if (sound) {
-            setTrackInfo({
-              title: sound.title,
-              artist: sound.user?.username,
-              artwork: sound.artwork_url,
-              permalink_url: sound.permalink_url,
-            })
-          }
+          if (!sound) return
+          setTrackInfo({
+            title: sound.title,
+            artist: sound.user?.username,
+            artwork: sound.artwork_url,
+            permalink_url: sound.permalink_url,
+          })
         })
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const playPause = () => {
@@ -81,9 +112,59 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
   const next = () => widget && widget.next()
   const prev = () => widget && widget.prev()
 
+  // Pointer-based dragging: handle-only
+  const onDragStart = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const el = containerRef.current
+    if (!el) return
+
+    // capture pointer so move/up continue even if pointer leaves handle
+    e.currentTarget.setPointerCapture(e.pointerId)
+
+    const rect = el.getBoundingClientRect()
+    // We position using bottom/right offsets.
+    // Compute max offsets so the element stays fully visible.
+    const maxX = Math.max(0, window.innerWidth - rect.width - 16) // keep 16px padding
+    const maxY = Math.max(0, window.innerHeight - rect.height - 16)
+
+    dragRef.current = {
+      dragging: true,
+      startPointer: {x: e.clientX, y: e.clientY},
+      startPos: {x: pos.x, y: pos.y},
+      bounds: {maxX, maxY},
+    }
+
+    // UX: prevent selecting text while dragging
+    document.body.style.userSelect = 'none'
+  }
+
+  const onDragMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!dragRef.current.dragging) return
+
+    const dx = e.clientX - dragRef.current.startPointer.x
+    const dy = e.clientY - dragRef.current.startPointer.y
+
+    // Because we are using bottom/right offsets:
+    // moving pointer right decreases "right offset" (x), moving left increases it.
+    // For simplicity, treat pos.x/pos.y as positive offsets away from bottom/right.
+    const nextX = clamp(dragRef.current.startPos.x - dx, 0, dragRef.current.bounds.maxX)
+    const nextY = clamp(dragRef.current.startPos.y - dy, 0, dragRef.current.bounds.maxY)
+
+    setPos({x: nextX, y: nextY})
+  }
+
+  const onDragEnd = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!dragRef.current.dragging) return
+    dragRef.current.dragging = false
+    document.body.style.userSelect = ''
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    } catch {
+      // ignore
+    }
+  }
+
   return (
     <>
-      {/* Hidden SoundCloud widget */}
       <iframe
         ref={iframeRef}
         src={SOUNDCLOUD_IFRAME_URL}
@@ -95,8 +176,29 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
         allow="autoplay; encrypted-media"
       />
 
-      {/* Desktop version (unchanged) */}
-      <div className="hidden min-[83rem]:flex fixed bottom-4 right-4 z-50 items-center gap-3 bg-[#cccccc] rounded-md px-4 py-2 border border-[#1D53FF]">
+      {/* Draggable desktop player */}
+      <div
+        ref={containerRef}
+        className="flex fixed z-50 items-center gap-3 bg-[#cccccc] rounded-md px-4 py-2 border border-[#1D53FF] shadow-sm"
+        style={{
+          right: 16 + pos.x,
+          bottom: 16 + pos.y,
+        }}
+      >
+        {/* Drag handle (separate from controls) */}
+        <button
+          type="button"
+          onPointerDown={onDragStart}
+          onPointerMove={onDragMove}
+          onPointerUp={onDragEnd}
+          onPointerCancel={onDragEnd}
+          className="mr-1 flex items-center justify-center w-8 h-8 rounded text-[#1D53FF] cursor-grab active:cursor-grabbing select-none"
+          aria-label="Drag player"
+          title="Drag"
+        >
+          ⠿
+        </button>
+
         {loading ? (
           <span className="animate-pulse text-[#1D53FF] font-bold">Loading...</span>
         ) : (
@@ -114,6 +216,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
             <button onClick={next} className="text-[#1D53FF] text-xl" aria-label="Next">
               ⏭
             </button>
+
             {trackInfo.artwork && trackInfo.permalink_url && (
               <a
                 href={trackInfo.permalink_url}
@@ -125,27 +228,30 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
                 <img src={trackInfo.artwork} alt="" className="w-10 h-10 rounded" />
               </a>
             )}
-            <div>
+
+            <div className="min-w-0">
               {trackInfo.permalink_url ? (
                 <a
                   href={trackInfo.permalink_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold text-[#1D53FF] hover:underline"
+                  className="font-bold text-[#1D53FF] hover:underline block truncate max-w-[220px]"
                 >
                   {trackInfo.title}
                 </a>
               ) : (
-                <div className="font-bold text-[#1D53FF]">{trackInfo.title}</div>
+                <div className="font-bold text-[#1D53FF] truncate max-w-[220px]">
+                  {trackInfo.title}
+                </div>
               )}
-              <div className="text-[#1D53FF]">{trackInfo.artist}</div>
+              <div className="text-[#1D53FF] truncate max-w-[220px]">{trackInfo.artist}</div>
             </div>
           </>
         )}
       </div>
 
       {/* Mobile sliding drawer */}
-      <div className="min-[83rem]:hidden fixed bottom-10 right-0 z-50">
+      <div className="hidden fixed bottom-10 right-0 z-50">
         <div
           className={`
             bg-[#cccccc] border border-[#1D53FF] rounded-l-md

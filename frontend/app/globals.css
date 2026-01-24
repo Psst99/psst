@@ -1,15 +1,5 @@
 @import 'tailwindcss';
 
-/* @config '../tailwind.config.ts'; */
-
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
@@ -17,6 +7,14 @@
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
+  }
+
+  :root {
+    --section-bg: #ffffff;
+    --section-fg: #000000;
+
+    --panel-bg: var(--section-bg);
+    --panel-fg: var(--section-fg);
   }
 }
 
@@ -26,6 +24,69 @@
   }
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@layer utilities {
+  .panel-bg {
+    background-color: var(--panel-bg);
+  }
+
+  .panel-fg {
+    color: var(--panel-fg);
+  }
+
+  .invert-panel {
+    background-color: var(--panel-fg);
+    color: var(--panel-bg);
+  }
+
+  .invert-panel-border {
+    border-color: var(--panel-bg);
+  }
+
+  .panel-border {
+    border-color: var(--panel-fg);
+  }
+
+  .section-bg {
+    background-color: var(--section-bg);
+  }
+
+  .section-fg {
+    color: var(--section-fg);
+  }
+
+  .section-border {
+    border-color: var(--section-fg);
+  }
+
+  .tab-inactive {
+    background-color: var(--section-bg);
+    color: var(--section-fg);
+    border-color: var(--section-fg);
+  }
+
+  .tab-active {
+    background-color: var(--section-fg);
+    color: var(--section-bg);
+    border-color: var(--section-bg);
+  }
+
+  .tabs-topline {
+    position: relative;
+  }
+
+  .tabs-topline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: var(--section-fg);
+    z-index: 1;
+    pointer-events: none;
+  }
 }
 
 /* View Transitions - exactly like the working example */
@@ -89,28 +150,25 @@
   content: '';
   display: block;
   position: absolute;
-  right: 0;
+  right: -1px;
   top: 28px;
-  width: calc(50% + 1px);
-  /* bottom: -33px; */
+  width: calc(100% + 2px);
   height: 20px;
-  background: var(--subsection-bg);
-  border-top: 1px solid var(--subsection-border);
-  border-right: 1px solid var(--subsection-border);
-  /* border-top: 1px solid #4e4e4e; */
-  /* border-right: 1px solid #4e4e4e; */
+  background: var(--panel-bg);
+  border-top: 1px solid var(--panel-fg);
+  border-left: 1px solid var(--panel-bg);
+  z-index: 10000;
+  border-right: 1px solid var(--panel-fg);
   border-top-right-radius: 0.5rem;
 }
 
 .subsection-vertical-border::after {
   content: '';
-  display: block;
   position: absolute;
   right: -1px;
   top: 0;
   bottom: 0;
   width: 1px;
-  height: 5px;
   z-index: 10000;
-  background: var(--subsection-border);
+  background: var(--panel-fg);
 }

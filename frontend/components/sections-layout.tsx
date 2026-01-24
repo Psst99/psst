@@ -1,13 +1,13 @@
-import SectionNavigation from '@/components/section-navigation'
-import SubNavigation from '@/components/sub-navigation'
-import MobileHeader from '@/components/mobile-header'
+import SectionNavigation from '@/components/SectionNavigation'
+import SubNavigation from '@/components/SubNavigation'
+import MobileHeader from '@/components/MobileHeader'
 
 interface SectionsLayoutProps {
   children: React.ReactNode
   currentSection: string
   mainColor: string
   accentColor: string
-  subNavItems?: { label: string; href: string }[]
+  subNavItems?: {label: string; href: string}[]
 }
 
 export default function SectionsLayout({
@@ -22,23 +22,19 @@ export default function SectionsLayout({
       {/* Mobile background */}
       <div
         className={`fixed top-0 inset-0 -z-10 border-b-0 border-t-0 md:hidden`}
-        style={{ backgroundColor: mainColor, borderColor: accentColor }}
+        style={{backgroundColor: mainColor, borderColor: accentColor}}
       />
-      <div className='min-h-screen flex flex-col overflow-hidden'>
+      <div className="min-h-screen flex flex-col overflow-hidden">
         {/* Desktop nav */}
-        <div className='shrink-0 hidden md:block'>
+        <div className="shrink-0 hidden md:block">
           <SectionNavigation currentSection={currentSection} />
           {subNavItems && (
-            <SubNavigation
-              items={subNavItems}
-              mainColor={mainColor}
-              accentColor={accentColor}
-            />
+            <SubNavigation items={subNavItems} mainColor={mainColor} accentColor={accentColor} />
           )}
         </div>
         {/* Main content */}
         <div
-          className='flex-1 overflow-y-auto py-16 md:mt-0 z-10'
+          className="flex-1 overflow-y-auto py-16 md:mt-0 z-10"
           style={{
             backgroundColor: accentColor,
             borderColor: mainColor,

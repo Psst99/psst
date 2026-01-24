@@ -1,6 +1,6 @@
 import {sanityFetch} from '@/sanity/lib/live'
 import {psstSectionsQuery} from '@/sanity/lib/queries'
-import DynamicLayout from './dynamic-layout'
+import DynamicLayout from './DynamicLayout'
 
 export default async function PsstLayout({children}: {children: React.ReactNode}) {
   const {data} = await sanityFetch({query: psstSectionsQuery})
