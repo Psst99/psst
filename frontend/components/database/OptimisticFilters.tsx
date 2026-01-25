@@ -1,23 +1,24 @@
 'use client'
-import { useRouter } from 'next/navigation'
-import { useOptimistic, useTransition, useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { slugifyTag } from '@/lib/tags'
-import { DatabaseSearchParams } from './DatabaseBrowseContentAsync'
+
+import {useRouter} from 'next/navigation'
+import {useOptimistic, useTransition, useEffect, useState} from 'react'
+import {motion, AnimatePresence} from 'framer-motion'
+import {slugifyTag} from '@/lib/tags'
+import type {DatabaseSearchParams} from './DatabaseBrowseContentAsync'
 import OptimisticTagPill from './OptimisticTagPill'
-import { IoMdClose, IoMdShuffle } from 'react-icons/io'
+import {IoMdClose, IoIosShuffle} from 'react-icons/io'
 
 type OptimisticFiltersProps = {
-  categories: Array<{ _id: string; title: string; slug: string }>
-  tags: Array<{ _id: string; title: string; slug: string }>
+  categories: Array<{_id: string; title: string; slug: string}>
+  tags: Array<{_id: string; title: string; slug: string}>
   initialParams: DatabaseSearchParams
   totalCount: number
 }
 
 const SORTS = [
-  { key: 'alpha', label: 'Alphabetically' },
-  { key: 'chrono', label: 'Chronologically' },
-  { key: 'random', label: 'Randomly' },
+  {key: 'alpha', label: 'Alphabetically'},
+  {key: 'chrono', label: 'Chronologically'},
+  {key: 'random', label: 'Randomly'},
 ]
 
 export default function OptimisticFilters({
@@ -36,9 +37,7 @@ export default function OptimisticFilters({
   const [searchValue, setSearchValue] = useState(optimisticParams.search ?? '')
 
   // State for shuffled tags
-  const [shuffledTags, setShuffledTags] = useState(() =>
-    [...tags].sort(() => Math.random() - 0.5)
-  )
+  const [shuffledTags, setShuffledTags] = useState(() => [...tags].sort(() => Math.random() - 0.5))
 
   // Shuffle function
   const shuffleTags = () => {
@@ -54,7 +53,7 @@ export default function OptimisticFilters({
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (searchValue !== optimisticParams.search) {
-        updateParams({ search: searchValue || undefined })
+        updateParams({search: searchValue || undefined})
       }
     }, 250)
 
@@ -64,7 +63,7 @@ export default function OptimisticFilters({
 
   // Helper function to update URL params
   const updateParams = (updates: Partial<DatabaseSearchParams>) => {
-    const newParams = { ...optimisticParams, ...updates }
+    const newParams = {...optimisticParams, ...updates}
 
     // Clean up undefined values
     Object.keys(newParams).forEach((key) => {
@@ -76,12 +75,10 @@ export default function OptimisticFilters({
     const searchParams = new URLSearchParams()
 
     if (newParams.search) searchParams.set('search', newParams.search)
-    if (newParams.sort && newParams.sort !== 'alpha')
-      searchParams.set('sort', newParams.sort)
+    if (newParams.sort && newParams.sort !== 'alpha') searchParams.set('sort', newParams.sort)
     if (newParams.tags) searchParams.set('tags', newParams.tags)
     if (newParams.category) searchParams.set('category', newParams.category)
-    if (newParams.mode && newParams.mode !== 'any')
-      searchParams.set('mode', newParams.mode)
+    if (newParams.mode && newParams.mode !== 'any') searchParams.set('mode', newParams.mode)
 
     startTransition(() => {
       setOptimisticParams(newParams)
@@ -111,7 +108,7 @@ export default function OptimisticFilters({
       ? selectedTags.filter((t) => t !== tagSlug)
       : [...selectedTags, tagSlug]
 
-    updateParams({ tags: newTags.length > 0 ? newTags.join(',') : undefined })
+    updateParams({tags: newTags.length > 0 ? newTags.join(',') : undefined})
   }
 
   // Toggle category function
@@ -126,44 +123,43 @@ export default function OptimisticFilters({
   }
 
   return (
-    <div
-      className='w-full md:w-80 space-y-3'
-      data-pending={isPending ? '' : undefined}
-    >
+    <div className="w-full md:w-80 space-y-3" data-pending={isPending ? '' : undefined}>
       {/* Search */}
-      <div className='bg-white py-1 px-6 rounded-md'>
+      <div className="bg-white py-1 px-6 rounded-md">
         <input
-          type='text'
+          type="text"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className='w-full p-1 text-center text-[#6600ff] uppercase tracking-tight text-xl'
-          placeholder='Search'
+          className="w-full p-1 text-center text-[var(--panel-fg)] uppercase tracking-tight text-xl"
+          placeholder="Search"
         />
       </div>
 
       {/* Total Count Display */}
-      <div className='bg-white py-2 px-6 rounded-md'>
-        <div className='text-center text-[#6600ff] tracking-tight text-lg lowercase'>
+      <div className="bg-white py-2 px-6 rounded-md">
+        <div className="text-center text-[var(--panel-fg)] tracking-tight text-lg lowercase">
           {totalCount} {totalCount === 1 ? 'Entry' : 'Entries'}
         </div>
       </div>
 
       {/* Sort */}
-      <div className='bg-white py-1 pb-3 px-6 rounded-md'>
-        <div className='text-center text-[#6600ff] uppercase tracking-tight text-xl mb-2'>
+      <div className="bg-white py-1 pb-3 px-6 rounded-md">
+        <div className="text-center text-[var(--panel-fg)] uppercase tracking-tight text-xl mb-2">
           Sort
         </div>
-        <div className='space-y-2 text-lg'>
+        <div className="space-y-2 text-lg">
           {SORTS.map((s) => (
             <button
               key={s.key}
-              className={`w-full border border-[#6600ff] p-0 rounded-md transition-colors ${
+              className={[
+                'w-full border p-0 rounded-md transition-colors',
+                'border-[var(--panel-fg)]',
                 (optimisticParams.sort ?? 'alpha') === s.key
-                  ? 'bg-[#6600ff] text-white'
-                  : 'text-[#6600ff] hover:bg-[#6600ff] hover:text-white'
-              }`}
-              onClick={() => updateParams({ sort: s.key as any })}
-              type='button'
+                  ? 'bg-[var(--panel-fg)] text-white'
+                  : 'text-[var(--panel-fg)] hover:bg-[var(--panel-fg)] hover:text-white',
+              ].join(' ')}
+              onClick={() => updateParams({sort: s.key as any})}
+              type="button"
             >
               {s.label}
             </button>
@@ -172,27 +168,26 @@ export default function OptimisticFilters({
       </div>
 
       {/* Categories */}
-      <div className='bg-white py-1 pb-3 px-6 rounded-md'>
-        <div className='text-center text-[#6600ff] uppercase tracking-tight text-xl mb-2'>
+      <div className="bg-white py-1 pb-3 px-6 rounded-md">
+        <div className="text-center text-[var(--panel-fg)] uppercase tracking-tight text-xl mb-2">
           Categories
         </div>
-        <div className='flex flex-wrap gap-1.5 font-mono text-lg uppercase font-normal leading-tight'>
+        <div className="flex flex-wrap gap-1.5 font-mono text-lg uppercase font-normal leading-tight">
           {categories.map((cat) => {
             const isActive = selectedCategories.includes(cat.slug)
             return (
               <button
                 key={cat._id}
                 onClick={() => toggleCategory(cat.slug)}
-                className={`px-1 py-0 cursor-pointer transition-colors uppercase flex items-center justify-center gap-x-2 ${
+                className={[
+                  'px-1 py-0 cursor-pointer transition-colors uppercase flex items-center justify-center gap-x-2',
                   isActive
-                    ? 'text-[#fff] bg-[#6600ff]'
-                    : 'bg-[#d3cd7f] text-[#6600ff]'
-                }`}
+                    ? 'text-white bg-[var(--panel-fg)]'
+                    : 'bg-[var(--panel-bg)] text-[var(--panel-fg)]',
+                ].join(' ')}
               >
                 {cat.title}
-                {isActive && (
-                  <IoMdClose className='h-3 w-3' aria-hidden='true' />
-                )}
+                {isActive && <IoMdClose className="h-3 w-3" aria-hidden="true" />}
               </button>
             )
           })}
@@ -200,30 +195,32 @@ export default function OptimisticFilters({
       </div>
 
       {/* Tags with Shuffle */}
-      <div className='bg-white py-1 pb-3 px-6 rounded-md max-h-[30vh] xl:max-h-[40vh] overflow-y-auto no-scrollbar'>
-        <div className='text-center text-[#6600ff] uppercase tracking-tight text-xl mb-2 flex items-center justify-center gap-1'>
+      <div className="bg-white py-1 pb-3 px-6 rounded-md max-h-[30vh] xl:max-h-[40vh] overflow-y-auto no-scrollbar">
+        <div className="text-center text-[var(--panel-fg)] uppercase tracking-tight text-xl mb-2 flex items-center justify-center gap-1">
           <span>Tags</span>{' '}
           <button
             onClick={shuffleTags}
-            className='text-[#6600ff] hover:text-[#d3cd7f] transition-colors'
-            title='Shuffle tags'
+            className="text-[var(--panel-fg)] hover:opacity-70 transition-opacity"
+            title="Shuffle tags"
+            type="button"
           >
-            <IoMdShuffle className='bg-[#6600ff] text-[#d3cd7f] rounded-lg h-6 w-6 cursor-pointer' />
+            <IoIosShuffle className="text-[var(--panel-fg)] rounded-lg h-6 w-6 cursor-pointer" />
           </button>
         </div>
-        <motion.div className='flex flex-wrap gap-1.5' layout>
-          <AnimatePresence mode='popLayout'>
+
+        <motion.div className="flex flex-wrap gap-1.5" layout>
+          <AnimatePresence mode="popLayout">
             {shuffledTags.map((tag) => (
               <motion.div
                 key={tag._id}
                 layout
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
+                initial={{opacity: 0, scale: 0.8}}
+                animate={{opacity: 1, scale: 1}}
+                exit={{opacity: 0, scale: 0.8}}
                 transition={{
-                  layout: { duration: 0.3 },
-                  opacity: { duration: 0.2 },
-                  scale: { duration: 0.2 },
+                  layout: {duration: 0.3},
+                  opacity: {duration: 0.2},
+                  scale: {duration: 0.2},
                 }}
               >
                 <OptimisticTagPill
@@ -238,9 +235,7 @@ export default function OptimisticFilters({
       </div>
 
       {/* Clear all filters button */}
-      {(selectedTags.length > 0 ||
-        selectedCategories.length > 0 ||
-        searchValue) && (
+      {(selectedTags.length > 0 || selectedCategories.length > 0 || searchValue) && (
         <button
           onClick={() => {
             setSearchValue('')
@@ -250,7 +245,8 @@ export default function OptimisticFilters({
               search: undefined,
             })
           }}
-          className='w-full bg-[#6600ff] text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors'
+          className="w-full bg-[var(--panel-fg)] text-white py-2 px-4 rounded-md hover:opacity-90 transition-opacity"
+          type="button"
         >
           Clear All Filters
         </button>

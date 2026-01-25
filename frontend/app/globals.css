@@ -15,6 +15,8 @@
 
     --panel-bg: var(--section-bg);
     --panel-fg: var(--section-fg);
+
+    --home-nav-h: 31px;
   }
 
   :root[data-theme='accessible'] {
@@ -29,6 +31,23 @@
   :root[data-theme='accessible'] .section-border,
   :root[data-theme='accessible'] .panel-border {
     border-color: #000000;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body::-webkit-scrollbar,
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
+  body,
+  html {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
@@ -88,6 +107,18 @@
 
   .tabs-topline {
     position: relative;
+  }
+
+  .panel-tab-inactive {
+    background-color: #ffffff;
+    color: var(--panel-fg);
+    border-color: var(--panel-fg);
+  }
+
+  .panel-tab-active {
+    background-color: var(--panel-fg);
+    color: var(--panel-bg);
+    border-color: var(--panel-fg);
   }
 
   .tabs-topline::before {

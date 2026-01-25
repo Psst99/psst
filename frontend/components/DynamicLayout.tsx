@@ -53,13 +53,13 @@ export default function DynamicLayout({
       section={section as any}
       variant="page"
       panelVariant={hasSubNav ? 'subtab' : 'section'}
-      className="min-h-screen site-bg"
+      className="min-h-screen site-bg pt-[var(--home-nav-h)]"
     >
       {/* Mobile background layer */}
       <div className="fixed top-0 inset-0 -z-10 min-[83rem]:hidden section-bg section-border border" />
       <div className="min-h-screen flex flex-col overflow-hidden">
         {/* Desktop navigation */}
-        <div className="shrink-0 hidden min-[83rem]:block">
+        <div className="shrink-0 hidden min-[83rem]:block fixed top-0 left-0 right-0 z-20 bg-white">
           <SectionNavigation currentSection={section} />
 
           {hasSubNav && finalSubNavItems.length > 0 && (
@@ -72,12 +72,13 @@ export default function DynamicLayout({
         {/* Main content */}
         <div
           className={[
-            'flex-1 border border-t-0 min-[83rem]:border-t min-[83rem]:rounded-r-2xl overflow-y-auto z-10',
+            'flex-1 border border-t-0 min-[83rem]:border-t min-[83rem]:rounded-r-2xl overflow-y-auto no-scrollbar z-10',
             'panel-bg panel-fg panel-border',
             paddingClasses,
             hasSubNav ? 'no-scrollbar' : '',
           ].join(' ')}
         >
+          <div className="pt-8"></div>
           {children}
         </div>
       </div>

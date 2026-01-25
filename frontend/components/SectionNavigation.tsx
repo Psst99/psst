@@ -7,10 +7,10 @@ interface SectionNavigationProps {
 }
 
 const TABS: Array<{href: string; label: string; slug: SectionSlug; zBase: number}> = [
-  {href: '/psst', label: 'PSST', slug: 'psst', zBase: 19},
+  {href: '/psst', label: 'PSƧT', slug: 'psst', zBase: 19},
   {href: '/database', label: 'DATABASE', slug: 'database', zBase: 18},
   {href: '/resources', label: 'RESOURCES', slug: 'resources', zBase: 14},
-  {href: '/pssound-system', label: 'PSSOUND SYSTEM', slug: 'pssound-system', zBase: 15},
+  {href: '/pssound-system', label: 'PSƧOUND SYSTEM', slug: 'pssound-system', zBase: 15},
   {href: '/workshops', label: 'WORKSHOPS', slug: 'workshops', zBase: 17},
   {href: '/events', label: 'EVENTS', slug: 'events', zBase: 16},
   {href: '/archive', label: 'ARCHIVE', slug: 'archive', zBase: 13},
@@ -29,7 +29,7 @@ export default function SectionNavigation({currentSection = ''}: SectionNavigati
               <CustomLink
                 href={href}
                 className={[
-                  'relative font-normal text-[18px] leading-[22px] uppercase tracking-normal',
+                  'relative font-normal text-[24px] leading-[22px] uppercase tracking-tight',
                   'px-10 py-1 border border-b-0 rounded-t-xl flex items-center justify-center',
                   'section-bg section-fg section-border',
                   idx > 0 ? '-ml-px' : '',

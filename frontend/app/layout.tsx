@@ -76,7 +76,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         <head>
           <script dangerouslySetInnerHTML={{__html: vtScript}} />
         </head>
-        <body className="font-(family-name:--font-kleber)">
+        <body className="font-(family-name:--font-kleber) antialiased">
           <ThemeProvider>
             <ThemeToggleButton />
             <div className="min-[83rem]:hidden">

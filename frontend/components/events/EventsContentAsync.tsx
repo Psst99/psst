@@ -28,9 +28,11 @@ export default async function EventsContentAsync() {
 
   return (
     <div className="p-6 text-[#4e4e4e] md:mx-16">
-      <h1 className="text-3xl md:text-4xl mb-6 text-center mt-16 md:mt-0">{settings?.title}</h1>
+      {/* <h1 className="text-3xl md:text-4xl mb-6 text-center mt-16 md:mt-0">{settings?.title}</h1> */}
 
-      <CmsContent value={settings?.description} section="events" />
+      <div className="mx-4 xl:max-w-[65vw] xl:mx-auto">
+        <CmsContent value={settings?.description} section="events" />
+      </div>
 
       <EventsGrid events={items} />
     </div>

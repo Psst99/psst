@@ -1,12 +1,12 @@
 'use client'
-import { useState } from 'react'
-import { X } from '@/components/icons'
+
+import {useState} from 'react'
+import {createPortal} from 'react-dom'
+import {IoMdClose} from 'react-icons/io'
+import {RiSearchLine} from 'react-icons/ri'
 import OptimisticFilters from './OptimisticFilters'
-import { createPortal } from 'react-dom'
-import { IoMdClose } from 'react-icons/io'
-import { RiSearchLine } from 'react-icons/ri'
-import { DatabaseSearchParams } from './DatabaseBrowseContentAsync'
-import { slugifyTag } from '@/lib/tags'
+import type {DatabaseSearchParams} from './DatabaseBrowseContentAsync'
+import {slugifyTag} from '@/lib/tags'
 
 interface MobileFiltersModalProps {
   categories: Array<{
@@ -45,10 +45,10 @@ export default function MobileFiltersModal({
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className='fixed top-[6.75rem] left-1/2 -translate-x-1/2 z-50 w-12 h-12 rounded-full bg-[#6600ff] flex items-center justify-center shadow-lg md:hidden'
+        className="fixed top-[6.75rem] left-1/2 -translate-x-1/2 z-50 w-12 h-12 rounded-full bg-[var(--panel-fg)] flex items-center justify-center shadow-lg md:hidden"
+        type="button"
       >
-        <span className='text-white text-2xl rotate-90'>
-          {/* 🔍 */}
+        <span className="text-white text-2xl rotate-90">
           <RiSearchLine />
         </span>
       </button>
@@ -56,28 +56,26 @@ export default function MobileFiltersModal({
       {/* Fullscreen modal */}
       {open &&
         createPortal(
-          <div className='fixed inset-0 bg-[#6600ff]/75 z-[9999] overflow-y-auto md:hidden'>
-            <div className='absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-white'>
+          <div className="fixed inset-0 bg-[color:var(--panel-fg)]/75 z-[9999] overflow-y-auto md:hidden">
+            <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-white">
               <button
                 onClick={() => setOpen(false)}
-                className='text-[#6600ff] text-3xl'
+                className="text-[var(--panel-fg)] text-3xl"
+                type="button"
               >
-                <IoMdClose
-                  className='h-12 w-12 mt-0 -mb-1 mx-0'
-                  aria-hidden='true'
-                />
+                <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
               </button>
             </div>
-            <div className='px-4 py-8'>
+            <div className="px-4 py-8">
               <OptimisticFilters
-                categories={categoriesWithSlug}
-                tags={tagsWithSlug}
+                categories={categoriesWithSlug as any}
+                tags={tagsWithSlug as any}
                 initialParams={initialParams}
                 totalCount={totalCount}
               />
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </>
   )

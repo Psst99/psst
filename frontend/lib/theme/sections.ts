@@ -42,7 +42,7 @@ export const SECTIONS: Record<
   }
 > = {
   home: {label: 'HOME', slug: 'home'},
-  psst: {label: 'PSST', slug: 'psst'},
+  psst: {label: 'PSƧT', slug: 'psst'},
   database: {
     label: 'DATABASE',
     slug: 'database',
@@ -62,7 +62,7 @@ export const SECTIONS: Record<
   },
   events: {label: 'EVENTS', slug: 'events'},
   'pssound-system': {
-    label: 'PSSOUND SYSTEM',
+    label: 'PSƧOUND SYSTEM',
     slug: 'pssound-system',
     nav: [
       {label: 'Calendar', href: '/pssound-system'},
