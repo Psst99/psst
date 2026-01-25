@@ -18,6 +18,8 @@ import MobileHeader from '@/components/MobileHeader'
 import {ViewTransitions} from 'next-view-transitions'
 import DynamicLayout from '@/components/DynamicLayout'
 import CustomSoundcloudPlayer from '@/components/CustomSoundcloudPlayer'
+import ThemeProvider from './ThemeProvider'
+import ThemeToggleButton from '@/components/ThemeToggleButton'
 
 export async function generateMetadata(): Promise<Metadata> {
   const {data: settings} = await sanityFetch({query: settingsQuery, stega: false})
@@ -59,28 +61,45 @@ export default async function RootLayout({children}: {children: React.ReactNode}
     ? psstSections.map((item: any) => ({label: item.title, href: `/psst/${item.slug}`}))
     : undefined
 
+  const vtScript = `
+(() => {
+  try {
+    const v = sessionStorage.getItem('psst-vt');
+    if (v === 'close') document.documentElement.classList.add('vt-close');
+  } catch {}
+})();
+`
+
   return (
     <ViewTransitions>
       <html lang="en" className={`${kleber.variable}`}>
+        <head>
+          <script dangerouslySetInnerHTML={{__html: vtScript}} />
+        </head>
         <body className="font-(family-name:--font-kleber)">
-          <div className="min-[83rem]:hidden">
-            <MobileHeader dynamicSubNavItems={dynamicSubNavItems} />
-          </div>
-          <section>
-            <Toaster />
-            {isDraftMode && (
-              <>
-                <DraftModeToast />
-                <VisualEditing />
-              </>
-            )}
-            <SanityLive onError={handleError} />
+          <ThemeProvider>
+            <ThemeToggleButton />
+            <div className="min-[83rem]:hidden">
+              <MobileHeader dynamicSubNavItems={dynamicSubNavItems} />
+            </div>
 
-            <DynamicLayout dynamicSubNavItems={dynamicSubNavItems}>{children}</DynamicLayout>
+            <section>
+              <Toaster />
+              {isDraftMode && (
+                <>
+                  <DraftModeToast />
+                  <VisualEditing />
+                </>
+              )}
+              <SanityLive onError={handleError} />
 
-            <CustomSoundcloudPlayer playlistUrl={soundcloudPlaylistUrl} />
-          </section>
-          <SpeedInsights />
+              <DynamicLayout dynamicSubNavItems={dynamicSubNavItems}>{children}</DynamicLayout>
+
+              <CustomSoundcloudPlayer playlistUrl={soundcloudPlaylistUrl} />
+            </section>
+
+            <SpeedInsights />
+          </ThemeProvider>
         </body>
       </html>
     </ViewTransitions>

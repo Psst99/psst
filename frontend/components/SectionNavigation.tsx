@@ -1,4 +1,4 @@
-import CustomLink from './custom-link'
+import CustomLink from './CustomLink'
 import type {SectionSlug} from '@/lib/theme/sections'
 import SectionScope from './SectionScope'
 
@@ -22,27 +22,22 @@ export default function SectionNavigation({currentSection = ''}: SectionNavigati
       <div className="flex relative w-full">
         {TABS.map((tab, idx) => {
           const isActive = currentSection === tab.slug
+          const href = isActive ? '/' : tab.href
 
           return (
             <SectionScope key={tab.slug} section={tab.slug} className="contents">
               <CustomLink
-                href={tab.href}
+                href={href}
                 className={[
-                  // base look: each tab uses its own theme
                   'relative font-normal text-[18px] leading-[22px] uppercase tracking-normal',
-                  'px-10 py-1 border border-b-0 rounded-t-md flex items-center justify-center',
+                  'px-10 py-1 border border-b-0 rounded-t-xl flex items-center justify-center',
                   'section-bg section-fg section-border',
-
-                  // overlap
                   idx > 0 ? '-ml-px' : '',
-
-                  // stacking: active on top; inactive follow your original z ordering
                   isActive ? 'z-30 section-underline' : `z-[${tab.zBase}]`,
                 ].join(' ')}
                 style={
                   isActive
                     ? {
-                        // underline should match this tab's own background color
                         '--underline-color': 'var(--section-bg)',
                       }
                     : undefined

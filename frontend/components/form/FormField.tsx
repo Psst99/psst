@@ -1,6 +1,6 @@
 // components/form/FormField.tsx
 import React from 'react'
-import { DeepMap, FieldError, FieldValues } from 'react-hook-form'
+import {DeepMap, FieldError, FieldValues} from 'react-hook-form'
 
 interface FormFieldProps {
   label: string
@@ -26,18 +26,16 @@ export const FormField: React.FC<FormFieldProps> = ({
 
   return (
     <>
-      <div className={`w-full h-full rounded-xl mb-4 md:flex ${bgClassName}`}>
-        <label className='block text-white font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0'>
+      <div className={`w-full h-full rounded-xl mb-4 md:flex md:items-center ${bgClassName}`}>
+        <label className="block text-white font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0">
           <span>{label}</span>
-          {required && <span className='text-red-300 ml-1'>*</span>}
+          {required && <span className="text-red-300 ml-1">*</span>}
         </label>
-        <div className='md:w-full md:rounded-l-none md:rounded-tr-lg md:h-auto'>
-          {children}
-        </div>
+        <div className="md:w-full md:rounded-l-none md:rounded-tr-lg md:h-auto">{children}</div>
       </div>
       {error && (
-        <p style={{ color: errorColor }} className={` text-xs -mt-2 italic`}>
-          <span className='mr-0.5'>*</span>
+        <p style={{color: errorColor}} className={` text-xs -mt-2 italic`}>
+          <span className="mr-0.5">*</span>
           {error.message}
         </p>
       )}

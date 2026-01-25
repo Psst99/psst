@@ -4,7 +4,7 @@ import {useState, useEffect, useTransition, useCallback} from 'react'
 import {useInView} from 'react-intersection-observer'
 import {BiLoaderCircle} from 'react-icons/bi'
 
-import CustomLink from '../custom-link'
+import CustomLink from '../CustomLink'
 import {getArtistsPaginated, PaginatedArtistsParams} from '@/app/database/(browse)/browse/actions'
 import {useInfiniteScroll} from '@/hooks/useInfiniteScroll'
 import Link from 'next/link'

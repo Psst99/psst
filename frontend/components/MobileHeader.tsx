@@ -5,17 +5,17 @@ import {usePathname} from 'next/navigation'
 import Link from 'next/link'
 import {motion, AnimatePresence} from 'framer-motion'
 
-import CustomLink from './custom-link'
+import CustomLink from './CustomLink'
 import SectionScope from './SectionScope'
 import {getSectionConfig} from '@/lib/route-utils'
 import type {SectionSlug, MainSectionSlug} from '@/lib/theme/sections'
 
 const MAIN_MENU_ITEMS: ReadonlyArray<{path: string; section: MainSectionSlug}> = [
   {path: '/database', section: 'database'},
+  {path: '/resources', section: 'resources'},
+  {path: '/pssound-system', section: 'pssound-system'},
   {path: '/workshops', section: 'workshops'},
   {path: '/events', section: 'events'},
-  {path: '/pssound-system', section: 'pssound-system'},
-  {path: '/resources', section: 'resources'},
   {path: '/archive', section: 'archive'},
   {path: '/psst', section: 'psst'},
 ] as const
@@ -172,21 +172,30 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
 
       {/* PSST subsection header row */}
       {activeSection === 'psst' && hasSubMenu && currentSubsection && (
-        // panelVariant="subtab" makes:
-        // --panel-bg = theme.fg (red), --panel-fg = theme.bg (yellow)
         <SectionScope section="psst" variant="page" panelVariant="subtab" className="contents">
           <div className="fixed top-[35px] left-0 right-0 z-50 w-full overflow-visible">
-            <div className="flex w-full relative bg-transparent border-0 -mt-1.5 overflow-visible">
-              {/* Left: subsection label = same as content background (RED) */}
+            <div
+              className="flex w-full relative bg-transparent border-0 -mt-1.5 overflow-visible"
+              style={
+                {
+                  // Make the connector’s top line blend into the red background
+                  '--subsection-underline-top': 'var(--panel-bg)',
+                } as React.CSSProperties
+              }
+            >
               <div className="flex-1 text-lg px-4 py-0.5 text-center rounded-t-lg border border-b-0 relative subsection-vertical-border pb-[17px] panel-bg panel-fg panel-border">
                 {currentSubsection.label.toUpperCase()}
               </div>
 
-              {/* Right: hamburger half = inverted (YELLOW) + connector */}
               <button
                 onClick={toggleSubMenu}
-                className="px-4 py-1 pb-2 border flex items-center justify-center w-1/2 rounded-tr-lg border-l-0 border-b-0 h-full mobile-subsection-underline invert-panel invert-panel-border"
+                className="px-4 py-1 pb-2 border flex items-center justify-center w-1/2 rounded-tr-lg border-l-0 border-b-0 h-full mobile-subsection-underline mobile-subsection-underline--psst invert-panel invert-panel-border"
                 aria-label="Open PSST tabs"
+                style={
+                  {
+                    '--underline-color': 'var(--panel-bg)',
+                  } as React.CSSProperties
+                }
               >
                 <span className="-mt-[0.12rem]">≡</span>
               </button>
@@ -208,8 +217,8 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
               </SectionScope>
 
               {/* Right empty half (border connector) */}
-              <SectionScope section="psst" variant="page" asChild>
-                <div className="w-1/2 border-t border-r rounded-tr-lg section-border" />
+              <SectionScope section={activeSection} variant="page" asChild>
+                <div className="w-1/2 border-t border-r rounded-tr-lg section-border mobile-section-connector" />
               </SectionScope>
             </div>
 

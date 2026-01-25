@@ -192,7 +192,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           onPointerMove={onDragMove}
           onPointerUp={onDragEnd}
           onPointerCancel={onDragEnd}
-          className="mr-1 flex items-center justify-center w-8 h-8 rounded text-[#1D53FF] cursor-grab active:cursor-grabbing select-none"
+          className="mr-1 flex items-center justify-center w-2 h-8 rounded text-[#1D53FF] cursor-grab active:cursor-grabbing select-none"
           aria-label="Drag player"
           title="Drag"
         >

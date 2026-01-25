@@ -16,6 +16,20 @@
     --panel-bg: var(--section-bg);
     --panel-fg: var(--section-fg);
   }
+
+  :root[data-theme='accessible'] {
+    --section-bg: #ffffff;
+    --section-fg: #000000;
+
+    --panel-bg: #ffffff;
+    --panel-fg: #000000;
+  }
+
+  /* optional: make borders slightly darker */
+  :root[data-theme='accessible'] .section-border,
+  :root[data-theme='accessible'] .panel-border {
+    border-color: #000000;
+  }
 }
 
 @utility no-scrollbar {
@@ -100,14 +114,22 @@
   z-index: 1;
 }
 
+/* defaults */
 ::view-transition-new(root) {
   z-index: 2;
   animation: none !important;
 }
-
 ::view-transition-old(root) {
   z-index: 1;
   animation: none !important;
+}
+
+/* close override (must be after defaults) */
+:root.vt-close::view-transition-new(root) {
+  z-index: 1 !important;
+}
+:root.vt-close::view-transition-old(root) {
+  z-index: 2 !important;
 }
 
 .sub-navigation-underline::after {
@@ -132,20 +154,6 @@
   background: var(--underline-color, currentColor);
 }
 
-.mobile-section-underline::after {
-  content: '';
-  display: block;
-  position: absolute;
-  right: 0;
-  width: calc(50% + 1px);
-  bottom: -28px;
-  height: 28px;
-  /* background: var(--section-bg); */
-  border-top: 1px solid var(--section-border);
-  border-right: 1px solid var(--section-border);
-  border-top-right-radius: 0.5rem;
-}
-
 .mobile-subsection-underline::after {
   content: '';
   display: block;
@@ -154,8 +162,12 @@
   top: 28px;
   width: calc(100% + 2px);
   height: 20px;
+
   background: var(--panel-bg);
-  border-top: 1px solid var(--panel-fg);
+
+  /* key change: border-top uses a dedicated var */
+  border-top: 1px solid var(--subsection-underline-top, var(--panel-fg));
+
   border-left: 1px solid var(--panel-bg);
   z-index: 10000;
   border-right: 1px solid var(--panel-fg);
@@ -171,4 +183,39 @@
   width: 1px;
   z-index: 10000;
   background: var(--panel-fg);
+}
+
+.mobile-subsection-underline--psst::after {
+  border-top: 1px solid var(--panel-bg);
+  border-left: 2px solid var(--panel-fg);
+  border-right: 2px solid var(--panel-fg);
+}
+
+.mobile-section-connector {
+  position: relative;
+  overflow: visible;
+}
+
+.mobile-section-connector::after {
+  content: '';
+  display: block;
+  position: absolute;
+  right: -1px;
+  top: 28px; /* aligns with your 29px header rhythm */
+  width: calc(100% + 2px);
+  height: 6px;
+
+  background: var(--panel-bg);
+
+  /* key: allow overriding the top line color like you do for psst */
+  border-top: 1px solid var(--section-underline-top, var(--panel-fg));
+
+  /* avoid seam on the left edge */
+  border-left: 1px solid var(--panel-bg);
+
+  border-right: 1px solid var(--panel-fg);
+  border-top-right-radius: 0.5rem;
+
+  z-index: 10000;
+  pointer-events: none;
 }

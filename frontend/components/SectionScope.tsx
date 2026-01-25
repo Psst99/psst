@@ -1,12 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, {useContext} from 'react'
 import type {SectionSlug} from '@/lib/theme/sections'
 import {getPageTheme, getTabTheme} from '@/lib/theme/sections'
-
-type Variant = 'page' | 'tab'
+import {ThemeContext, ThemeMode} from '@/app/ThemeProvider'
 
 type CSSVars = React.CSSProperties & Record<`--${string}`, string>
+
+type Variant = 'page' | 'tab'
 
 export default function SectionScope({
   section,
@@ -23,7 +24,10 @@ export default function SectionScope({
   className?: string
   children: React.ReactNode
 }) {
-  const theme = variant === 'tab' ? getTabTheme(section) : getPageTheme(section)
+  const ctx = useContext(ThemeContext)
+  const mode: ThemeMode = ctx?.mode ?? 'brand'
+
+  const theme = variant === 'tab' ? getTabTheme(section, mode) : getPageTheme(section, mode)
 
   const panelBg = panelVariant === 'subtab' ? theme.fg : theme.bg
   const panelFg = panelVariant === 'subtab' ? theme.bg : theme.fg

@@ -1,40 +1,62 @@
 'use client'
-import { useTransitionRouter } from 'next-view-transitions'
+
 import Link from 'next/link'
-import { ReactNode, MouseEvent, CSSProperties } from 'react'
-import { usePathname } from 'next/navigation'
+import {usePathname} from 'next/navigation'
+import {useTransitionRouter} from 'next-view-transitions'
+import type {MouseEvent, ReactNode} from 'react'
+
+const VT_DURATION_MS = 1000
+const STORAGE_KEY = 'psst-vt'
 
 interface CustomLinkProps {
   href: string
   children: ReactNode
   className?: string
-  style?: React.CSSProperties & { [key: string]: any }
+  style?: React.CSSProperties & {[key: string]: any}
   onClick?: (e: MouseEvent<HTMLAnchorElement>) => void
 }
 
-export default function CustomLink({
-  href,
-  children,
-  className,
-  style,
-  onClick,
-}: CustomLinkProps) {
+export default function CustomLink({href, children, className, style, onClick}: CustomLinkProps) {
   const router = useTransitionRouter()
   const pathname = usePathname()
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-
-    // Call the parent onClick first (like closing menus)
     if (onClick) onClick(e)
 
-    // Only use the custom animation if on the homepage
-    if (pathname === '/') {
-      router.push(href, {
-        onTransitionReady: pageAnimation,
-      })
-    } else {
-      router.push(href)
+    // HOME -> SECTION
+    if (pathname === '/' && href !== '/') {
+      e.preventDefault()
+      try {
+        sessionStorage.removeItem(STORAGE_KEY)
+      } catch {}
+      document.documentElement.classList.remove('vt-close')
+      router.push(href, {onTransitionReady: openFromHomeAnimation})
+      return
+    }
+
+    // SECTION -> HOME
+    if (pathname !== '/' && href === '/') {
+      e.preventDefault()
+
+      // Critical: persist so the NEW document can see it immediately
+      try {
+        sessionStorage.setItem(STORAGE_KEY, 'close')
+      } catch {}
+
+      // Also set on current document (helps during the initial snapshot)
+      document.documentElement.classList.add('vt-close')
+
+      router.push('/', {onTransitionReady: closeToHomeAnimation})
+
+      // Cleanup after transition finishes
+      window.setTimeout(() => {
+        document.documentElement.classList.remove('vt-close')
+        try {
+          sessionStorage.removeItem(STORAGE_KEY)
+        } catch {}
+      }, VT_DURATION_MS + 150)
+
+      return
     }
   }
 
@@ -45,43 +67,26 @@ export default function CustomLink({
   )
 }
 
-// Exact same animation function as the working example
-const pageAnimation = () => {
+const openFromHomeAnimation = () => {
   document.documentElement.animate(
-    [
-      {
-        opacity: 1,
-        scale: 1,
-        transform: 'translateY(0)',
-      },
-      {
-        opacity: 0.5,
-        scale: 0.9,
-        transform: 'translateY(-100px)',
-      },
-    ],
+    [{transform: 'translateY(100%)'}, {transform: 'translateY(0)'}],
     {
-      duration: 1000,
-      easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
-      fill: 'forwards',
-      pseudoElement: '::view-transition-old(root)',
-    }
-  )
-
-  document.documentElement.animate(
-    [
-      {
-        transform: 'translateY(100%)',
-      },
-      {
-        transform: 'translateY(0)',
-      },
-    ],
-    {
-      duration: 1000,
+      duration: VT_DURATION_MS,
       easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
       fill: 'forwards',
       pseudoElement: '::view-transition-new(root)',
-    }
+    },
+  )
+}
+
+const closeToHomeAnimation = () => {
+  document.documentElement.animate(
+    [{transform: 'translateY(0)'}, {transform: 'translateY(100%)'}],
+    {
+      duration: VT_DURATION_MS,
+      easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
+      fill: 'forwards',
+      pseudoElement: '::view-transition-old(root)',
+    },
   )
 }

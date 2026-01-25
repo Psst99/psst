@@ -1,6 +1,6 @@
 'use client'
 
-import CustomLink from './custom-link'
+import CustomLink from './CustomLink'
 import {usePathname} from 'next/navigation'
 
 interface SubNavigationItem {
@@ -31,7 +31,7 @@ export default function SubNavigation({items}: SubNavigationProps) {
               key={item.href}
               href={item.href}
               className={[
-                'relative z-30 font-normal text-[18px] leading-[22px] uppercase tracking-normal px-10 py-1 border border-b-0 rounded-t-md flex items-center justify-center',
+                'relative z-30 font-normal text-[18px] leading-[22px] uppercase tracking-normal px-10 py-1 border border-b-0 rounded-t-xl flex items-center justify-center',
                 'section-border',
                 marginLeft,
                 marginTop,
