@@ -1,15 +1,23 @@
 import CmsContent from '@/components/CmsContent'
 import {sanityFetch} from '@/sanity/lib/live'
-import {psstSectionBySlugQuery} from '@/sanity/lib/queries'
+import {aboutPageQuery} from '@/sanity/lib/queries'
+import {notFound} from 'next/navigation'
 
 export default async function PsstSectionPage({params}: {params: Promise<{section: string}>}) {
   const {section} = await params
+
+  // Only "about" is valid
+  if (section !== 'about') {
+    notFound()
+  }
+
   const {data} = await sanityFetch({
-    query: psstSectionBySlugQuery,
-    params: {slug: section},
+    query: aboutPageQuery,
   })
 
-  console.log('Fetched PSST section data:', data)
+  if (!data) {
+    return <div>No content found</div>
+  }
 
   // Choose layout
   if (data.layout === 'guidelines') {

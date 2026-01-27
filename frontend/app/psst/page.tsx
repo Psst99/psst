@@ -1,14 +1,31 @@
-import {redirect} from 'next/navigation'
+import CmsContent from '@/components/CmsContent'
 import {sanityFetch} from '@/sanity/lib/live'
-import {psstSectionsQuery} from '@/sanity/lib/queries'
+import {manifestoPageQuery} from '@/sanity/lib/queries'
 
 export default async function PsstPage() {
-  const {data} = await sanityFetch({query: psstSectionsQuery})
+  const {data} = await sanityFetch({
+    query: manifestoPageQuery,
+  })
 
-  if (data && data.length > 0) {
-    const firstSection = data[0]
-    redirect(`/psst/${firstSection.slug}`)
+  if (!data) {
+    return <div>No content found</div>
   }
 
-  return <div>No sections found</div>
+  // Choose layout
+  if (data.layout === 'guidelines') {
+    return (
+      <div className="w-full p-6 md:px-20">
+        <div className="columns-1 xl:columns-2 gap-20 text-base leading-tight md:text-xl">
+          <CmsContent value={data.content} section="psst" />
+        </div>
+      </div>
+    )
+  }
+
+  // Default layout
+  return (
+    <main className="mx-4 xl:max-w-[65vw] xl:mx-auto">
+      <CmsContent value={data.content} section="psst" />
+    </main>
+  )
 }

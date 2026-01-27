@@ -12,6 +12,20 @@ export const pageSettings = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'layout',
+      title: 'Layout',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'Default', value: 'default'},
+          {title: 'Columns (2-column layout)', value: 'columns'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'default',
+    }),
+
+    defineField({
       name: 'description',
       title: 'Page description',
       type: 'array',

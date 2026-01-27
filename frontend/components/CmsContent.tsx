@@ -9,7 +9,7 @@ interface CmsContentProps {
 const getHighlightedBlockComponents = (): PortableTextComponents => ({
   block: {
     normal: ({children}) => (
-      <p className="mb-4 last:mb-0 text-base min-[83rem]:text-xl leading-snug">{children}</p>
+      <p className="last:mb-0 text-base min-[83rem]:text-2xl leading-snug">{children}</p>
     ),
     h2: ({children}) => (
       <h2 className="text-3xl min-[83rem]:text-3xl mb-6 text-center tracking-tight">{children}</h2>
@@ -53,7 +53,7 @@ const getHighlightedBlockComponents = (): PortableTextComponents => ({
 const components: PortableTextComponents = {
   block: {
     normal: ({children}) => (
-      <p className="panel-fg text-base leading-tight min-[83rem]:text-xl w-full min-[83rem]:max-w-[65vw] mx-auto mb-4 break-inside-avoid">
+      <p className="panel-fg text-base leading-tight min-[83rem]:text-2xl w-full min-[83rem]:max-w-[65vw] mx-auto break-inside-avoid">
         {children}
       </p>
     ),
@@ -68,7 +68,7 @@ const components: PortableTextComponents = {
       </p>
     ),
     largeQuestion: ({children}) => (
-      <p className="panel-fg text-2xl min-[83rem]:text-3xl mb-4 text-left tracking-tight mt-16 break-inside-avoid">
+      <p className="panel-fg text-2xl min-[83rem]:text-3xl text-left tracking-tight mt-16 break-inside-avoid">
         {children}
       </p>
     ),
@@ -132,21 +132,16 @@ const components: PortableTextComponents = {
 
   types: {
     highlightedBox: ({value}) => {
-      // Defaults = invert panel colors
       let bgColor: string | undefined = 'var(--panel-fg)'
       let textColor: string | undefined = 'var(--panel-bg)'
 
-      // Optional custom overrides from Sanity
       if (value?.useCustomBgColor && value?.customBgColor) bgColor = value.customBgColor
       if (value?.useCustomTextColor && value?.customTextColor) textColor = value.customTextColor
 
       return (
         <div
-          className="mt-8 min-[83rem]:mt-0 p-4 rounded-3xl mb-8 min-[83rem]:text-xl break-inside-avoid"
-          style={{
-            backgroundColor: bgColor,
-            color: textColor,
-          }}
+          className="my-12 min-[83rem]:my-16 p-6 min-[83rem]:p-8 rounded-3xl min-[83rem]:text-xl break-inside-avoid"
+          style={{backgroundColor: bgColor, color: textColor}}
         >
           <PortableText value={value?.content} components={getHighlightedBlockComponents()} />
         </div>
@@ -162,7 +157,9 @@ const components: PortableTextComponents = {
 export default function CmsContent({value, className}: CmsContentProps) {
   return (
     <div className={className}>
-      <PortableText value={value} components={components} />
+      <div className="space-y-6 min-[83rem]:space-y-10">
+        <PortableText value={value} components={components} />
+      </div>
     </div>
   )
 }

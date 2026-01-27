@@ -110,8 +110,9 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
                   <Link
                     href={path}
                     className={[
-                      'flex items-center justify-center text-center text-4xl flex-1 border rounded-t-3xl uppercase first:rounded-t-lg',
+                      'flex items-center justify-center text-center text-4xl flex-1 border uppercase',
                       'section-bg section-fg section-border',
+                      idx === 0 ? 'rounded-t-lg' : 'rounded-t-3xl',
                       idx > 0 ? '-mt-5' : '',
                     ].join(' ')}
                     onClick={closeMenus}
@@ -291,14 +292,18 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
       {/* Submenu Overlay */}
       <AnimatePresence>
         {isSubMenuOpen && hasSubMenu && activeSection !== 'home' && (
-          <div key="submenu-overlay" className="fixed inset-0 z-60" onClick={handleOverlayClick}>
+          <div
+            key="submenu-overlay"
+            className="fixed left-0 right-0 bottom-0 top-[86px] z-60"
+            onClick={handleOverlayClick}
+          >
             <motion.div
               key="submenu"
               initial={{y: '100%'}}
               animate={{y: 0}}
               exit={{y: '100%'}}
               transition={{duration: 0.7, ease: [0.76, 0, 0.24, 1]}}
-              className="fixed inset-0 pt-[56px] z-70"
+              className="fixed left-0 right-0 bottom-0 top-[86px] z-70"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col h-full">

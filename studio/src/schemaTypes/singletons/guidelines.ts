@@ -6,6 +6,19 @@ export const guidelines = defineType({
   type: 'document',
   fields: [
     defineField({
+      name: 'layout',
+      title: 'Layout',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'Default', value: 'default'},
+          {title: 'Columns (2-column layout)', value: 'columns'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'columns',
+    }),
+    defineField({
       name: 'content',
       title: 'Content',
       type: 'array',

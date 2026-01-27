@@ -27,9 +27,12 @@ export function getSectionConfig(
   let subNavItems: Array<{label: string; href: string}> | undefined
   let hasSubNav = false
 
-  // FOR PSST: Always use dynamic items if provided, ignore static
-  if (section === 'psst' && dynamicSubNavItems && dynamicSubNavItems.length > 0) {
-    subNavItems = dynamicSubNavItems
+  // FOR PSST: Hardcoded two tabs
+  if (section === 'psst') {
+    subNavItems = [
+      {label: 'Manifesto', href: '/psst'},
+      {label: 'About', href: '/psst/about'},
+    ]
     hasSubNav = true
   }
   // FOR OTHER SECTIONS: Use static subnav from theme.ts

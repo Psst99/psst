@@ -1,13 +1,10 @@
 import {defineType, defineField} from 'sanity'
-import {orderRankField} from '@sanity/orderable-document-list'
 
 export default defineType({
   name: 'psstSection',
   title: 'PSST Section',
   type: 'document',
   fields: [
-    orderRankField({type: 'psstSection'}),
-
     defineField({name: 'title', type: 'string', validation: (Rule) => Rule.required()}),
     defineField({
       name: 'slug',

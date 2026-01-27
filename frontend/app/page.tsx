@@ -9,21 +9,16 @@ export default async function Page() {
 
   return (
     <>
-      <main className="h-[calc(100svh-10vh)] flex flex-col">
-        <div className="flex-1 flex flex-col items-center justify-center p-4 overflow-y-auto pb-[56px] md:max-w-[60vw] md:mx-auto">
+      <main className="h-[100svh] overflow-hidden">
+        <div className="fixed inset-0 flex items-center justify-center">
           <video
             src="/assets/hp-video.mp4"
             autoPlay
             loop
             muted
             playsInline
-            className="w-full h-full object-contain"
-            style={{maxHeight: '100vh'}}
+            className="max-w-full max-h-full object-contain"
           />
-
-          {/* {homepage?.content && (
-            <CmsContent value={homepage?.content} section='home' />
-          )} */}
         </div>
       </main>
 

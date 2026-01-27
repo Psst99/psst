@@ -204,7 +204,8 @@ export const pssoundGuidelinesQuery = `
 
 export const resourcesGuidelinesQuery = `
   *[_type == "guidelines" && _id == "resources-guidelines"][0]{
-    content
+    content,
+    layout
   }
 `
 
@@ -505,7 +506,8 @@ export const pssoundAboutQuery = `
 {
   "settings": *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
     title,
-    description
+    description,
+    layout
   }
 }
 `
@@ -514,7 +516,8 @@ export const pssoundManifestoQuery = `
 {
   "settings": *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
     title,
-    description
+    description,
+    layout
   }
 }
 `
@@ -532,6 +535,23 @@ export const psstSectionBySlugQuery = `
     layout
   }
 `
+
+export const manifestoPageQuery = `
+  *[_type == "psstSection" && slug.current == "manifesto"][0]{
+    title,
+    content,
+    layout
+  }
+`
+
+export const aboutPageQuery = `
+  *[_type == "psstSection" && slug.current == "about"][0]{
+    title,
+    content,
+    layout
+  }
+`
+
 export const upcomingWorkshopsQuery = defineQuery(`
   *[_type == "workshop" && count(dates[@ >= now()]) > 0] | order(dates[0] asc){
     _id,

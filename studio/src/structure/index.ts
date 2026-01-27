@@ -47,22 +47,7 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
         .child(S.document().schemaType('homepage').documentId('homepage'))
         .icon(HomeIcon),
 
-      S.listItem()
-        .title('Psst')
-        .icon(BsFillInfoCircleFill)
-        .child(
-          S.list()
-            .title('Psst')
-            .items([
-              orderableDocumentListDeskItem({
-                type: 'psstSection',
-                title: 'Tabs',
-                S,
-                context,
-              }),
-            ]),
-        ),
-
+      S.documentTypeListItem('psstSection').title('Psst').icon(BsFillInfoCircleFill),
       // Database section
       S.listItem()
         .title('Database')

@@ -9,7 +9,7 @@ import {Toaster} from 'sonner'
 import DraftModeToast from '@/components/DraftModeToast'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
-import {psstSectionsQuery, settingsQuery} from '@/sanity/lib/queries'
+import {settingsQuery} from '@/sanity/lib/queries'
 import {resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from './client-utils'
 
@@ -51,16 +51,11 @@ const kleber = localFont({
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const {isEnabled: isDraftMode} = await draftMode()
 
-  const [{data: settings}, {data: psstSections}] = await Promise.all([
+  const [{data: settings}] = await Promise.all([
     sanityFetch({query: settingsQuery, stega: false}).catch(() => ({data: null})),
-    sanityFetch({query: psstSectionsQuery, stega: false}).catch(() => ({data: []})),
   ])
 
   const soundcloudPlaylistUrl = settings?.soundcloudPlaylistUrl
-
-  const dynamicSubNavItems = Array.isArray(psstSections)
-    ? psstSections.map((item: any) => ({label: item.title, href: `/psst/${item.slug}`}))
-    : undefined
 
   const vtScript = `
 (() => {
@@ -82,7 +77,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             <RoundedToggleButton />
             <ThemeToggleButton />
             <div className="min-[83rem]:hidden">
-              <MobileHeader dynamicSubNavItems={dynamicSubNavItems} />
+              <MobileHeader />
             </div>
 
             <section>
@@ -95,7 +90,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
               )}
               <SanityLive onError={handleError} />
 
-              <DynamicLayout dynamicSubNavItems={dynamicSubNavItems}>{children}</DynamicLayout>
+              <DynamicLayout>{children}</DynamicLayout>
 
               <CustomSoundcloudPlayer playlistUrl={soundcloudPlaylistUrl} />
             </section>

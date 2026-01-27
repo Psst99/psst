@@ -57,8 +57,9 @@ export const subNavigation = {
     {label: 'Register', href: '/workshops/register'},
   ],
   'pssound-system': [
-    {label: 'About', href: '/pssound-system'},
     {label: 'Manifesto', href: '/pssound-system/manifesto'},
+    {label: 'About', href: '/pssound-system'},
+
     {label: 'Request', href: '/pssound-system/request'},
     // { label: 'Membership', href: '/pssound-system/membership' },
     {label: 'Archive', href: '/pssound-system/archive'},

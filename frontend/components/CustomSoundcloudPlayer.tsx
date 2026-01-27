@@ -114,16 +114,14 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
 
   // Pointer-based dragging: handle-only
   const onDragStart = (e: React.PointerEvent<HTMLButtonElement>) => {
+    e.preventDefault() // important on mobile
     const el = containerRef.current
     if (!el) return
 
-    // capture pointer so move/up continue even if pointer leaves handle
     e.currentTarget.setPointerCapture(e.pointerId)
 
     const rect = el.getBoundingClientRect()
-    // We position using bottom/right offsets.
-    // Compute max offsets so the element stays fully visible.
-    const maxX = Math.max(0, window.innerWidth - rect.width - 16) // keep 16px padding
+    const maxX = Math.max(0, window.innerWidth - rect.width - 16)
     const maxY = Math.max(0, window.innerHeight - rect.height - 16)
 
     dragRef.current = {
@@ -133,7 +131,6 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       bounds: {maxX, maxY},
     }
 
-    // UX: prevent selecting text while dragging
     document.body.style.userSelect = 'none'
   }
 
@@ -192,7 +189,8 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           onPointerMove={onDragMove}
           onPointerUp={onDragEnd}
           onPointerCancel={onDragEnd}
-          className="mr-1 flex items-center justify-center w-2 h-8 rounded text-[#1D53FF] cursor-grab active:cursor-grabbing select-none"
+          className="mr-2 flex items-center justify-center w-6 h-10 rounded text-[#1D53FF]
+             cursor-grab active:cursor-grabbing select-none touch-none"
           aria-label="Drag player"
           title="Drag"
         >
