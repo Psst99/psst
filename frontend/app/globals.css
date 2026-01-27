@@ -17,6 +17,26 @@
     --panel-fg: var(--section-fg);
 
     --home-nav-h: 31px;
+
+    --rounded-sm: 0.125rem;
+    --rounded: 0.25rem;
+    --rounded-md: 0.375rem;
+    --rounded-lg: 0.5rem;
+    --rounded-xl: 0.75rem;
+    --rounded-2xl: 1rem;
+    --rounded-3xl: 1.5rem;
+    --rounded-full: 9999px;
+  }
+
+  :root[data-rounded='false'] {
+    --rounded-sm: 0;
+    --rounded: 0;
+    --rounded-md: 0;
+    --rounded-lg: 0;
+    --rounded-xl: 0;
+    --rounded-2xl: 0;
+    --rounded-3xl: 0;
+    --rounded-full: 0;
   }
 
   :root[data-theme='accessible'] {
@@ -132,6 +152,104 @@
     z-index: 1;
     pointer-events: none;
   }
+
+  /* Override ALL rounded classes including responsive variants */
+  [class*='rounded-sm'] {
+    border-radius: var(--rounded-sm) !important;
+  }
+  [class*='rounded-md'] {
+    border-radius: var(--rounded-md) !important;
+  }
+  [class*='rounded-lg'] {
+    border-radius: var(--rounded-lg) !important;
+  }
+  [class*='rounded-xl'] {
+    border-radius: var(--rounded-xl) !important;
+  }
+  [class*='rounded-2xl'] {
+    border-radius: var(--rounded-2xl) !important;
+  }
+  [class*='rounded-3xl'] {
+    border-radius: var(--rounded-3xl) !important;
+  }
+  [class*='rounded-full'] {
+    border-radius: var(--rounded-full) !important;
+  }
+
+  /* Base rounded class */
+  .rounded {
+    border-radius: var(--rounded) !important;
+  }
+
+  /* Individual corner overrides - all variations */
+  [class*='rounded-t-'] {
+    border-top-left-radius: var(--rounded-lg) !important;
+    border-top-right-radius: var(--rounded-lg) !important;
+  }
+  [class*='rounded-b-'] {
+    border-bottom-left-radius: var(--rounded-lg) !important;
+    border-bottom-right-radius: var(--rounded-lg) !important;
+  }
+  [class*='rounded-l-'] {
+    border-top-left-radius: var(--rounded-md) !important;
+    border-bottom-left-radius: var(--rounded-md) !important;
+  }
+  [class*='rounded-r-'] {
+    border-top-right-radius: var(--rounded-2xl) !important;
+    border-bottom-right-radius: var(--rounded-2xl) !important;
+  }
+  [class*='rounded-tl-'] {
+    border-top-left-radius: var(--rounded-md) !important;
+  }
+  [class*='rounded-tr-'] {
+    border-top-right-radius: var(--rounded-2xl) !important;
+  }
+  [class*='rounded-bl-'] {
+    border-bottom-left-radius: var(--rounded-lg) !important;
+  }
+  [class*='rounded-br-'] {
+    border-bottom-right-radius: var(--rounded-lg) !important;
+  }
+
+  /* Specific size overrides for corners */
+  .rounded-t-xl,
+  [class*='rounded-t-xl'] {
+    border-top-left-radius: var(--rounded-xl) !important;
+    border-top-right-radius: var(--rounded-xl) !important;
+  }
+  .rounded-t-2xl,
+  [class*='rounded-t-2xl'] {
+    border-top-left-radius: var(--rounded-2xl) !important;
+    border-top-right-radius: var(--rounded-2xl) !important;
+  }
+  .rounded-t-3xl,
+  [class*='rounded-t-3xl'] {
+    border-top-left-radius: var(--rounded-3xl) !important;
+    border-top-right-radius: var(--rounded-3xl) !important;
+  }
+  .rounded-tr-2xl,
+  [class*='rounded-tr-2xl'] {
+    border-top-right-radius: var(--rounded-2xl) !important;
+  }
+  .rounded-tl-md,
+  [class*='rounded-tl-md'] {
+    border-top-left-radius: var(--rounded-md) !important;
+  }
+  .rounded-r-2xl,
+  [class*='rounded-r-2xl'] {
+    border-top-right-radius: var(--rounded-2xl) !important;
+    border-bottom-right-radius: var(--rounded-2xl) !important;
+  }
+
+  /* None overrides */
+  [class*='rounded-t-none'] {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+  }
+  [class*='rounded-l-none'] {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
 }
 
 /* View Transitions - exactly like the working example */
@@ -202,7 +320,7 @@
   border-left: 1px solid var(--panel-bg);
   z-index: 10000;
   border-right: 1px solid var(--panel-fg);
-  border-top-right-radius: 0.5rem;
+  border-top-right-radius: var(--rounded-lg);
 }
 
 .subsection-vertical-border::after {
@@ -245,7 +363,7 @@
   border-left: 1px solid var(--panel-bg);
 
   border-right: 1px solid var(--panel-fg);
-  border-top-right-radius: 0.5rem;
+  border-top-right-radius: var(--rounded-lg);
 
   z-index: 10000;
   pointer-events: none;

@@ -20,6 +20,7 @@ import DynamicLayout from '@/components/DynamicLayout'
 import CustomSoundcloudPlayer from '@/components/CustomSoundcloudPlayer'
 import ThemeProvider from './ThemeProvider'
 import ThemeToggleButton from '@/components/ThemeToggleButton'
+import RoundedToggleButton from '@/components/RoundedToggleButton'
 
 export async function generateMetadata(): Promise<Metadata> {
   const {data: settings} = await sanityFetch({query: settingsQuery, stega: false})
@@ -78,6 +79,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         </head>
         <body className="font-(family-name:--font-kleber) antialiased">
           <ThemeProvider>
+            <RoundedToggleButton />
             <ThemeToggleButton />
             <div className="min-[83rem]:hidden">
               <MobileHeader dynamicSubNavItems={dynamicSubNavItems} />
