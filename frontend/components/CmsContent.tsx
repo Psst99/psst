@@ -6,6 +6,26 @@ interface CmsContentProps {
   className?: string
 }
 
+function extractFirstHeading(blocks: any): {text: string; key?: string} | null {
+  if (!Array.isArray(blocks)) return null
+
+  for (const b of blocks) {
+    if (b?._type !== 'block') continue
+    if (b?.style !== 'h2') continue
+
+    const text =
+      (b?.children || [])
+        .filter((c: any) => c?._type === 'span')
+        .map((c: any) => c?.text || '')
+        .join('')
+        .trim() || ''
+
+    if (text) return {text, key: b?._key}
+  }
+
+  return null
+}
+
 const getHighlightedBlockComponents = (): PortableTextComponents => ({
   block: {
     normal: ({children}) => (
@@ -138,12 +158,64 @@ const components: PortableTextComponents = {
       if (value?.useCustomBgColor && value?.customBgColor) bgColor = value.customBgColor
       if (value?.useCustomTextColor && value?.customTextColor) textColor = value.customTextColor
 
+      // Only extract heading if showHeadingAsTab is enabled
+      const showTab = Boolean(value?.showHeadingAsTab)
+      const heading = showTab ? extractFirstHeading(value?.content) : null
+
+      const contentWithoutHeading =
+        showTab && heading?.key
+          ? (value?.content || []).filter((b: any) => b?._key !== heading.key)
+          : value?.content
+
+      // Determine tab position
+      const tabPos = value?.tabPosition === 'right' ? 'right' : 'left'
+      const tabPosClass =
+        tabPos === 'right'
+          ? 'absolute right-16 -top-[31px]'
+          : 'absolute left-6 min-[83rem]:left-8 -top-[31px]'
+
       return (
-        <div
-          className="my-12 min-[83rem]:my-16 p-6 min-[83rem]:p-8 rounded-3xl min-[83rem]:text-xl break-inside-avoid"
-          style={{backgroundColor: bgColor, color: textColor}}
-        >
-          <PortableText value={value?.content} components={getHighlightedBlockComponents()} />
+        <div className="my-12 min-[83rem]:my-16 break-inside-avoid">
+          <div
+            className="relative p-6 min-[83rem]:p-8 rounded-3xl min-[83rem]:text-xl"
+            style={{backgroundColor: bgColor, color: textColor}}
+          >
+            {showTab && heading?.text ? (
+              <div className={tabPosClass}>
+                <div
+                  className={[
+                    'relative inline-flex items-center justify-center',
+                    'px-8 py-1',
+                    'border border-b-0 rounded-t-xl',
+                    'uppercase tracking-tight',
+                    // underline (same idea as nav)
+                    'after:content-[""] after:absolute after:left-0 after:right-0 after:bottom-[-1px] after:h-[1px]',
+                  ].join(' ')}
+                  style={
+                    {
+                      backgroundColor: bgColor,
+                      color: textColor,
+                      borderColor: textColor,
+                      // underline should match the box bg, like your nav active underline
+                      '--underline-color': bgColor,
+                    } as React.CSSProperties
+                  }
+                >
+                  <span className="font-normal text-[24px] leading-[22px]">{heading.text}</span>
+
+                  <span
+                    className="pointer-events-none absolute left-0 right-0 bottom-[-1px] h-[1px]"
+                    style={{backgroundColor: bgColor}}
+                  />
+                </div>
+              </div>
+            ) : null}
+
+            <PortableText
+              value={contentWithoutHeading}
+              components={getHighlightedBlockComponents()}
+            />
+          </div>
         </div>
       )
     },

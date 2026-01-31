@@ -20,8 +20,8 @@ export default async function WorkshopRegisterPage({
             Workshop Registration
           </h1>
           <p className="text-base leading-tight min-[83rem]:text-xl">
-            There's no upcoming workshops at the moment, keep an eye on this page and our socials
-            for future opportunities.
+            {`There's no upcoming workshops at the moment, keep an eye on this page and our socials
+            for future opportunities.`}
           </p>
         </div>
       </main>

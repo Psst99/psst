@@ -75,6 +75,28 @@ export const highlightedBox = defineType({
       ],
     }),
     defineField({
+      name: 'showHeadingAsTab',
+      title: 'Show first heading as tab',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Display the first H2 heading as a file-tab style header above the box',
+    }),
+    defineField({
+      name: 'tabPosition',
+      title: 'Tab position',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'Left', value: 'left'},
+          {title: 'Right', value: 'right'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'left',
+      description: 'Position of the tab (only applies when "Show first heading as tab" is enabled)',
+      hidden: ({parent}) => !parent?.showHeadingAsTab,
+    }),
+    defineField({
       name: 'useCustomBgColor',
       title: 'Use custom background color',
       type: 'boolean',
@@ -86,9 +108,6 @@ export const highlightedBox = defineType({
       title: 'Custom background color',
       type: 'string',
       description: 'Enter a hex color code (e.g., #FF0000 for red)',
-      //       options: {
-      //   list: colorOptions,
-      // },
       hidden: ({parent}) => !parent?.useCustomBgColor,
       validation: (Rule) =>
         Rule.regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, {

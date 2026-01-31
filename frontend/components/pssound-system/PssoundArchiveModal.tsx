@@ -89,7 +89,7 @@ export default function PssoundArchiveModal({archive, onClose}: PssoundArchiveMo
           <div className="mb-6">
             <h2 className="text-xl mb-2 text-[#07f25b]">About</h2>
             <div className="text-[#07f25b] mb-8 text-lg leading-snug max-h-[30vh] overflow-y-auto no-scrollbar">
-              <CmsContent value={archive.description} section="pssound-system" />
+              <CmsContent value={archive.description} />
             </div>
           </div>
 

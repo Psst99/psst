@@ -176,7 +176,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       {/* Draggable desktop player */}
       <div
         ref={containerRef}
-        className="flex fixed z-50 items-center gap-3 bg-[#cccccc] rounded-md px-4 py-2 border border-[#1D53FF] shadow-sm"
+        className="soundcloud-player-fixed flex fixed z-50 items-center gap-3 bg-[#cccccc] rounded-md px-4 py-2 border border-[#1D53FF] shadow-sm"
         style={{
           right: 16 + pos.x,
           bottom: 16 + pos.y,

@@ -25,7 +25,7 @@ export default async function Page() {
       {/* Fixed navigation at the bottom - only visible on desktop */}
       <div className="hidden min-[83rem]:block" data-view-transition="main-nav">
         <div className="fixed bottom-0 left-0 right-0 z-50">
-          <SectionNavigation currentSection="home" position="bottom" />
+          <SectionNavigation currentSection="home" />
         </div>
       </div>
     </>

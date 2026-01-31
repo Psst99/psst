@@ -1,12 +1,25 @@
-import {SECTION_THEMES, SECTIONS, type SectionSlug} from './sections'
+import {
+  SECTION_COLORS,
+  ACCESSIBLE_COLORS,
+  SECTIONS,
+  MAIN_SECTIONS,
+  type SectionSlug,
+  type MainSectionSlug,
+  type ThemeMode,
+  getTheme,
+  getPalette,
+  getPageTheme,
+  getTabTheme,
+} from './sections'
 
-export {SECTION_THEMES, SECTIONS}
-export type {SectionSlug}
-
-export function getTheme(slug: SectionSlug) {
-  return SECTION_THEMES[slug]
+export {
+  SECTION_COLORS,
+  ACCESSIBLE_COLORS,
+  SECTIONS,
+  MAIN_SECTIONS,
+  getTheme,
+  getPalette,
+  getPageTheme,
+  getTabTheme,
 }
-
-export function getSection(slug: SectionSlug) {
-  return SECTIONS[slug]
-}
+export type {SectionSlug, MainSectionSlug, ThemeMode}

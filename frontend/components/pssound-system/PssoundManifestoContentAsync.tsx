@@ -15,7 +15,7 @@ export default async function PssoundManifestoContentAsync() {
     return (
       <div className="w-full">
         <div className="columns-1 xl:columns-2 gap-20 text-base leading-tight md:text-xl">
-          <CmsContent value={settings.description} section="pssound-system" />
+          <CmsContent value={settings.description} />
         </div>
       </div>
     )
@@ -24,7 +24,7 @@ export default async function PssoundManifestoContentAsync() {
   // Default layout
   return (
     <div className="w-full max-w-[65vw] mx-auto">
-      <CmsContent value={settings.description} section="pssound-system" />
+      <CmsContent value={settings.description} />
     </div>
   )
 }

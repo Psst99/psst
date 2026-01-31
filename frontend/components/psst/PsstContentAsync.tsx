@@ -1,5 +1,5 @@
-import { psstPageQuery } from '@/sanity/lib/queries'
-import { sanityFetch } from '@/sanity/lib/live'
+import {psstPageQuery} from '@/sanity/lib/queries'
+import {sanityFetch} from '@/sanity/lib/live'
 import CmsContent from '@/components/CmsContent'
 
 function sleep(ms: number) {
@@ -8,12 +8,12 @@ function sleep(ms: number) {
 
 export default async function PsstContentAsync() {
   // await sleep(2000) // Simulate slow loading for testing
-  const { data: page } = await sanityFetch({ query: psstPageQuery })
-  const { about, charter, legal } = page
+  const {data: page} = await sanityFetch({query: psstPageQuery})
+  const {about, charter, legal} = page
 
   return (
     <>
-      <CmsContent value={about} section='psst' />
+      <CmsContent value={about} />
     </>
   )
 }

@@ -17,6 +17,7 @@ export default function ThemeToggleButton() {
       // title={isAccessible ? 'Switch to brand colors' : 'Switch to accessible (high contrast) mode'}
       aria-label="Toggle accessible theme"
       className="
+        theme-toggle-fixed
         fixed top-0 right-0 z-[9999]
         w-8 h-8
         flex items-center justify-center

@@ -16,7 +16,7 @@ export default async function ResourcesGuidelinesContentAsync() {
     return (
       <div className="w-full">
         <div className="columns-1 xl:columns-2 gap-20 text-base leading-tight md:text-xl">
-          <CmsContent value={guidelines.content} section="resources" />
+          <CmsContent value={guidelines.content} />
         </div>
       </div>
     )
@@ -25,7 +25,7 @@ export default async function ResourcesGuidelinesContentAsync() {
   // Default single-column layout
   return (
     <div className="w-full max-w-[65vw] mx-auto">
-      <CmsContent value={guidelines.content} section="resources" />
+      <CmsContent value={guidelines.content} />
     </div>
   )
 }

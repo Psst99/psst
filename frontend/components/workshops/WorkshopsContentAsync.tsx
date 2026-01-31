@@ -38,7 +38,7 @@ export default async function WorkshopsContentAsync() {
     <div className="p-6 text-[#f50806] md:mx-16">
       {/* <h1 className="text-3xl md:text-4xl mb-6 text-center">{settings?.title || 'Workshops'}</h1> */}
       <div className="mx-4 xl:max-w-[65vw] xl:mx-auto">
-        <CmsContent value={settings?.description} section="workshops" />
+        <CmsContent value={settings?.description} />
       </div>
 
       <WorkshopsGrid workshops={items} />

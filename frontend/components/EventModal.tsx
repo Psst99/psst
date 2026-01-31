@@ -97,7 +97,7 @@ export default function EventModal({event}: EventModalProps) {
         {/* Description */}
         <div className="mb-6">
           <div className="text-[#4E4E4E] mb-8 text-lg leading-snug max-h-[30vh] overflow-y-auto no-scrollbar">
-            <CmsContent value={event.description} section="events" />
+            <CmsContent value={event.description} />
           </div>
         </div>
 

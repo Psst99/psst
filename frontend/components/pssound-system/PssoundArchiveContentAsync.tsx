@@ -1,11 +1,11 @@
-import { pssoundArchiveQuery } from '@/sanity/lib/queries'
-import { sanityFetch } from '@/sanity/lib/live'
+import {pssoundArchiveQuery} from '@/sanity/lib/queries'
+import {sanityFetch} from '@/sanity/lib/live'
 import CmsContent from '@/components/CmsContent'
 import PssoundArchiveGrid from './PssoundArchiveGrid'
 
 export default async function PssoundArchiveContentAsync() {
-  const { data } = await sanityFetch({ query: pssoundArchiveQuery })
-  const { settings, archive } = data
+  const {data} = await sanityFetch({query: pssoundArchiveQuery})
+  const {settings, archive} = data
 
   // Format archive items for display
   const items =
@@ -30,14 +30,12 @@ export default async function PssoundArchiveContentAsync() {
     }) || []
 
   return (
-    <div className='p-6 md:mx-16'>
-      <h1 className='text-3xl md:text-4xl mb-6 text-center'>
+    <div className="p-6 md:mx-16">
+      <h1 className="text-3xl md:text-4xl mb-6 text-center">
         {settings?.title || 'PSSoundArchive'}
       </h1>
 
-      {settings?.description && (
-        <CmsContent value={settings.description} section='pssound-system' />
-      )}
+      {settings?.description && <CmsContent value={settings.description} />}
 
       <PssoundArchiveGrid items={items} />
     </div>

@@ -17,6 +17,7 @@ export default function RoundedToggleButton() {
       onClick={ctx.toggleRounded}
       aria-label="Toggle rounded corners"
       className="
+        rounded-toggle-fixed
         fixed top-0 right-8 z-[9999]
         w-5 h-8
         flex items-center justify-center

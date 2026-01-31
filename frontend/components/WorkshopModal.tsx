@@ -120,7 +120,7 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
         {/* Description */}
         <div className="mb-6">
           <div className="text-[#f50806] mb-8 text-lg leading-snug max-h-[30vh] overflow-y-auto no-scrollbar">
-            <CmsContent value={workshop.description} section="workshops" />
+            <CmsContent value={workshop.description} />
           </div>
         </div>
 

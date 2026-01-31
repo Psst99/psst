@@ -1,6 +1,5 @@
 import SectionNavigation from '@/components/SectionNavigation'
 import SubNavigation from '@/components/SubNavigation'
-import MobileHeader from '@/components/MobileHeader'
 
 interface SectionsLayoutProps {
   children: React.ReactNode
@@ -28,9 +27,7 @@ export default function SectionsLayout({
         {/* Desktop nav */}
         <div className="shrink-0 hidden md:block">
           <SectionNavigation currentSection={currentSection} />
-          {subNavItems && (
-            <SubNavigation items={subNavItems} mainColor={mainColor} accentColor={accentColor} />
-          )}
+          {subNavItems && <SubNavigation items={subNavItems} />}
         </div>
         {/* Main content */}
         <div

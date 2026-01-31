@@ -281,6 +281,43 @@
   z-index: 2 !important;
 }
 
+/* Keep soundcloud player fixed during transitions */
+.soundcloud-player-fixed {
+  view-transition-name: soundcloud-player;
+}
+
+::view-transition-group(soundcloud-player) {
+  z-index: 9999;
+}
+
+::view-transition-old(soundcloud-player),
+::view-transition-new(soundcloud-player) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Keep toggle buttons fixed during page transitions */
+.theme-toggle-fixed {
+  view-transition-name: theme-toggle;
+}
+
+.rounded-toggle-fixed {
+  view-transition-name: rounded-toggle;
+}
+
+::view-transition-group(theme-toggle),
+::view-transition-group(rounded-toggle) {
+  z-index: 9999 !important;
+}
+
+::view-transition-old(theme-toggle),
+::view-transition-new(theme-toggle),
+::view-transition-old(rounded-toggle),
+::view-transition-new(rounded-toggle) {
+  animation: none !important;
+  mix-blend-mode: normal;
+}
+
 .sub-navigation-underline::after {
   content: '';
   display: block;

@@ -206,7 +206,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
       )}
 
       {/* Section Header for non-home + non-psst pages */}
-      {activeSection !== 'psst' && activeSection !== 'home' && (
+      {activeSection !== 'psst' && (
         <SectionScope section="psst" variant="page" asChild>
           <div className="fixed top-[36px] left-0 right-0 z-50 w-full -mt-2">
             <div className="flex w-full rounded-t-lg section-bg">
@@ -291,7 +291,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
 
       {/* Submenu Overlay */}
       <AnimatePresence>
-        {isSubMenuOpen && hasSubMenu && activeSection !== 'home' && (
+        {isSubMenuOpen && hasSubMenu && (
           <div
             key="submenu-overlay"
             className="fixed left-0 right-0 bottom-0 top-[86px] z-60"

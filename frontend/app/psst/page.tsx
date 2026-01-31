@@ -16,7 +16,7 @@ export default async function PsstPage() {
     return (
       <div className="w-full p-6 md:px-20">
         <div className="columns-1 xl:columns-2 gap-20 text-base leading-tight md:text-xl">
-          <CmsContent value={data.content} section="psst" />
+          <CmsContent value={data.content} />
         </div>
       </div>
     )
@@ -25,7 +25,7 @@ export default async function PsstPage() {
   // Default layout
   return (
     <main className="mx-4 xl:max-w-[65vw] xl:mx-auto">
-      <CmsContent value={data.content} section="psst" />
+      <CmsContent value={data.content} />
     </main>
   )
 }
