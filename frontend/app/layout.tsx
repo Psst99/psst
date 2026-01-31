@@ -14,6 +14,8 @@ import {resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from './client-utils'
 
 import localFont from 'next/font/local'
+import {GeistSans} from 'geist/font/sans'
+import {GeistMono} from 'geist/font/mono'
 import MobileHeader from '@/components/MobileHeader'
 import {ViewTransitions} from 'next-view-transitions'
 import DynamicLayout from '@/components/DynamicLayout'
@@ -68,7 +70,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
   return (
     <ViewTransitions>
-      <html lang="en" className={`${kleber.variable}`}>
+      <html lang="en" className={`${kleber.variable} ${GeistSans.variable} ${GeistMono.variable}`}>
         <head>
           <script dangerouslySetInnerHTML={{__html: vtScript}} />
         </head>

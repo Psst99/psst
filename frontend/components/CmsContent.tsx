@@ -1,5 +1,7 @@
 import {PortableText, type PortableTextComponents} from '@portabletext/react'
 import Link from 'next/link'
+import Reveal from './Reveal'
+import RevealStack from './RevealStack'
 
 interface CmsContentProps {
   value: any
@@ -73,28 +75,40 @@ const getHighlightedBlockComponents = (): PortableTextComponents => ({
 const components: PortableTextComponents = {
   block: {
     normal: ({children}) => (
-      <p className="panel-fg text-base leading-tight min-[83rem]:text-2xl w-full min-[83rem]:max-w-[65vw] mx-auto break-inside-avoid">
-        {children}
-      </p>
+      <Reveal y={12} durationMs={480}>
+        <p className="panel-fg text-base leading-tight min-[83rem]:text-2xl w-full min-[83rem]:max-w-[65vw] mx-auto break-inside-avoid">
+          {children}
+        </p>
+      </Reveal>
     ),
     h2: ({children}) => (
-      <h2 className="panel-fg text-3xl min-[83rem]:text-3xl mb-6 text-center tracking-tight break-after-avoid break-inside-avoid">
-        {children}
-      </h2>
+      <Reveal y={12} durationMs={480}>
+        <h2 className="panel-fg text-3xl min-[83rem]:text-3xl mb-6 text-center tracking-tight break-after-avoid break-inside-avoid">
+          {children}
+        </h2>
+      </Reveal>
     ),
     largeParagraph: ({children}) => (
-      <p className="panel-fg text-2xl min-[83rem]:text-3xl mb-16 text-left tracking-tight leading-[1.75rem] xl:leading-[2.25rem] break-inside-avoid">
-        {children}
-      </p>
+      <Reveal y={14} durationMs={500}>
+        <p className="panel-fg text-2xl min-[83rem]:text-3xl mb-16 text-left tracking-tight leading-[1.75rem] xl:leading-[2.25rem] break-inside-avoid">
+          {children}
+        </p>
+      </Reveal>
     ),
     largeQuestion: ({children}) => (
-      <p className="panel-fg text-2xl min-[83rem]:text-3xl text-left tracking-tight mt-16 break-inside-avoid">
-        {children}
-      </p>
+      <Reveal y={14} durationMs={500}>
+        <p className="panel-fg text-2xl min-[83rem]:text-3xl text-left tracking-tight mt-16 break-inside-avoid">
+          {children}
+        </p>
+      </Reveal>
     ),
   },
 
-  list: ({children}) => <ul className="list-none p-0 space-y-2 mb-4">{children}</ul>,
+  list: ({children}) => (
+    <Reveal y={12} durationMs={480}>
+      <ul className="list-none p-0 space-y-2 mb-4">{children}</ul>
+    </Reveal>
+  ),
 
   listItem: ({children}) => (
     <li className="panel-fg text-base leading-tight mb-2 before:content-['—'] before:mr-1 min-[83rem]:text-xl">
@@ -172,10 +186,10 @@ const components: PortableTextComponents = {
       const tabPosClass =
         tabPos === 'right'
           ? 'absolute right-16 -top-[31px]'
-          : 'absolute left-6 min-[83rem]:left-8 -top-[31px]'
+          : 'absolute left-6 first:min-[83rem]:left-32 min-[83rem]:left-16 -top-[31px]'
 
       return (
-        <div className="my-12 min-[83rem]:my-16 break-inside-avoid">
+        <Reveal className="my-12 min-[83rem]:my-16 break-inside-avoid" y={18} durationMs={560}>
           <div
             className="relative p-6 min-[83rem]:p-8 rounded-3xl min-[83rem]:text-xl"
             style={{backgroundColor: bgColor, color: textColor}}
@@ -216,7 +230,7 @@ const components: PortableTextComponents = {
               components={getHighlightedBlockComponents()}
             />
           </div>
-        </div>
+        </Reveal>
       )
     },
 
@@ -229,9 +243,9 @@ const components: PortableTextComponents = {
 export default function CmsContent({value, className}: CmsContentProps) {
   return (
     <div className={className}>
-      <div className="space-y-6 min-[83rem]:space-y-10">
+      <RevealStack className="space-y-6 min-[83rem]:space-y-10" staggerMs={120}>
         <PortableText value={value} components={components} />
-      </div>
+      </RevealStack>
     </div>
   )
 }

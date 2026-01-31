@@ -1,4 +1,5 @@
 import CmsContent from '@/components/CmsContent'
+import PsstLoading from '@/components/loading/PsstLoading'
 import {sanityFetch} from '@/sanity/lib/live'
 import {manifestoPageQuery} from '@/sanity/lib/queries'
 
@@ -24,8 +25,11 @@ export default async function PsstPage() {
 
   // Default layout
   return (
-    <main className="mx-4 xl:max-w-[65vw] xl:mx-auto">
-      <CmsContent value={data.content} />
-    </main>
+    <>
+      {/* <PsstLoading /> */}
+      <main className="mx-4 xl:max-w-[65vw] xl:mx-auto">
+        <CmsContent value={data.content} />
+      </main>
+    </>
   )
 }

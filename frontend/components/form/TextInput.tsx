@@ -7,9 +7,6 @@ interface TextInputProps {
   placeholder?: string
   isTextArea?: boolean
   rows?: number
-  inputClassName?: string
-  fieldClassName?: string
-  className?: string
   disabled?: boolean
 }
 
@@ -19,19 +16,17 @@ export const TextInput: React.FC<TextInputProps> = ({
   placeholder,
   isTextArea = false,
   rows = 4,
-  inputClassName = 'text-[#6600ff]',
-  fieldClassName = 'bg-[#6600ff]',
-  className = '',
   disabled = false,
 }) => {
-  const baseClasses = `w-full rounded-t-none rounded-b-xl ${inputClassName} ${fieldClassName} ${className} px-4 py-2 text-2xl md:text-3xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-full`
+  const baseClasses =
+    'w-full text-[color:var(--section-bg)] px-4 py-3 text-2xl md:text-3xl border-0 outline-0 bg-white'
 
   if (isTextArea) {
     return (
       <textarea
         {...registration}
         rows={rows}
-        className={`${baseClasses} resize-none -mb-2`}
+        className={`${baseClasses} resize-none`}
         placeholder={placeholder}
         disabled={disabled}
       />

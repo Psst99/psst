@@ -69,6 +69,19 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Use Geist for bold text */
+  strong,
+  b,
+  .font-bold {
+    font-family: var(--font-geist-sans);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .font-mono {
+    font-family: var(--font-geist-mono);
+  }
 }
 
 @utility no-scrollbar {
@@ -404,4 +417,8 @@
 
   z-index: 10000;
   pointer-events: none;
+}
+
+.font-mono {
+  font-family: var(--font-geist-mono);
 }
