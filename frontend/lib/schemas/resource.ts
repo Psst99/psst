@@ -2,7 +2,10 @@ import {z} from 'zod'
 
 export const resourceSubmissionSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  link: z.string().url('Must be a valid URL'),
+  url: z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.string().url('Must be a valid URL').optional(),
+  ),
   email: z.string().email('Must be a valid email'),
   categories: z.array(z.string()).min(1, 'At least one category is required'),
   tags: z.array(z.string()).optional(),

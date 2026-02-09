@@ -439,13 +439,25 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
           S.list()
             .title('Resources')
             .items([
-              S.listItem().title('Pending submissions').icon(ClockIcon).child(
-                S.documentTypeList('resource')
-                  .title('Pending submissions')
-                  .filter(
-                    '_type == "resource" && (!defined(approved) || approved == false) && defined(email)',
-                  ), // Added email check to distinguish submissions
-              ),
+              S.listItem()
+                .title('Pending submissions')
+                .icon(ClockIcon)
+                .child(
+                  S.documentTypeList('resourceSubmission')
+                    .title('Pending submissions')
+                    .filter(
+                      '_type == "resourceSubmission" && (!defined(approved) || approved == false)',
+                    ),
+                ),
+
+              S.listItem()
+                .title('All submissions')
+                .icon(ListIcon)
+                .child(
+                  S.documentTypeList('resourceSubmission')
+                    .title('All submissions')
+                    .filter('_type == "resourceSubmission"'),
+                ),
 
               S.listItem()
                 .title('Approved Resources')

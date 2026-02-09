@@ -94,7 +94,7 @@ export default function InfiniteArtistsList({
                 {artist.categories?.map((cat: any) => (
                   <span
                     key={cat._id}
-                    className="bg-[var(--panel-fg)] text-white px-1 py-0 text-lg uppercase font-thin font-mono flex items-center gap-1.25 leading-tight"
+                    className="bg-[var(--panel-fg)] text-white px-1 py-0 text-lg uppercase font-mono flex items-center gap-1.25 leading-tight"
                   >
                     {cat.title}
                   </span>

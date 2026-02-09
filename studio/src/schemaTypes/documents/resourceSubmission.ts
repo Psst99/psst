@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity'
+import {defineType, defineField} from 'sanity'
 
 export const resourceSubmission = defineType({
   name: 'resourceSubmission',
@@ -15,7 +15,26 @@ export const resourceSubmission = defineType({
       name: 'url',
       title: 'URL',
       type: 'url',
-      validation: (Rule) => Rule.required(),
+      description: 'External link to resource',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const file = context.document?.file
+          if (!value && !file) return 'Provide a URL or upload a file'
+          return true
+        }),
+    }),
+    defineField({
+      name: 'file',
+      title: 'Upload File',
+      type: 'file',
+      description: 'Upload a file directly (PDF)',
+    }),
+    defineField({
+      name: 'categories',
+      title: 'Category',
+      type: 'array',
+      of: [{type: 'string'}],
+      validation: (Rule) => Rule.min(1),
     }),
     defineField({
       name: 'email',
@@ -27,8 +46,7 @@ export const resourceSubmission = defineType({
       name: 'tags',
       title: 'Tags',
       type: 'array',
-      of: [{ type: 'string' }],
-      validation: (Rule) => Rule.min(1),
+      of: [{type: 'string'}],
     }),
     defineField({
       name: 'description',
