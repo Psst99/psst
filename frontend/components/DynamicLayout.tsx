@@ -10,15 +10,10 @@ import SectionScope from './SectionScope'
 
 interface DynamicLayoutProps {
   children: React.ReactNode
-  hasUpcomingWorkshops?: boolean
   dynamicSubNavItems?: Array<{label: string; href: string}>
 }
 
-export default function DynamicLayout({
-  children,
-  hasUpcomingWorkshops = false,
-  dynamicSubNavItems,
-}: DynamicLayoutProps) {
+export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLayoutProps) {
   const pathname = usePathname()
   const {section, hasSubNav, subNavItems} = getSectionConfig(pathname, dynamicSubNavItems)
 
@@ -26,13 +21,13 @@ export default function DynamicLayout({
 
   const finalSubNavItems = useMemo(() => {
     if (section === 'workshops') {
-      const baseItems = [{label: 'Browse', href: '/workshops'}]
-      return hasUpcomingWorkshops
-        ? [...baseItems, {label: 'Register', href: '/workshops/register'}]
-        : baseItems
+      return [
+        {label: 'Browse', href: '/workshops'},
+        {label: 'Register', href: '/workshops/register'},
+      ]
     }
     return subNavItems || []
-  }, [section, hasUpcomingWorkshops, subNavItems])
+  }, [section, subNavItems])
 
   if (section === 'home') {
     return (

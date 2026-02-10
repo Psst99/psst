@@ -14,7 +14,7 @@ export default async function WorkshopRegisterPage({
 
   if (!upcoming.length) {
     return (
-      <main className="mx-4 xl:max-w-[65vw] xl:mx-auto text-[#F50806] pt-16">
+      <main className="mx-4 xl:max-w-[65vw] xl:mx-auto panel-fg pt-16">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl mb-6 text-center tracking-tight">
             Workshop Registration
@@ -38,7 +38,7 @@ export default async function WorkshopRegisterPage({
 
   if (allWorkshopsFull) {
     return (
-      <main className="mx-4 xl:max-w-[65vw] xl:mx-auto text-[#F50806] pt-16">
+      <main className="mx-4 xl:max-w-[65vw] xl:mx-auto panel-fg pt-16">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl mb-6 text-center tracking-tight">
             Workshop Registration
@@ -65,7 +65,7 @@ export default async function WorkshopRegisterPage({
   }
 
   return (
-    <main className="mx-4 xl:max-w-[65vw] xl:mx-auto text-[#F50806]">
+    <main className="mx-4 xl:max-w-[65vw] xl:mx-auto panel-fg">
       <WorkshopRegistrationForm workshops={workshops} initialWorkshopId={initial._id} />
     </main>
   )

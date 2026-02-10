@@ -6,6 +6,8 @@ import {
   type SectionSlug,
   type MainSectionSlug,
   type ThemeMode,
+  type SectionThemeOverride,
+  type ThemeOverrides,
   getTheme,
   getPalette,
   getPageTheme,
@@ -23,3 +25,4 @@ export {
   getTabTheme,
 }
 export type {SectionSlug, MainSectionSlug, ThemeMode}
+export type {SectionThemeOverride, ThemeOverrides}

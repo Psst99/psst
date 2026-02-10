@@ -33,6 +33,13 @@ export const MAIN_SECTIONS = [
 export type SectionSlug = keyof typeof SECTION_COLORS
 export type MainSectionSlug = (typeof MAIN_SECTIONS)[number]
 
+export type SectionThemeOverride = {
+  sectionBg?: string
+  sectionFg?: string
+}
+
+export type ThemeOverrides = Partial<Record<SectionSlug, SectionThemeOverride>>
+
 export const SECTIONS: Record<
   SectionSlug,
   {
@@ -80,16 +87,17 @@ export function getPalette(mode: ThemeMode) {
   return mode === 'accessible' ? ACCESSIBLE_COLORS : SECTION_COLORS
 }
 
-export function getTheme(slug: SectionSlug, mode: ThemeMode) {
+export function getTheme(slug: SectionSlug, mode: ThemeMode, overrides?: ThemeOverrides) {
   const palette = getPalette(mode)
   const {a, b} = palette[slug]
-  return {bg: a, fg: b}
+  const override = mode === 'accessible' ? undefined : overrides?.[slug]
+  return {bg: override?.sectionBg ?? a, fg: override?.sectionFg ?? b}
 }
 
-export function getPageTheme(slug: SectionSlug, mode: ThemeMode) {
-  return getTheme(slug, mode)
+export function getPageTheme(slug: SectionSlug, mode: ThemeMode, overrides?: ThemeOverrides) {
+  return getTheme(slug, mode, overrides)
 }
 
-export function getTabTheme(slug: SectionSlug, mode: ThemeMode) {
-  return getTheme(slug, mode)
+export function getTabTheme(slug: SectionSlug, mode: ThemeMode, overrides?: ThemeOverrides) {
+  return getTheme(slug, mode, overrides)
 }

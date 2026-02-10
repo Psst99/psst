@@ -23,6 +23,7 @@ import CustomSoundcloudPlayer from '@/components/CustomSoundcloudPlayer'
 import ThemeProvider from './ThemeProvider'
 import ThemeToggleButton from '@/components/ThemeToggleButton'
 import RoundedToggleButton from '@/components/RoundedToggleButton'
+import {buildThemeOverrides} from '@/lib/theme/overrides'
 
 export async function generateMetadata(): Promise<Metadata> {
   const {data: settings} = await sanityFetch({query: settingsQuery, stega: false})
@@ -58,6 +59,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   ])
 
   const soundcloudPlaylistUrl = settings?.soundcloudPlaylistUrl
+  const themeOverrides = buildThemeOverrides((settings as any)?.theme?.sectionColors)
 
   const vtScript = `
 (() => {
@@ -75,7 +77,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
           <script dangerouslySetInnerHTML={{__html: vtScript}} />
         </head>
         <body className="font-(family-name:--font-kleber) antialiased">
-          <ThemeProvider>
+          <ThemeProvider themeOverrides={themeOverrides}>
             <RoundedToggleButton />
             <ThemeToggleButton />
             <div className="min-[83rem]:hidden">

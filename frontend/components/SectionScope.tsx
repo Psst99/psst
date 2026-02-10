@@ -27,10 +27,16 @@ export default function SectionScope({
   const ctx = useContext(ThemeContext)
   const mode: ThemeMode = ctx?.mode ?? 'brand'
 
-  const theme = variant === 'tab' ? getTabTheme(section, mode) : getPageTheme(section, mode)
+  const overrides = ctx?.themeOverrides
+  const theme =
+    variant === 'tab'
+      ? getTabTheme(section, mode, overrides)
+      : getPageTheme(section, mode, overrides)
 
-  const panelBg = panelVariant === 'subtab' ? theme.fg : theme.bg
-  const panelFg = panelVariant === 'subtab' ? theme.bg : theme.fg
+  const defaultPanelBg = panelVariant === 'subtab' ? theme.fg : theme.bg
+  const defaultPanelFg = panelVariant === 'subtab' ? theme.bg : theme.fg
+  const panelBg = defaultPanelBg
+  const panelFg = defaultPanelFg
 
   const styleVars: CSSVars = {
     '--section-bg': theme.bg,

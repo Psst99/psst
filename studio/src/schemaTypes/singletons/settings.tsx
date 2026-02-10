@@ -3,6 +3,29 @@ import {defineArrayMember, defineField, defineType} from 'sanity'
 
 import * as demo from '../../lib/initialValues'
 
+const DEFAULT_SECTION_COLORS = {
+  home: {background: '#FFFFFF', foreground: '#000000'},
+  psst: {background: '#DFFF3D', foreground: '#A20018'},
+  database: {background: '#D3CD7F', foreground: '#6600FF'},
+  workshops: {background: '#D2D2D2', foreground: '#F50806'},
+  events: {background: '#00FFDD', foreground: '#4E4E4E'},
+  pssoundSystem: {background: '#81520A', foreground: '#07F25B'},
+  resources: {background: '#FE93E7', foreground: '#1D53FF'},
+  archive: {background: '#81520A', foreground: '#FFCC00'},
+} as const
+
+const makeColorField = (name: string, title: string, value: string, description: string) =>
+  defineField({
+    name,
+    title,
+    type: 'color',
+    description,
+    initialValue: {
+      _type: 'color',
+      hex: value,
+    },
+  })
+
 /**
  * Settings schema Singleton.  Singletons are single documents that are displayed not in a collection, handy for things like site settings and other global configurations.
  * Learn more: https://www.sanity.io/docs/create-a-link-to-a-single-edit-page-in-your-main-document-type-list
@@ -102,6 +125,174 @@ export const settings = defineType({
       description:
         'Paste the full SoundCloud playlist link here (e.g. https://soundcloud.com/youruser/sets/yourplaylist)',
       validation: (rule) => rule.uri({scheme: ['http', 'https']}),
+    }),
+    defineField({
+      name: 'theme',
+      title: 'Theme',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'sectionColors',
+          title: 'Section colors',
+          type: 'object',
+          description:
+            'Set per-section background and foreground colors. These drive --section-bg/--section-fg and panel colors.',
+          fields: [
+            defineField({
+              name: 'home',
+              title: 'Home',
+              type: 'object',
+              fields: [
+                makeColorField(
+                  'background',
+                  'Background',
+                  DEFAULT_SECTION_COLORS.home.background,
+                  'Hex color (e.g. #FFFFFF).',
+                ),
+                makeColorField(
+                  'foreground',
+                  'Foreground',
+                  DEFAULT_SECTION_COLORS.home.foreground,
+                  'Hex color (e.g. #000000).',
+                ),
+              ],
+            }),
+            defineField({
+              name: 'psst',
+              title: 'PSST',
+              type: 'object',
+              fields: [
+                makeColorField(
+                  'background',
+                  'Background',
+                  DEFAULT_SECTION_COLORS.psst.background,
+                  'Hex color (e.g. #DFFF3D).',
+                ),
+                makeColorField(
+                  'foreground',
+                  'Foreground',
+                  DEFAULT_SECTION_COLORS.psst.foreground,
+                  'Hex color (e.g. #A20018).',
+                ),
+              ],
+            }),
+            defineField({
+              name: 'database',
+              title: 'Database',
+              type: 'object',
+              fields: [
+                makeColorField(
+                  'background',
+                  'Background',
+                  DEFAULT_SECTION_COLORS.database.background,
+                  'Hex color (e.g. #D3CD7F).',
+                ),
+                makeColorField(
+                  'foreground',
+                  'Foreground',
+                  DEFAULT_SECTION_COLORS.database.foreground,
+                  'Hex color (e.g. #6600FF).',
+                ),
+              ],
+            }),
+            defineField({
+              name: 'workshops',
+              title: 'Workshops',
+              type: 'object',
+              fields: [
+                makeColorField(
+                  'background',
+                  'Background',
+                  DEFAULT_SECTION_COLORS.workshops.background,
+                  'Hex color (e.g. #D2D2D2).',
+                ),
+                makeColorField(
+                  'foreground',
+                  'Foreground',
+                  DEFAULT_SECTION_COLORS.workshops.foreground,
+                  'Hex color (e.g. #F50806).',
+                ),
+              ],
+            }),
+            defineField({
+              name: 'events',
+              title: 'Events',
+              type: 'object',
+              fields: [
+                makeColorField(
+                  'background',
+                  'Background',
+                  DEFAULT_SECTION_COLORS.events.background,
+                  'Hex color (e.g. #00FFDD).',
+                ),
+                makeColorField(
+                  'foreground',
+                  'Foreground',
+                  DEFAULT_SECTION_COLORS.events.foreground,
+                  'Hex color (e.g. #4E4E4E).',
+                ),
+              ],
+            }),
+            defineField({
+              name: 'pssoundSystem',
+              title: 'PSSound System',
+              type: 'object',
+              fields: [
+                makeColorField(
+                  'background',
+                  'Background',
+                  DEFAULT_SECTION_COLORS.pssoundSystem.background,
+                  'Hex color (e.g. #81520A).',
+                ),
+                makeColorField(
+                  'foreground',
+                  'Foreground',
+                  DEFAULT_SECTION_COLORS.pssoundSystem.foreground,
+                  'Hex color (e.g. #07F25B).',
+                ),
+              ],
+            }),
+            defineField({
+              name: 'resources',
+              title: 'Resources',
+              type: 'object',
+              fields: [
+                makeColorField(
+                  'background',
+                  'Background',
+                  DEFAULT_SECTION_COLORS.resources.background,
+                  'Hex color (e.g. #FE93E7).',
+                ),
+                makeColorField(
+                  'foreground',
+                  'Foreground',
+                  DEFAULT_SECTION_COLORS.resources.foreground,
+                  'Hex color (e.g. #1D53FF).',
+                ),
+              ],
+            }),
+            defineField({
+              name: 'archive',
+              title: 'Archive',
+              type: 'object',
+              fields: [
+                makeColorField(
+                  'background',
+                  'Background',
+                  DEFAULT_SECTION_COLORS.archive.background,
+                  'Hex color (e.g. #81520A).',
+                ),
+                makeColorField(
+                  'foreground',
+                  'Foreground',
+                  DEFAULT_SECTION_COLORS.archive.foreground,
+                  'Hex color (e.g. #FFCC00).',
+                ),
+              ],
+            }),
+          ],
+        }),
+      ],
     }),
   ],
   preview: {

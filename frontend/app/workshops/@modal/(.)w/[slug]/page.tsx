@@ -2,8 +2,6 @@ import {notFound} from 'next/navigation'
 import {sanityFetch} from '@/sanity/lib/live'
 import {workshopBySlugQuery} from '@/sanity/lib/queries'
 import WorkshopModal from '@/components/WorkshopModal'
-import {Suspense} from 'react'
-import WorkshopModalSkeleton from '@/components/workshops/WorkshopModalSkeleton'
 
 export default async function ModalWorkshopRoute({params}: {params: Promise<{slug: string}>}) {
   const slug = (await params).slug
@@ -18,11 +16,7 @@ export default async function ModalWorkshopRoute({params}: {params: Promise<{slu
 
     const isUpcoming = workshop.dates?.some((date: string) => new Date(date) >= new Date()) || false
 
-    return (
-      <Suspense fallback={<WorkshopModalSkeleton />}>
-        <WorkshopModal workshop={workshop} isUpcoming={isUpcoming} />
-      </Suspense>
-    )
+    return <WorkshopModal workshop={workshop} isUpcoming={isUpcoming} />
   } catch (error) {
     console.error('Error fetching workshop:', error)
     return notFound()

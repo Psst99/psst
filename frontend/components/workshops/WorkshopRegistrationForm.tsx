@@ -32,6 +32,133 @@ interface WorkshopRegistrationFormProps {
   onSubmit?: (data: WorkshopRegistrationData) => Promise<void>
 }
 
+function formatDateLabel(dateStr: string) {
+  const d = new Date(dateStr)
+  if (Number.isNaN(d.getTime())) return dateStr
+  return d.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}
+
+function isSameDay(a: string, b: string) {
+  // If your strings are ISO datetimes, this prevents timezone surprises.
+  // If they're already YYYY-MM-DD, this still works fine.
+  const da = new Date(a)
+  const db = new Date(b)
+  if (!Number.isNaN(da.getTime()) && !Number.isNaN(db.getTime())) {
+    return (
+      da.getFullYear() === db.getFullYear() &&
+      da.getMonth() === db.getMonth() &&
+      da.getDate() === db.getDate()
+    )
+  }
+  return a === b
+}
+
+type DatesPickerProps = {
+  dates: string[]
+  value: string[]
+  maxSelected?: number
+  disabled?: boolean
+  onChange: (next: string[]) => void
+}
+
+function DatesPicker({dates, value, maxSelected = 2, disabled, onChange}: DatesPickerProps) {
+  const selectedCount = value.length
+  const atLimit = selectedCount >= maxSelected
+
+  const toggle = (dateStr: string) => {
+    if (disabled) return
+
+    const isSelected = value.some((v) => isSameDay(v, dateStr))
+
+    if (isSelected) {
+      onChange(value.filter((v) => !isSameDay(v, dateStr)))
+      return
+    }
+
+    if (atLimit) return
+    onChange([...value, dateStr])
+  }
+
+  const clearAll = () => {
+    if (disabled) return
+    onChange([])
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <div className="text-sm md:text-base opacity-80">
+          Pick up to <span className="font-medium">{maxSelected}</span> dates
+          <span className="mx-2">•</span>
+          Selected <span className="font-medium">{selectedCount}</span>/{maxSelected}
+        </div>
+
+        <button
+          type="button"
+          onClick={clearAll}
+          disabled={disabled || selectedCount === 0}
+          className="text-sm md:text-base underline underline-offset-4 disabled:opacity-40"
+        >
+          Clear
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {dates.map((dateStr) => {
+          const selected = value.some((v) => isSameDay(v, dateStr))
+          const blocked = !selected && atLimit
+
+          return (
+            <button
+              key={dateStr}
+              type="button"
+              onClick={() => toggle(dateStr)}
+              disabled={disabled}
+              aria-pressed={selected}
+              className={[
+                'text-left rounded-2xl px-4 py-4 transition',
+                'border border-black/10',
+                'bg-white',
+                'focus:outline-none focus:ring-2 focus:ring-black/20',
+                selected ? 'bg-black text-white border-black' : '',
+                blocked ? 'opacity-40' : 'hover:bg-black/5',
+                disabled ? 'opacity-60 cursor-not-allowed' : '',
+              ].join(' ')}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-xl md:text-2xl tracking-tight font-medium">
+                  {formatDateLabel(dateStr)}
+                </div>
+
+                <div
+                  className={[
+                    'h-8 w-8 rounded-full grid place-items-center',
+                    selected ? 'bg-white text-black' : 'bg-black/5 text-black',
+                  ].join(' ')}
+                  aria-hidden="true"
+                >
+                  {selected ? '✓' : '+'}
+                </div>
+              </div>
+
+              {blocked && (
+                <div className="mt-2 text-sm opacity-80">
+                  Max {maxSelected} selected — unselect one to pick another
+                </div>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export const WorkshopRegistrationForm: React.FC<WorkshopRegistrationFormProps> = ({
   workshops,
   initialWorkshopId,
@@ -52,9 +179,11 @@ export const WorkshopRegistrationForm: React.FC<WorkshopRegistrationFormProps> =
     handleSubmit,
     setValue,
     watch,
-    formState: {errors},
+    formState: {errors, touchedFields, isSubmitted},
   } = useForm<WorkshopRegistrationData>({
     resolver: zodResolver(workshopRegistrationSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
     defaultValues: {
       workshop: {_type: 'reference', _ref: selectedWorkshop?._id},
       name: '',
@@ -146,81 +275,77 @@ export const WorkshopRegistrationForm: React.FC<WorkshopRegistrationFormProps> =
         </div>
       ) : (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          <FormField bgClassName="bg-[#F50806]" label="Workshop" required>
-            <select
-              value={selectedWorkshopId}
-              onChange={(event) => setSelectedWorkshopId(event.target.value)}
-              className="w-full rounded-t-none rounded-b-lg text-[#F50806] px-4 py-2 text-2xl md:text-3xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white"
-            >
-              {workshops.map((workshop) => (
-                <option key={workshop._id} value={workshop._id}>
-                  {workshop.title}
-                </option>
-              ))}
-            </select>
+          <FormField label="Workshop" required>
+            <div className="relative">
+              <select
+                value={selectedWorkshopId}
+                onChange={(event) => setSelectedWorkshopId(event.target.value)}
+                className={[
+                  'w-full appearance-none',
+                  'rounded-t-none rounded-b-2xl md:rounded-tr-2xl',
+                  'bg-white',
+                  'px-4 py-3 md:py-4',
+                  'text-2xl md:text-3xl tracking-tight font-medium',
+                  'border border-black/10',
+                  'outline-none focus:ring-2 focus:ring-black/20',
+                  'section-fg',
+                ].join(' ')}
+              >
+                {workshops.map((workshop) => (
+                  <option key={workshop._id} value={workshop._id}>
+                    {workshop.title}
+                  </option>
+                ))}
+              </select>
+
+              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xl opacity-70">
+                ▼
+              </div>
+            </div>
           </FormField>
 
           <FormField
-            bgClassName="bg-[#F50806]"
             label="Select Dates"
             error={errors.selectedDates}
             required
+            showError={!!touchedFields.selectedDates || isSubmitted}
           >
-            <select
-              multiple
+            <DatesPicker
+              dates={selectedWorkshop.dates || []}
               value={selectedDates}
-              onChange={(event) => {
-                const values = Array.from(event.target.selectedOptions, (option) => option.value)
-                setValue('selectedDates', values)
+              maxSelected={2}
+              disabled={isFull}
+              onChange={(next) => {
+                setValue('selectedDates', next, {shouldTouch: true, shouldValidate: true})
               }}
-              className="w-full rounded-t-none rounded-b-lg text-[#F50806] px-4 py-2 text-2xl md:text-3xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-40"
-              disabled={isFull}
-            >
-              {selectedWorkshop.dates?.map((date, idx) => (
-                <option key={idx} value={date}>
-                  {new Date(date).toLocaleDateString('en-GB', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                  })}
-                </option>
-              ))}
-            </select>
-          </FormField>
-
-          <FormField bgClassName="bg-[#F50806]" label="Name" error={errors.name} required>
-            <TextInput
-              registration={register('name')}
-              inputClassName="text-[#F50806]"
-              fieldClassName="bg-[#F50806]"
-              disabled={isFull}
-            />
-          </FormField>
-
-          <FormField bgClassName="bg-[#F50806]" label="E-mail" error={errors.email} required>
-            <TextInput
-              registration={register('email')}
-              type="email"
-              inputClassName="text-[#F50806]"
-              fieldClassName="bg-[#F50806]"
-              disabled={isFull}
             />
           </FormField>
 
           <FormField
-            bgClassName="bg-[#F50806]"
+            label="Name"
+            error={errors.name}
+            required
+            showError={!!touchedFields.name || isSubmitted}
+          >
+            <TextInput registration={register('name')} disabled={isFull} />
+          </FormField>
+
+          <FormField
+            label="E-mail"
+            error={errors.email}
+            required
+            showError={!!touchedFields.email || isSubmitted}
+          >
+            <TextInput registration={register('email')} type="email" disabled={isFull} />
+          </FormField>
+
+          <FormField
             label="Why do you want to join?"
             error={errors.message}
             required
+            showError={!!touchedFields.message || isSubmitted}
           >
-            <TextInput
-              registration={register('message')}
-              isTextArea
-              rows={3}
-              inputClassName="text-[#F50806]"
-              fieldClassName="bg-[#F50806]"
-              disabled={isFull}
-            />
+            <TextInput registration={register('message')} isTextArea rows={3} disabled={isFull} />
           </FormField>
 
           {error && <div className="text-red-600 text-center">{error}</div>}
@@ -228,7 +353,7 @@ export const WorkshopRegistrationForm: React.FC<WorkshopRegistrationFormProps> =
           <button
             type="submit"
             disabled={isSubmitting || isFull}
-            className="mt-16 bg-[#F50806] text-white text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50"
+            className="mt-16 bg-(--panel-fg) text-(--panel-bg) text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50"
           >
             {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>

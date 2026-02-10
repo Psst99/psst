@@ -1,22 +1,27 @@
 'use client'
 
-import {useCallback, useEffect, useState} from 'react'
+import {useCallback, useEffect, useState, type CSSProperties, useContext} from 'react'
 import {useRouter} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
 import CmsContent from '@/components/CmsContent'
 import Tag from '@/components/Tag'
 import {urlForImage} from '@/sanity/lib/utils'
-import Link from 'next/link'
+import {getTheme} from '@/lib/theme/sections'
+import {ThemeContext} from '@/app/ThemeProvider'
 
 interface WorkshopModalProps {
   workshop: any
   isUpcoming?: boolean
 }
 
+type CSSVars = CSSProperties & Record<`--${string}`, string>
+
 export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopModalProps) {
   const [isVisible, setIsVisible] = useState(false)
   const router = useRouter()
+  const ctx = useContext(ThemeContext)
+  const mode = ctx?.mode ?? 'brand'
   // const isUpcoming = workshop.dates?.some((date: string) => new Date(date) >= new Date())
 
   // fade-in transition + lock scroll
@@ -52,90 +57,105 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
     }
   }
 
+  const theme = getTheme('workshops', mode, ctx?.themeOverrides)
+  const themeFg = theme.fg
+  const themeBg = theme.bg
+  const panelBg = themeBg
+  const panelFg = themeFg
+  const modalVars: CSSVars = {
+    '--section-bg': themeBg,
+    '--section-fg': themeFg,
+    '--panel-bg': panelBg,
+    '--panel-fg': panelFg,
+  }
+
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={modalVars}>
       {/* Overlay */}
       <div
-        className={`absolute inset-0 bg-[#f50806]/50 transition-opacity duration-300 ${
-          isVisible ? 'opacity-100' : 'opacity-0'
+        className={`absolute inset-0 transition-opacity duration-300 ${
+          isVisible ? 'opacity-50' : 'opacity-0'
         }`}
+        style={{backgroundColor: 'var(--panel-fg)'}}
         onClick={handleClose}
       />
 
       {/* Modal body */}
       <div
-        className={`relative bg-white w-full max-w-3xl rounded-3xl p-8 sm:p-8 transition-transform duration-300 ease-out ${
-          isVisible ? 'translate-y-0' : 'translate-y-[100vh]'
-        }`}
+        className={`relative panel-bg panel-fg w-full max-w-3xl rounded-3xl transition-transform duration-300 ease-out
+        max-h-[85vh] flex flex-col min-h-0 ${isVisible ? 'translate-y-0' : 'translate-y-[100vh]'}`}
       >
-        <div className="flex flex-col min-[83rem]:flex-row justify-between space-y-2 min-[83rem]:space-y-0">
-          <h1 className="text-[#f50806] text-2xl min-[83rem]:text-4xl font-bold capitalize tracking-tight">
-            {workshop.title}
-          </h1>
+        {/* Header */}
+        <div className="p-8 sm:p-8 flex items-start justify-between gap-6">
+          <div className="min-w-0">
+            <h1 className="panel-fg text-2xl min-[83rem]:text-3xl tracking-tight">
+              {workshop.title}
+            </h1>
 
+            {/* Dates (right under title) */}
+            {workshop.dates?.length > 0 && (
+              <div className="mt-2">
+                <div className="flex flex-wrap gap-2">
+                  {workshop.dates.map((date: string, idx: number) => (
+                    <span
+                      key={idx}
+                      className="invert-panel py-0 font-mono font-normal px-2 text-sm min-[83rem]:text-lg"
+                    >
+                      {new Date(date).toLocaleDateString('en-US', {
+                        month: 'numeric',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Register */}
           {isUpcoming && (
             <button
-              // href={`/workshops/register?workshop=${workshop.slug || workshop._id}`}
-              // prefetch={false}
               onClick={handleRegister}
-              className="inline-block bg-[#F50806] text-[#fff] px-2 py-0 rounded-none text-xl font-bold hover:opacity-90 transition-opacity text-center uppercase tracking-tighter cursor-pointer"
+              className="shrink-0 w-32 h-32 rounded-full text-2xl font-medium cursor-pointer invert-panel 
+             hover:opacity-80 transition-opacity"
             >
-              Register for this Workshop
+              Register
             </button>
           )}
         </div>
 
-        {/* Dates */}
-        {workshop.dates?.length > 0 && (
-          <div className="mb-4 mt-4">
-            <div className="flex flex-wrap gap-2">
-              {workshop.dates.map((date: string, idx: number) => (
-                <span
-                  key={idx}
-                  className="bg-[#f50806] text-white py-0 font-mono font-normal px-1 text-sm min-[83rem]:text-lg"
-                >
-                  {new Date(date).toLocaleDateString('en-US', {
-                    // weekday: 'long',
-                    month: 'numeric',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
-                </span>
-              ))}
+        {/* Scrollable content */}
+        <div className="px-8 pb-8 flex-1 min-h-0 overflow-y-auto no-scrollbar pr-2">
+          {/* Cover Image */}
+          {workshop.coverImage && (
+            <div className="mb-6">
+              <img
+                src={urlForImage(workshop.coverImage)?.width(800).url() ?? ''}
+                alt={workshop.title}
+                className="w-full rounded-lg object-contain max-h-[40vh]"
+              />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Cover Image */}
-        {workshop.coverImage && (
-          <div className="mb-6">
-            <img
-              src={urlForImage(workshop.coverImage)?.width(800).url() ?? ''}
-              alt={workshop.title}
-              className="w-full rounded-lg max-h-64 object-contain"
-            />
-          </div>
-        )}
-
-        {/* Description */}
-        <div className="mb-6">
-          <div className="text-[#f50806] mb-8 text-lg leading-snug max-h-[30vh] overflow-y-auto no-scrollbar">
+          {/* Description */}
+          <div className="mb-6 panel-fg text-lg leading-snug">
             <CmsContent value={workshop.description} />
           </div>
+
+          {/* Tags */}
+          {workshop.tags?.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-16">
+              {workshop.tags.map((tag: any) => (
+                <Tag key={tag._id} label={tag.title} size="sm" className="block w-fit" />
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Tags */}
-        {workshop.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-16">
-            {workshop.tags.map((tag: any) => (
-              <Tag key={tag._id} label={tag.title} size="sm" className="block w-fit" />
-            ))}
-          </div>
-        )}
-
         {/* Close button */}
-        <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-[#f50806]">
-          <button onClick={handleClose} className="text-[#fff] text-3xl">
+        <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full invert-panel">
+          <button onClick={handleClose} className="text-3xl">
             <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
           </button>
         </div>

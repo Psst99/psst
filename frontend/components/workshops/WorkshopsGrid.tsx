@@ -1,10 +1,11 @@
 'use client'
 
-import {useState, useMemo} from 'react'
+import {useState, useMemo, useContext} from 'react'
 import {useRouter} from 'next/navigation'
 import WorkshopsFilter from './WorkshopsFilter'
 import Tag from '../Tag'
-import WorkshopModalSkeleton from './WorkshopModalSkeleton'
+import {ThemeContext} from '@/app/ThemeProvider'
+import {getTheme} from '@/lib/theme/sections'
 
 interface Workshop {
   _id: string
@@ -23,7 +24,10 @@ interface WorkshopsGridProps {
 export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
   const router = useRouter()
   const [activeFilters, setActiveFilters] = useState<string[]>([])
-  const [pendingWorkshopSlug, setPendingWorkshopSlug] = useState<string | null>(null)
+  const ctx = useContext(ThemeContext)
+  const mode = ctx?.mode ?? 'brand'
+  const theme = getTheme('workshops', mode, ctx?.themeOverrides)
+  const themeFg = theme.fg
 
   const filteredWorkshops = useMemo(() => {
     if (activeFilters.length === 0) return workshops
@@ -51,12 +55,7 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
 
   const handleWorkshopClick = (workshop: Workshop) => {
     const slug = workshop.slug || workshop._id
-    // Show optimistic modal immediately
-    setPendingWorkshopSlug(slug)
-    // Then navigate
     router.push(`/workshops/w/${slug}`)
-    // Clear pending after navigation starts
-    setTimeout(() => setPendingWorkshopSlug(null), 100)
   }
 
   // Helper to format date range
@@ -90,7 +89,7 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
 
       {showEmptyUpcoming && (
         <div className="text-center py-16">
-          <p className="text-base leading-tight min-[83rem]:text-xl text-[#F50806]">
+          <p className="text-base leading-tight min-[83rem]:text-xl section-fg">
             {`There's no upcoming workshops at the moment, keep an eye on this page and our socials
             for future opportunities.`}
           </p>
@@ -103,29 +102,20 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
             key={item._id}
             onMouseEnter={() => handleWorkshopHover(item)}
             onClick={() => handleWorkshopClick(item)}
-            className={`
-              p-4 sm:p-2 sm:px-4 rounded-lg cursor-pointer transition-all relative overflow-hidden
-              ${
-                item.isUpcoming
-                  ? 'animated-gradient-bg shadow-md hover:shadow-lg border'
-                  : 'bg-white hover:shadow-md'
-              }
-            `}
+            className={`p-4 sm:p-2 sm:px-4 rounded-lg cursor-pointer transition-all relative overflow-hidden ${
+              item.isUpcoming
+                ? 'animated-gradient-bg shadow-md hover:shadow-lg border section-border'
+                : 'bg-white hover:shadow-md'
+            }`}
           >
             <div className={`${item.isUpcoming ? 'relative z-10' : ''}`}>
-              <h2
-                className={`text-4xl md:text-3xl mb-2 ${item.isUpcoming ? 'text-[#D2D2D2]' : 'text-[#f50806]'} capitalize`}
-              >
+              <h2 className="text-4xl md:text-3xl mb-2 capitalize" style={{color: themeFg}}>
                 {item.title}
               </h2>
 
               {item.dates && item.dates.length > 0 && (
                 <div className="mb-2">
-                  <span
-                    className={`mt-1 px-2 py-1 text-sm font-mono inline-block
-                      ${item.isUpcoming ? 'bg-[#D2D2D2] text-[#f50806]' : 'bg-[#D2D2D2] text-[#f50806]'}
-                    `}
-                  >
+                  <span className="mt-1 px-2 py-1 text-sm font-mono inline-block section-bg section-fg">
                     {formatDateRange(item.dates)}
                   </span>
                 </div>
@@ -141,7 +131,7 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
                           key={tag._id || tagIdx}
                           label={tag.title}
                           size="sm"
-                          className={`block w-fit ${item.isUpcoming ? 'bg-white/90' : ''}`}
+                          className="block w-fit"
                         />
                       ),
                   )}
@@ -152,13 +142,10 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
         ))}
       </div>
 
-      {/* Show optimistic modal skeleton while pending */}
-      {pendingWorkshopSlug && <WorkshopModalSkeleton />}
-
       {/* CSS for animated gradient */}
       <style jsx global>{`
         .animated-gradient-bg {
-          background: linear-gradient(-45deg, #fe93e7, #f50806);
+          background: linear-gradient(-45deg, var(--section-bg), var(--section-fg));
           background-size: 400% 400%;
           animation: gradient 5s ease infinite;
         }

@@ -422,3 +422,12 @@
 .font-mono {
   font-family: var(--font-geist-mono);
 }
+
+/* React DatePicker - Fix width and alignment */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container {
+  width: 100%;
+}

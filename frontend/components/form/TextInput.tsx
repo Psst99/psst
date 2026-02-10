@@ -19,7 +19,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   disabled = false,
 }) => {
   const baseClasses =
-    'w-full text-[color:var(--section-bg)] px-4 py-3 text-2xl md:text-3xl border-0 outline-0 bg-white'
+    'w-full text-[color:var(--section-fg)] px-4 py-3 text-2xl md:text-3xl border-0 outline-0 bg-white'
 
   if (isTextArea) {
     return (

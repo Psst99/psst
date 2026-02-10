@@ -1,6 +1,7 @@
 'use client'
 
 import React, {createContext, useCallback, useEffect, useMemo, useState} from 'react'
+import type {ThemeOverrides} from '@/lib/theme/sections'
 
 export type ThemeMode = 'brand' | 'accessible'
 
@@ -11,6 +12,7 @@ type ThemeContextValue = {
   rounded: boolean
   setRounded: (rounded: boolean) => void
   toggleRounded: () => void
+  themeOverrides?: ThemeOverrides
 }
 
 export const ThemeContext = createContext<ThemeContextValue | null>(null)
@@ -18,7 +20,13 @@ export const ThemeContext = createContext<ThemeContextValue | null>(null)
 const THEME_STORAGE_KEY = 'psst-theme-mode'
 const ROUNDED_STORAGE_KEY = 'psst-rounded-corners'
 
-export default function ThemeProvider({children}: {children: React.ReactNode}) {
+export default function ThemeProvider({
+  children,
+  themeOverrides,
+}: {
+  children: React.ReactNode
+  themeOverrides?: ThemeOverrides
+}) {
   const [mode, setModeState] = useState<ThemeMode>('brand')
   const [rounded, setRoundedState] = useState<boolean>(true)
 
@@ -91,8 +99,8 @@ export default function ThemeProvider({children}: {children: React.ReactNode}) {
   }, [applyToDom, applyRoundedToDom])
 
   const value = useMemo(
-    () => ({mode, setMode, toggle, rounded, setRounded, toggleRounded}),
-    [mode, setMode, toggle, rounded, setRounded, toggleRounded],
+    () => ({mode, setMode, toggle, rounded, setRounded, toggleRounded, themeOverrides}),
+    [mode, setMode, toggle, rounded, setRounded, toggleRounded, themeOverrides],
   )
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
