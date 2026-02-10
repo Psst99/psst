@@ -28,6 +28,8 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
   const mode = ctx?.mode ?? 'brand'
   const theme = getTheme('workshops', mode, ctx?.themeOverrides)
   const themeFg = theme.fg
+  const themeBg = theme.bg
+  const titleColor = mode === 'brand' ? themeBg : themeFg
 
   const filteredWorkshops = useMemo(() => {
     if (activeFilters.length === 0) return workshops
@@ -109,7 +111,7 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
             }`}
           >
             <div className={`${item.isUpcoming ? 'relative z-10' : ''}`}>
-              <h2 className="text-4xl md:text-3xl mb-2 capitalize" style={{color: themeFg}}>
+              <h2 className="text-4xl md:text-3xl mb-2 capitalize" style={{color: titleColor}}>
                 {item.title}
               </h2>
 
