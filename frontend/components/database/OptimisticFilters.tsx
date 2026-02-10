@@ -1,12 +1,13 @@
 'use client'
 
 import {useRouter} from 'next/navigation'
-import {useOptimistic, useTransition, useEffect, useState} from 'react'
+import {useOptimistic, useTransition, useEffect, useState, useContext} from 'react'
 import {motion, AnimatePresence} from 'framer-motion'
 import {slugifyTag} from '@/lib/tags'
 import type {DatabaseSearchParams} from './DatabaseBrowseContentAsync'
 import OptimisticTagPill from './OptimisticTagPill'
 import {IoMdClose, IoIosShuffle} from 'react-icons/io'
+import {ThemeContext} from '@/app/ThemeProvider'
 
 type OptimisticFiltersProps = {
   categories: Array<{_id: string; title: string; slug: string}>
@@ -29,6 +30,9 @@ export default function OptimisticFilters({
 }: OptimisticFiltersProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const ctx = useContext(ThemeContext)
+  const mode = ctx?.mode ?? 'brand'
+  const headingClass = mode === 'brand' ? 'text-[var(--section-bg)]' : 'text-[var(--section-fg)]'
 
   // Use optimistic state for all filter parameters
   const [optimisticParams, setOptimisticParams] = useOptimistic(initialParams)
@@ -130,21 +134,21 @@ export default function OptimisticFilters({
           type="text"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className="w-full p-1 text-center text-[var(--panel-fg)] uppercase tracking-tight text-xl"
+          className={`w-full p-1 text-center uppercase tracking-tight text-xl ${headingClass}`}
           placeholder="Search"
         />
       </div>
 
       {/* Total Count Display */}
       <div className="bg-white py-2 px-6 rounded-md">
-        <div className="text-center text-[var(--panel-fg)] tracking-tight text-lg lowercase">
+        <div className={`text-center tracking-tight text-lg lowercase ${headingClass}`}>
           {totalCount} {totalCount === 1 ? 'Entry' : 'Entries'}
         </div>
       </div>
 
       {/* Sort */}
       <div className="bg-white py-1 pb-3 px-6 rounded-md">
-        <div className="text-center text-[var(--panel-fg)] uppercase tracking-tight text-xl mb-2">
+        <div className={`text-center uppercase tracking-tight text-xl mb-2 ${headingClass}`}>
           Sort
         </div>
         <div className="space-y-2 text-lg">
@@ -153,10 +157,14 @@ export default function OptimisticFilters({
               key={s.key}
               className={[
                 'w-full border p-0 rounded-md transition-colors',
-                'border-[var(--panel-fg)]',
+                mode === 'brand' ? 'border-[var(--section-bg)]' : 'border-[var(--section-fg)]',
                 (optimisticParams.sort ?? 'alpha') === s.key
-                  ? 'bg-[var(--panel-fg)] text-white'
-                  : 'text-[var(--panel-fg)] hover:bg-[var(--panel-fg)] hover:text-white',
+                  ? mode === 'brand'
+                    ? 'bg-[var(--section-bg)] text-[var(--section-fg)]'
+                    : 'bg-[var(--section-fg)] text-[var(--section-bg)]'
+                  : mode === 'brand'
+                    ? 'text-[var(--section-bg)] hover:bg-[var(--section-bg)] hover:text-[var(--section-fg)]'
+                    : 'text-[var(--section-fg)] hover:bg-[var(--section-fg)] hover:text-[var(--section-bg)]',
               ].join(' ')}
               onClick={() => updateParams({sort: s.key as any})}
               type="button"
@@ -169,7 +177,7 @@ export default function OptimisticFilters({
 
       {/* Categories */}
       <div className="bg-white py-1 pb-3 px-6 rounded-md">
-        <div className="text-center text-[var(--panel-fg)] uppercase tracking-tight text-xl mb-2">
+        <div className={`text-center uppercase tracking-tight text-xl mb-2 ${headingClass}`}>
           Categories
         </div>
         <div className="flex flex-wrap gap-1.5 font-mono text-lg uppercase font-normal leading-tight">
@@ -196,15 +204,17 @@ export default function OptimisticFilters({
 
       {/* Tags with Shuffle */}
       <div className="bg-white py-1 pb-3 px-6 rounded-md max-h-[30vh] xl:max-h-[40vh] overflow-y-auto no-scrollbar">
-        <div className="text-center text-[var(--panel-fg)] uppercase tracking-tight text-xl mb-2 flex items-center justify-center gap-1">
+        <div
+          className={`text-center uppercase tracking-tight text-xl mb-2 flex items-center justify-center gap-1 ${headingClass}`}
+        >
           <span>Tags</span>{' '}
           <button
             onClick={shuffleTags}
-            className="text-[var(--panel-fg)] hover:opacity-70 transition-opacity"
+            className={`${headingClass} hover:opacity-70 transition-opacity`}
             title="Shuffle tags"
             type="button"
           >
-            <IoIosShuffle className="text-[var(--panel-fg)] rounded-lg h-6 w-6 cursor-pointer" />
+            <IoIosShuffle className="rounded-lg h-6 w-6 cursor-pointer" />
           </button>
         </div>
 

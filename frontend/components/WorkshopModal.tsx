@@ -60,8 +60,8 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
   const theme = getTheme('workshops', mode, ctx?.themeOverrides)
   const themeFg = theme.fg
   const themeBg = theme.bg
-  const panelBg = themeBg
-  const panelFg = themeFg
+  const panelBg = '#FFFFFF'
+  const panelFg = mode === 'brand' ? themeBg : themeFg
   const modalVars: CSSVars = {
     '--section-bg': themeBg,
     '--section-fg': themeFg,

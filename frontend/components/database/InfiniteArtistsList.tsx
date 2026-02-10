@@ -1,6 +1,6 @@
 'use client'
 
-import {useState, useEffect, useTransition, useCallback} from 'react'
+import {useState, useEffect, useTransition, useCallback, useContext} from 'react'
 import {useInView} from 'react-intersection-observer'
 import {BiLoaderCircle} from 'react-icons/bi'
 import Link from 'next/link'
@@ -11,6 +11,7 @@ import {
 } from '@/app/database/(browse)/browse/actions'
 import {useInfiniteScroll} from '@/hooks/useInfiniteScroll'
 import Tag from '../Tag'
+import {ThemeContext} from '@/app/ThemeProvider'
 
 type InfiniteArtistsListProps = {
   initialArtists: any[]
@@ -26,6 +27,9 @@ export default function InfiniteArtistsList({
   const [hasNextPage, setHasNextPage] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const ctx = useContext(ThemeContext)
+  const mode = ctx?.mode ?? 'brand'
+  const isBrand = mode === 'brand'
 
   // Reset artists when search params change
   useEffect(() => {
@@ -86,7 +90,11 @@ export default function InfiniteArtistsList({
         >
           <div className="bg-white p-4 rounded-lg hover:shadow-md transition-shadow">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <h2 className="text-[var(--panel-fg)] text-4xl md:text-3xl w-full xl:w-1/3">
+              <h2
+                className={`${
+                  isBrand ? 'text-[var(--section-bg)]' : 'text-[var(--section-fg)]'
+                } text-4xl md:text-3xl w-full xl:w-1/3`}
+              >
                 {artist.artistName}
               </h2>
 
@@ -94,7 +102,7 @@ export default function InfiniteArtistsList({
                 {artist.categories?.map((cat: any) => (
                   <span
                     key={cat._id}
-                    className="bg-[var(--panel-fg)] text-white px-1 py-0 text-lg uppercase font-mono flex items-center gap-1.25 leading-tight"
+                    className="bg-[var(--section-bg)] text-[var(--section-fg)] px-1 py-0 text-lg uppercase font-mono flex items-center gap-1.25 leading-tight"
                   >
                     {cat.title}
                   </span>
