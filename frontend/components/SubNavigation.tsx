@@ -14,14 +14,23 @@ interface SubNavigationProps {
 
 export default function SubNavigation({items}: SubNavigationProps) {
   const pathname = usePathname()
+  const isDatabaseArtistModalPath = pathname.startsWith('/database/artists/')
 
   return (
     <div className="shrink-0 hidden md:block rounded-tr-2xl rounded-tl-md border-t pb-0 section-border tab-inactive">
       <div className="flex relative w-full">
         {items.map((item, idx) => {
+          const shouldForceBrowseActive =
+            isDatabaseArtistModalPath &&
+            item.href === '/database/browse' &&
+            items.some((navItem) => navItem.href === '/database')
+
           const isActive =
+            shouldForceBrowseActive ||
             pathname === item.href ||
-            (item.href === `/${pathname.split('/')[1]}` && items.every((i) => i.href !== pathname))
+            (!isDatabaseArtistModalPath &&
+              item.href === `/${pathname.split('/')[1]}` &&
+              items.every((i) => i.href !== pathname))
 
           const marginLeft = idx > 0 ? '-ml-px' : ''
           const marginTop = '-mt-px'

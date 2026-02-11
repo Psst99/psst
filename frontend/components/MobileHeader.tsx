@@ -53,7 +53,12 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
 
     // legacy special case
     if (pathname.includes('/artists/') && activeSection === 'database') {
-      return subNavItems?.find((sub) => sub.href === '/database') ?? subNavItems?.[0] ?? null
+      return (
+        subNavItems?.find((sub) => sub.href === '/database/browse') ??
+        subNavItems?.find((sub) => sub.href === '/database') ??
+        subNavItems?.[0] ??
+        null
+      )
     }
 
     return subNavItems?.[0] ?? null
