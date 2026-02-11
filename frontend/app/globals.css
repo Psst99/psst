@@ -12,6 +12,7 @@
   :root {
     --section-bg: #ffffff;
     --section-fg: #000000;
+    --section-accent: var(--section-bg);
 
     --panel-bg: var(--section-bg);
     --panel-fg: var(--section-fg);
@@ -42,6 +43,7 @@
   :root[data-theme='accessible'] {
     --section-bg: #ffffff;
     --section-fg: #000000;
+    --section-accent: var(--section-fg);
 
     --panel-bg: #ffffff;
     --panel-fg: #000000;
@@ -74,9 +76,10 @@
   strong,
   b,
   .font-bold {
-    font-family: var(--font-geist-sans);
-    font-weight: 800;
+    font-family: var(--font-karrik), var(--font-geist-sans);
+    font-weight: 500;
     letter-spacing: -0.02em;
+    font-size: 1.1em;
   }
 
   .font-mono {

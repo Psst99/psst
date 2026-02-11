@@ -2,7 +2,7 @@ import './globals.css'
 
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import type {Metadata} from 'next'
-import {draftMode} from 'next/headers'
+import {cookies, draftMode} from 'next/headers'
 import {VisualEditing, toPlainText} from 'next-sanity'
 import {Toaster} from 'sonner'
 
@@ -51,8 +51,15 @@ const kleber = localFont({
   variable: '--font-kleber',
 })
 
+const karrik = localFont({
+  src: './fonts/BBB_Karrik.woff2',
+  display: 'swap',
+  variable: '--font-karrik',
+})
+
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const {isEnabled: isDraftMode} = await draftMode()
+  const cookieStore = await cookies()
 
   const [{data: settings}] = await Promise.all([
     sanityFetch({query: settingsQuery, stega: false}).catch(() => ({data: null})),
@@ -60,6 +67,10 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
   const soundcloudPlaylistUrl = settings?.soundcloudPlaylistUrl
   const themeOverrides = buildThemeOverrides((settings as any)?.theme?.sectionColors)
+  const modeCookie = cookieStore.get('psst-theme-mode')?.value
+  const roundedCookie = cookieStore.get('psst-rounded-corners')?.value
+  const initialMode = modeCookie === 'accessible' || modeCookie === 'brand' ? modeCookie : 'brand'
+  const initialRounded = roundedCookie === 'false' ? false : true
 
   const vtScript = `
 (() => {
@@ -72,12 +83,21 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
   return (
     <ViewTransitions>
-      <html lang="en" className={`${kleber.variable} ${GeistSans.variable} ${GeistMono.variable}`}>
+      <html
+        lang="en"
+        className={`${kleber.variable} ${karrik.variable} ${GeistSans.variable} ${GeistMono.variable}`}
+        data-theme={initialMode}
+        data-rounded={initialRounded ? 'true' : 'false'}
+      >
         <head>
           <script dangerouslySetInnerHTML={{__html: vtScript}} />
         </head>
         <body className="font-(family-name:--font-kleber) antialiased">
-          <ThemeProvider themeOverrides={themeOverrides}>
+          <ThemeProvider
+            themeOverrides={themeOverrides}
+            initialMode={initialMode}
+            initialRounded={initialRounded}
+          >
             <RoundedToggleButton />
             <ThemeToggleButton />
             <div className="min-[83rem]:hidden">
