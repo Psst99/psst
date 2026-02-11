@@ -10,44 +10,44 @@ export default function Loading() {
         <div className="hidden md:block w-80 space-y-3 animate-pulse">
           {/* Search */}
           <div className="bg-white py-3 px-6 rounded-md mb-2">
-            <div className="h-8 w-full bg-[#e0e0e0] rounded" />
+            <div className="h-8 w-full bg-[color:var(--panel-fg)]/10 rounded" />
           </div>
           {/* Total Count */}
           <div className="bg-white py-2 px-6 rounded-md mb-2">
-            <div className="h-6 w-1/2 mx-auto bg-[#e0e0e0] rounded" />
+            <div className="h-6 w-1/2 mx-auto bg-[color:var(--panel-fg)]/10 rounded" />
           </div>
           {/* Sort */}
           <div className="bg-white py-3 px-6 rounded-md mb-2">
-            <div className="h-6 w-1/2 mx-auto bg-[#e0e0e0] rounded mb-4" />
+            <div className="h-6 w-1/2 mx-auto bg-[color:var(--panel-fg)]/10 rounded mb-4" />
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-8 w-full bg-[#e0e0e0] rounded mb-2" />
+              <div key={i} className="h-8 w-full bg-[color:var(--panel-fg)]/10 rounded mb-2" />
             ))}
           </div>
           {/* Categories */}
           <div className="bg-white py-3 px-6 rounded-md mb-2">
-            <div className="h-6 w-1/2 mx-auto bg-[#e0e0e0] rounded mb-4" />
+            <div className="h-6 w-1/2 mx-auto bg-[color:var(--panel-fg)]/10 rounded mb-4" />
             <div className="flex flex-wrap gap-2">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-7 w-20 bg-[#FE93E7]/25 rounded-none" />
+                <div key={i} className="h-7 w-20 bg-[color:var(--section-accent)]/25 rounded-none" />
               ))}
             </div>
           </div>
           {/* Tags */}
           <div className="bg-white py-3 px-6 rounded-md max-h-[40vh] overflow-y-auto no-scrollbar">
-            <div className="h-6 w-1/2 mx-auto bg-[#e0e0e0] rounded mb-4" />
+            <div className="h-6 w-1/2 mx-auto bg-[color:var(--panel-fg)]/10 rounded mb-4" />
             <div className="flex flex-wrap gap-2">
               {[...Array(16)].map((_, i) => (
-                <div key={i} className="h-5 w-16 bg-[#e0e0e0] rounded-full" />
+                <div key={i} className="h-5 w-16 bg-[color:var(--panel-fg)]/10 rounded-full" />
               ))}
             </div>
           </div>
           {/* Clear filters button */}
-          <div className="h-10 w-full bg-[#e0e0e0] rounded mt-4" />
+          <div className="h-10 w-full bg-[color:var(--panel-fg)]/10 rounded mt-4" />
         </div>
 
         {/* Mobile filters button skeleton */}
         <div className="xl:hidden fixed top-[6.75rem] left-1/2 -translate-x-1/2 z-10 animate-pulse">
-          <div className="h-12 w-12 bg-[#FE93E7]/50 rounded-full flex items-center justify-center shadow-lg"></div>
+          <div className="h-12 w-12 bg-[color:var(--section-accent)]/50 rounded-full flex items-center justify-center shadow-lg"></div>
         </div>
 
         {/* Main content skeleton */}
@@ -57,10 +57,10 @@ export default function Loading() {
               <div className="bg-white p-4 rounded-lg">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   {/* Resource Title */}
-                  <div className="h-8 w-full xl:w-1/3 bg-[#FE93E7]/25 rounded mb-2 sm:mb-0" />
+                  <div className="h-8 w-full xl:w-1/3 bg-[color:var(--section-accent)]/25 rounded mb-2 sm:mb-0" />
                   {/* Category */}
                   <div className="flex gap-2 w-full xl:w-1/3">
-                    <div className="h-6 w-20 bg-[#FE93E7]/25 rounded-none" />
+                    <div className="h-6 w-20 bg-[color:var(--section-accent)]/25 rounded-none" />
                   </div>
                   {/* Tags */}
                   <div className="flex flex-wrap gap-1 w-full xl:w-1/3">
@@ -87,9 +87,8 @@ export default function Loading() {
 
           {/* Loading indicator */}
           <div className="flex justify-center py-8">
-            <div className="flex items-center gap-2 text-[#FE93E7]">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FE93E7]" />
-              <span>Loading resources...</span>
+            <div className="flex items-center text-[color:var(--panel-fg)]">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[color:var(--panel-fg)]" />
             </div>
           </div>
         </div>

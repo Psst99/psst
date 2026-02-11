@@ -22,6 +22,15 @@ const SORTS = [
   {key: 'random', label: 'Randomly'},
 ]
 
+function shuffleArray<T>(arr: T[]): T[] {
+  const next = [...arr]
+  for (let i = next.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[next[i], next[j]] = [next[j], next[i]]
+  }
+  return next
+}
+
 export default function OptimisticFilters({
   categories,
   tags,
@@ -33,6 +42,10 @@ export default function OptimisticFilters({
   const ctx = useContext(ThemeContext)
   const mode = ctx?.mode ?? 'brand'
   const headingClass = mode === 'brand' ? 'text-[var(--section-bg)]' : 'text-[var(--section-fg)]'
+  const activeSortButtonClass =
+    mode === 'brand'
+      ? 'bg-[var(--section-bg)] text-white'
+      : 'bg-[var(--section-fg)] text-white border border-[var(--panel-fg)]'
 
   // Use optimistic state for all filter parameters
   const [optimisticParams, setOptimisticParams] = useOptimistic(initialParams)
@@ -41,11 +54,11 @@ export default function OptimisticFilters({
   const [searchValue, setSearchValue] = useState(optimisticParams.search ?? '')
 
   // State for shuffled tags
-  const [shuffledTags, setShuffledTags] = useState(() => [...tags].sort(() => Math.random() - 0.5))
+  const [shuffledTags, setShuffledTags] = useState(() => [...tags])
 
   // Shuffle function
   const shuffleTags = () => {
-    setShuffledTags([...tags].sort(() => Math.random() - 0.5))
+    setShuffledTags(shuffleArray(tags))
   }
 
   // Update search value when optimistic params change (e.g., browser navigation)
@@ -56,7 +69,8 @@ export default function OptimisticFilters({
   // Debounced search effect
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (searchValue !== optimisticParams.search) {
+      const normalizedOptimisticSearch = optimisticParams.search ?? ''
+      if (searchValue !== normalizedOptimisticSearch) {
         updateParams({search: searchValue || undefined})
       }
     }, 250)
@@ -159,9 +173,7 @@ export default function OptimisticFilters({
                 'w-full border p-0 rounded-md transition-colors',
                 mode === 'brand' ? 'border-[var(--section-bg)]' : 'border-[var(--section-fg)]',
                 (optimisticParams.sort ?? 'alpha') === s.key
-                  ? mode === 'brand'
-                    ? 'bg-[var(--section-bg)] text-[var(--section-fg)]'
-                    : 'bg-[var(--section-fg)] text-[var(--section-bg)]'
+                  ? activeSortButtonClass
                   : mode === 'brand'
                     ? 'text-[var(--section-bg)] hover:bg-[var(--section-bg)] hover:text-[var(--section-fg)]'
                     : 'text-[var(--section-fg)] hover:bg-[var(--section-fg)] hover:text-[var(--section-bg)]',
@@ -255,7 +267,10 @@ export default function OptimisticFilters({
               search: undefined,
             })
           }}
-          className="w-full bg-[var(--panel-fg)] text-white py-2 px-4 rounded-md hover:opacity-90 transition-opacity"
+          className={[
+            'w-full py-2 px-4 rounded-md hover:opacity-90 transition-opacity cursor-pointer',
+            activeSortButtonClass,
+          ].join(' ')}
           type="button"
         >
           Clear All Filters

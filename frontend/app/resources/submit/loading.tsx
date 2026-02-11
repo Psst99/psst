@@ -3,8 +3,8 @@ export default function Loading() {
     <div className='p-4 h-full w-full md:max-w-[65vw] mx-auto animate-pulse'>
       <div className='space-y-4'>
         {/* Name */}
-        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[#FE93E7]'>
-          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[#FE93E7]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
+        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[var(--section-bg)]'>
+          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[color:var(--section-bg)]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
             Name
           </div>
           <div className='md:w-full md:rounded-l-none md:rounded-tr-xl'>
@@ -13,8 +13,8 @@ export default function Loading() {
         </div>
 
         {/* Pronouns */}
-        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[#FE93E7]'>
-          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[#FE93E7]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
+        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[var(--section-bg)]'>
+          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[color:var(--section-bg)]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
             Pronouns
           </div>
           <div className='md:w-full md:rounded-l-none md:rounded-tr-xl'>
@@ -23,8 +23,8 @@ export default function Loading() {
         </div>
 
         {/* Email */}
-        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[#FE93E7]'>
-          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[#FE93E7]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
+        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[var(--section-bg)]'>
+          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[color:var(--section-bg)]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
             E-mail
           </div>
           <div className='md:w-full md:rounded-l-none md:rounded-tr-xl'>
@@ -33,8 +33,8 @@ export default function Loading() {
         </div>
 
         {/* Categories */}
-        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[#FE93E7]'>
-          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[#FE93E7]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
+        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[var(--section-bg)]'>
+          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[color:var(--section-bg)]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
             Categorie(s)
           </div>
           <div className='md:w-full md:rounded-l-none md:rounded-tr-xl'>
@@ -43,7 +43,7 @@ export default function Loading() {
                 {[...Array(3)].map((_, i) => (
                   <div
                     key={i}
-                    className='inline-flex p-1.25 py-0.25 font-mono text-lg uppercase font-thin bg-[#e0e0e0] h-8 w-28 rounded-sm'
+                    className='inline-flex p-1.25 py-0.25 font-mono text-lg uppercase font-thin bg-[color:var(--panel-fg)]/10 h-8 w-28 rounded-sm'
                   ></div>
                 ))}
               </div>
@@ -52,8 +52,8 @@ export default function Loading() {
         </div>
 
         {/* Tags */}
-        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[#FE93E7]'>
-          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[#FE93E7]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
+        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[var(--section-bg)]'>
+          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[color:var(--section-bg)]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
             Tag(s)
           </div>
           <div className='md:w-full md:rounded-l-none md:rounded-tr-xl'>
@@ -62,7 +62,7 @@ export default function Loading() {
                 {[...Array(2)].map((_, i) => (
                   <div
                     key={i}
-                    className='inline-flex items-center rounded-full border px-4 py-1 text-xs bg-[#e0e0e0] w-20 h-7'
+                    className='inline-flex items-center rounded-full border px-4 py-1 text-xs bg-[color:var(--panel-fg)]/10 w-20 h-7'
                   ></div>
                 ))}
               </div>
@@ -71,8 +71,8 @@ export default function Loading() {
         </div>
 
         {/* Links */}
-        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[#FE93E7]'>
-          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[#FE93E7]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
+        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[var(--section-bg)]'>
+          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[color:var(--section-bg)]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
             Link(s)
           </div>
           <div className='md:w-full md:rounded-l-none md:rounded-tr-xl'>
@@ -81,8 +81,8 @@ export default function Loading() {
         </div>
 
         {/* Description */}
-        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[#FE93E7]'>
-          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[#FE93E7]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
+        <div className='w-full h-full rounded-xl mb-4 md:flex bg-[var(--section-bg)]'>
+          <div className='block text-transparent font-medium text-center uppercase font-mono md:w-[30%] px-6 py-0 xl:py-4 flex-shrink-0 bg-[color:var(--section-bg)]/30 rounded-t-xl md:rounded-tr-none md:rounded-l-xl'>
             Description
           </div>
           <div className='md:w-full md:rounded-l-none md:rounded-tr-xl'>
@@ -92,7 +92,7 @@ export default function Loading() {
 
         {/* Submit button */}
         <div className='flex justify-center mt-16'>
-          <div className='bg-[#FE93E7] opacity-70 w-64 h-64 rounded-full'></div>
+          <div className='bg-[color:var(--section-bg)]/70 w-64 h-64 rounded-full'></div>
         </div>
       </div>
     </div>

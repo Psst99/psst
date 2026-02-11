@@ -11,15 +11,12 @@ export type ResourcesSearchParams = {
   category?: string
 }
 
-// In ResourcesBrowseContentAsync - Fix the query construction
 export default async function ResourcesBrowseContentAsync({
   searchParams = {},
 }: {
   searchParams?: ResourcesSearchParams
 }) {
   const sp = await searchParams
-
-  console.log(sp, 'search params')
 
   const tagSlugs = (sp.tags ?? '')
     .split(',')
@@ -34,9 +31,6 @@ export default async function ResourcesBrowseContentAsync({
     .map((s) => s.trim())
     .filter(Boolean)
 
-  console.log('=== DEBUG RESOURCES FILTERING ===')
-  console.log('Raw tags param:', sp.tags)
-  console.log('Processed tagSlugs:', tagSlugs)
 
   // Generate the appropriate order clause based on sort parameter
   let orderClause = '| order(title asc)'
@@ -62,7 +56,6 @@ export default async function ResourcesBrowseContentAsync({
     }
   }
 
-  console.log('Generated conditions:', conditions)
 
   if (categorySlugs.length > 0) {
     conditions.push(`category in [${categorySlugs.map((slug) => `"${slug}"`).join(',')}]`)
@@ -106,6 +99,14 @@ export default async function ResourcesBrowseContentAsync({
   const {data} = await sanityFetch({query})
 
   const {resources, tags, categories, totalCount} = data
+  const categoriesWithSlug = categories.map((cat: any) => ({
+    ...cat,
+    slug: typeof cat.slug === 'string' ? cat.slug : cat.slug?.current,
+  }))
+  const tagsWithSlug = tags.map((tag: any) => ({
+    ...tag,
+    slug: typeof tag.slug === 'string' ? tag.slug : tag.slug?.current,
+  }))
 
   // Pass the current search params to the client component
   const currentSearchParams = {
@@ -122,8 +123,8 @@ export default async function ResourcesBrowseContentAsync({
         {/* Desktop sidebar */}
         <div className="hidden md:block">
           <ResourcesOptimisticFilters
-            categories={categories}
-            tags={tags}
+            categories={categoriesWithSlug}
+            tags={tagsWithSlug}
             initialParams={currentSearchParams}
             totalCount={totalCount}
           />
@@ -131,8 +132,8 @@ export default async function ResourcesBrowseContentAsync({
 
         {/* Mobile floating modal trigger */}
         <ResourcesMobileFiltersModal
-          categories={categories}
-          tags={tags}
+          categories={categoriesWithSlug}
+          tags={tagsWithSlug}
           initialParams={currentSearchParams}
           totalCount={totalCount}
         />
