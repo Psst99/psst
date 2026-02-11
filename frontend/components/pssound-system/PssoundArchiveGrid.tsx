@@ -32,9 +32,9 @@ export default function PssoundArchiveGrid({ items }: PssoundArchiveGridProps) {
   return (
     <>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto mt-8'>
-        {items.map((item) => (
+        {items.map((item, idx) => (
           <div
-            key={item._id || Math.random().toString()}
+            key={item._id || `${item.title}-${idx}`}
             onClick={() => handleArchiveClick(item)}
             className='p-4 sm:p-2 sm:px-4 rounded-lg cursor-pointer transition-all relative bg-white hover:shadow-md'
           >
