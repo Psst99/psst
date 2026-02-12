@@ -1,7 +1,8 @@
 'use client'
 
-import {useState, useMemo, useContext, useTransition} from 'react'
-import {useRouter} from 'next/navigation'
+import {useState, useMemo, useContext, useTransition, useEffect, type MouseEvent} from 'react'
+import Link from 'next/link'
+import {usePathname, useRouter} from 'next/navigation'
 import WorkshopsFilter from './WorkshopsFilter'
 import Tag from '../Tag'
 import {ThemeContext} from '@/app/ThemeProvider'
@@ -23,6 +24,7 @@ interface WorkshopsGridProps {
 
 export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
   const [pendingOpenSlug, setPendingOpenSlug] = useState<string | null>(null)
   const [activeFilters, setActiveFilters] = useState<string[]>([])
@@ -57,13 +59,31 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
     router.prefetch(`/workshops/w/${workshop.slug || workshop._id}`)
   }
 
-  const handleWorkshopClick = (workshop: Workshop) => {
+  const handleWorkshopOpenIntent = (event: MouseEvent<HTMLAnchorElement>, workshop: Workshop) => {
     const slug = workshop.slug || workshop._id
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+
     setPendingOpenSlug(slug)
+    event.preventDefault()
     startTransition(() => {
       router.push(`/workshops/w/${slug}`, {scroll: false})
     })
   }
+
+  useEffect(() => {
+    if (pathname === '/workshops' || pathname.startsWith('/workshops/w/')) {
+      setPendingOpenSlug(null)
+    }
+  }, [pathname])
 
   // Helper to format date range
   const formatDateRange = (dates: string[]) => {
@@ -108,10 +128,12 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
         data-pending={isPending ? '' : undefined}
       >
         {filteredWorkshops.map((item) => (
-          <div
+          <Link
             key={item._id}
+            href={`/workshops/w/${item.slug || item._id}`}
+            scroll={false}
             onMouseEnter={() => handleWorkshopHover(item)}
-            onClick={() => handleWorkshopClick(item)}
+            onClick={(event) => handleWorkshopOpenIntent(event, item)}
             className={`p-4 sm:p-2 sm:px-4 rounded-lg cursor-pointer transition-all relative overflow-hidden ${
               pendingOpenSlug === (item.slug || item._id) ? 'artist-open-pending' : ''
             } ${
@@ -150,7 +172,7 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
                 </div>
               )}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

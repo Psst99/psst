@@ -217,7 +217,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           onPointerMove={onDragMove}
           onPointerUp={onDragEnd}
           onPointerCancel={onDragEnd}
-          className="mr-2 flex items-center justify-center w-6 h-10 rounded
+          className="mr-0 flex items-center justify-center w-6 h-10 rounded
              cursor-grab active:cursor-grabbing select-none touch-none"
           style={{color: theme.fg}}
           aria-label="Drag player"
@@ -232,7 +232,12 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           </span>
         ) : (
           <>
-            <button onClick={prev} className="text-xl" style={{color: theme.fg}} aria-label="Previous">
+            <button
+              onClick={prev}
+              className="text-xl"
+              style={{color: theme.fg}}
+              aria-label="Previous"
+            >
               ⏮
             </button>
             <button
@@ -307,14 +312,22 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           {/* Player content (slides in/out) */}
           <div className="flex items-center gap-2 px-3 py-2 min-w-0">
             {loading ? (
-              <span className="animate-pulse font-bold text-sm whitespace-nowrap" style={{color: theme.fg}}>
+              <span
+                className="animate-pulse font-bold text-sm whitespace-nowrap"
+                style={{color: theme.fg}}
+              >
                 Loading...
               </span>
             ) : (
               <>
                 {/* Controls */}
                 <div className="flex items-center gap-1">
-                  <button onClick={prev} className="text-lg" style={{color: theme.fg}} aria-label="Previous">
+                  <button
+                    onClick={prev}
+                    className="text-lg"
+                    style={{color: theme.fg}}
+                    aria-label="Previous"
+                  >
                     ⏮
                   </button>
                   <button
@@ -325,7 +338,12 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
                   >
                     {isPlaying ? '⏸' : '▶'}
                   </button>
-                  <button onClick={next} className="text-lg" style={{color: theme.fg}} aria-label="Next">
+                  <button
+                    onClick={next}
+                    className="text-lg"
+                    style={{color: theme.fg}}
+                    aria-label="Next"
+                  >
                     ⏭
                   </button>
                 </div>
