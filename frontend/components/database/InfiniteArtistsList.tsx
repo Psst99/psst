@@ -1,9 +1,10 @@
 'use client'
 
-import {useState, useEffect, useTransition, useCallback, useContext} from 'react'
+import {useState, useEffect, useTransition, useCallback, useContext, type MouseEvent} from 'react'
 import {useInView} from 'react-intersection-observer'
 import {BiLoaderCircle} from 'react-icons/bi'
 import Link from 'next/link'
+import {usePathname, useRouter} from 'next/navigation'
 
 import {
   getArtistsPaginated,
@@ -27,6 +28,9 @@ export default function InfiniteArtistsList({
   const [hasNextPage, setHasNextPage] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [pendingOpenSlug, setPendingOpenSlug] = useState<string | null>(null)
+  const pathname = usePathname()
+  const router = useRouter()
   const ctx = useContext(ThemeContext)
   const mode = ctx?.mode ?? 'brand'
   const isBrand = mode === 'brand'
@@ -36,7 +40,14 @@ export default function InfiniteArtistsList({
     setArtists(initialArtists)
     setCurrentPage(1)
     setHasNextPage(initialArtists.length >= 20)
+    setPendingOpenSlug(null)
   }, [initialArtists, searchParams])
+
+  useEffect(() => {
+    if (pathname === '/database' || pathname.startsWith('/database/artists/')) {
+      setPendingOpenSlug(null)
+    }
+  }, [pathname])
 
   const {ref, inView} = useInView({
     threshold: 0.1,
@@ -71,6 +82,29 @@ export default function InfiniteArtistsList({
     rootMargin: '100px',
   })
 
+  const handleArtistOpenIntent = (
+    event: MouseEvent<HTMLAnchorElement>,
+    slug: string | undefined
+  ) => {
+    if (!slug) return
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+
+    setPendingOpenSlug(slug)
+    event.preventDefault()
+    startTransition(() => {
+      router.push(`/database/artists/${slug}`, {scroll: false})
+    })
+  }
+
   if (artists.length === 0) {
     return (
       <div className="bg-white p-8 rounded-lg text-center text-gray-500">
@@ -87,8 +121,13 @@ export default function InfiniteArtistsList({
           href={`/database/artists/${artist.slug?.current}`}
           className="block w-full"
           scroll={false}
+          onClick={(event) => handleArtistOpenIntent(event, artist.slug?.current)}
         >
-          <div className="bg-white p-4 rounded-lg hover:shadow-md transition-shadow">
+          <div
+            className={`bg-white p-4 rounded-lg hover:shadow-md transition-shadow ${
+              pendingOpenSlug === artist.slug?.current ? 'artist-open-pending' : ''
+            }`}
+          >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <h2
                 className={`${

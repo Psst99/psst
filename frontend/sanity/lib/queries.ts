@@ -1,6 +1,9 @@
 import {defineQuery} from 'next-sanity'
 
-export const settingsQuery = defineQuery(`*[_type == "settings"][0]`)
+export const settingsQuery = defineQuery(`*[_type == "settings" && _id == "siteSettings"][0]`)
+export const themeSettingsQuery = defineQuery(
+  `coalesce(*[_id == "drafts.themeSettings"][0], *[_id == "themeSettings"][0]){sectionColors}`,
+)
 
 const postFields = /* groq */ `
   _id,

@@ -15,20 +15,25 @@ interface SubNavigationProps {
 export default function SubNavigation({items}: SubNavigationProps) {
   const pathname = usePathname()
   const isDatabaseArtistModalPath = pathname.startsWith('/database/artists/')
+  const isResourcesItemModalPath = pathname.startsWith('/resources/items/')
 
   return (
     <div className="shrink-0 hidden md:block rounded-tr-2xl rounded-tl-md border-t pb-0 section-border tab-inactive">
       <div className="flex relative w-full">
         {items.map((item, idx) => {
           const shouldForceBrowseActive =
-            isDatabaseArtistModalPath &&
-            item.href === '/database/browse' &&
-            items.some((navItem) => navItem.href === '/database')
+            (isDatabaseArtistModalPath &&
+              item.href === '/database/browse' &&
+              items.some((navItem) => navItem.href === '/database')) ||
+            (isResourcesItemModalPath &&
+              item.href === '/resources/browse' &&
+              items.some((navItem) => navItem.href === '/resources'))
 
           const isActive =
             shouldForceBrowseActive ||
             pathname === item.href ||
             (!isDatabaseArtistModalPath &&
+              !isResourcesItemModalPath &&
               item.href === `/${pathname.split('/')[1]}` &&
               items.every((i) => i.href !== pathname))
 

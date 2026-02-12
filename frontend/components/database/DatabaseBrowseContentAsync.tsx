@@ -73,9 +73,9 @@ export default async function DatabaseBrowseContentAsync({
 
   return (
     <div className="p-4 lg:px-16 pt-0 w-full mx-auto group">
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row md:items-start gap-8">
         {/* Desktop sidebar */}
-        <div className="hidden md:block">
+        <div className="hidden md:block md:sticky md:top-0 md:self-start md:flex-none">
           <OptimisticFilters
             categories={categories}
             tags={tags}

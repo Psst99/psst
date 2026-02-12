@@ -21,6 +21,7 @@ import {
 import {assist} from '@sanity/assist'
 import StudioLogoNew from './src/components/StudioLogo'
 import {colorOptions} from './src/lib/theme'
+import {themePreviewTool} from './src/plugins/themePreviewTool'
 
 // Environment variables for project configuration
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
@@ -86,6 +87,11 @@ export default defineConfig({
             message: 'This document is used on all pages',
             tone: 'positive',
           }),
+          themeSettings: defineLocations({
+            locations: [homeLocation],
+            message: 'Theme colors are used across all sections',
+            tone: 'positive',
+          }),
           page: defineLocations({
             select: {
               name: 'name',
@@ -128,9 +134,10 @@ export default defineConfig({
     unsplashImageAsset(),
     assist(),
     visionTool(),
+    themePreviewTool(),
     colorInput(),
     simplerColorInput({
-      defaultColorFormat: 'rgba',
+      defaultColorFormat: 'hex',
       defaultColorList: colorOptions,
       enableSearch: true,
       showColorValue: true,

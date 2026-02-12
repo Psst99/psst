@@ -42,6 +42,8 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
     : hasSubNav
       ? 'py-16 pt-32 min-[83rem]:pt-16 min-[83rem]:-mt-4'
       : 'pt-16 pb-0 min-[83rem]:py-16 min-[83rem]:mt-0'
+  const contentOverflowClasses =
+    section === 'database' ? 'overflow-visible' : 'overflow-y-auto no-scrollbar'
 
   return (
     <SectionScope
@@ -67,7 +69,8 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
         {/* Main content */}
         <div
           className={[
-            'flex-1 border border-t-0 min-[83rem]:border-t min-[83rem]:rounded-r-2xl overflow-y-auto no-scrollbar z-10',
+            'flex-1 border border-t-0 min-[83rem]:border-t min-[83rem]:rounded-r-2xl z-10',
+            contentOverflowClasses,
             'panel-bg panel-fg panel-border',
             paddingClasses,
             hasSubNav ? 'no-scrollbar' : '',

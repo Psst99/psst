@@ -1,6 +1,9 @@
 'use client'
 
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {useContext, useEffect, useMemo, useRef, useState} from 'react'
+import {usePathname} from 'next/navigation'
+import {ThemeContext} from '@/app/ThemeProvider'
+import {getTheme, type MainSectionSlug, type SectionSlug} from '@/lib/theme/sections'
 
 declare global {
   interface Window {
@@ -23,7 +26,27 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n))
 }
 
+const MAIN_MENU_ITEMS: ReadonlyArray<{path: string; section: MainSectionSlug}> = [
+  {path: '/database', section: 'database'},
+  {path: '/resources', section: 'resources'},
+  {path: '/pssound-system', section: 'pssound-system'},
+  {path: '/workshops', section: 'workshops'},
+  {path: '/events', section: 'events'},
+  {path: '/archive', section: 'archive'},
+  {path: '/psst', section: 'psst'},
+] as const
+
+function getActiveSectionSlug(pathname: string): SectionSlug {
+  for (const {path, section} of MAIN_MENU_ITEMS) {
+    if (pathname.startsWith(path)) return section
+  }
+  return 'home'
+}
+
 export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: string}) {
+  const pathname = usePathname()
+  const ctx = useContext(ThemeContext)
+  const mode = ctx?.mode ?? 'brand'
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -49,6 +72,8 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
 
   const SOUNDCLOUD_PLAYLIST_URL =
     playlistUrl || 'https://soundcloud.com/soundcloud-hustle/sets/boomin-feel-good-hip-hop'
+  const activeSection = getActiveSectionSlug(pathname)
+  const theme = getTheme(activeSection, mode, ctx?.themeOverrides)
 
   const SOUNDCLOUD_IFRAME_URL = useMemo(() => {
     return `https://w.soundcloud.com/player/?url=${encodeURIComponent(
@@ -176,10 +201,13 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       {/* Draggable desktop player */}
       <div
         ref={containerRef}
-        className="soundcloud-player-fixed flex fixed z-50 items-center gap-3 bg-[#cccccc] rounded-md px-4 py-2 border border-[#1D53FF] shadow-sm"
+        className="soundcloud-player-fixed flex fixed z-50 items-center gap-3 rounded-md px-4 py-2 border shadow-sm"
         style={{
           right: 16 + pos.x,
           bottom: 16 + pos.y,
+          backgroundColor: theme.bg,
+          borderColor: theme.fg,
+          color: theme.fg,
         }}
       >
         {/* Drag handle (separate from controls) */}
@@ -189,8 +217,9 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           onPointerMove={onDragMove}
           onPointerUp={onDragEnd}
           onPointerCancel={onDragEnd}
-          className="mr-2 flex items-center justify-center w-6 h-10 rounded text-[#1D53FF]
+          className="mr-2 flex items-center justify-center w-6 h-10 rounded
              cursor-grab active:cursor-grabbing select-none touch-none"
+          style={{color: theme.fg}}
           aria-label="Drag player"
           title="Drag"
         >
@@ -198,20 +227,23 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
         </button>
 
         {loading ? (
-          <span className="animate-pulse text-[#1D53FF] font-bold">Loading...</span>
+          <span className="animate-pulse font-bold" style={{color: theme.fg}}>
+            Loading...
+          </span>
         ) : (
           <>
-            <button onClick={prev} className="text-[#1D53FF] text-xl" aria-label="Previous">
+            <button onClick={prev} className="text-xl" style={{color: theme.fg}} aria-label="Previous">
               ⏮
             </button>
             <button
               onClick={playPause}
-              className="text-[#1D53FF] text-xl"
+              className="text-xl"
+              style={{color: theme.fg}}
               aria-label={isPlaying ? 'Pause' : 'Play'}
             >
               {isPlaying ? '⏸' : '▶'}
             </button>
-            <button onClick={next} className="text-[#1D53FF] text-xl" aria-label="Next">
+            <button onClick={next} className="text-xl" style={{color: theme.fg}} aria-label="Next">
               ⏭
             </button>
 
@@ -233,16 +265,19 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
                   href={trackInfo.permalink_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold text-[#1D53FF] hover:underline block truncate max-w-[220px]"
+                  className="font-bold hover:underline block truncate max-w-[220px]"
+                  style={{color: theme.fg}}
                 >
                   {trackInfo.title}
                 </a>
               ) : (
-                <div className="font-bold text-[#1D53FF] truncate max-w-[220px]">
+                <div className="font-bold truncate max-w-[220px]" style={{color: theme.fg}}>
                   {trackInfo.title}
                 </div>
               )}
-              <div className="text-[#1D53FF] truncate max-w-[220px]">{trackInfo.artist}</div>
+              <div className="truncate max-w-[220px]" style={{color: theme.fg}}>
+                {trackInfo.artist}
+              </div>
             </div>
           </>
         )}
@@ -252,16 +287,18 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       <div className="hidden fixed bottom-10 right-0 z-50">
         <div
           className={`
-            bg-[#cccccc] border border-[#1D53FF] rounded-l-md
+            border rounded-l-md
             transition-transform duration-300 ease-in-out
             ${isExpanded ? 'translate-x-0' : 'translate-x-[calc(100%-48px)]'}
             flex items-center
           `}
+          style={{backgroundColor: theme.bg, borderColor: theme.fg, color: theme.fg}}
         >
           {/* Toggle button (always visible) */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-12 h-12 flex items-center justify-center text-[#1D53FF] text-xl bg-[#cccccc] border-r border-[#1D53FF] rounded-l-md flex-shrink-0"
+            className="w-12 h-12 flex items-center justify-center text-xl border-r rounded-l-md flex-shrink-0"
+            style={{backgroundColor: theme.bg, borderColor: theme.fg, color: theme.fg}}
             aria-label={isExpanded ? 'Collapse player' : 'Expand player'}
           >
             {isExpanded ? '→' : '←'}
@@ -270,24 +307,25 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           {/* Player content (slides in/out) */}
           <div className="flex items-center gap-2 px-3 py-2 min-w-0">
             {loading ? (
-              <span className="animate-pulse text-[#1D53FF] font-bold text-sm whitespace-nowrap">
+              <span className="animate-pulse font-bold text-sm whitespace-nowrap" style={{color: theme.fg}}>
                 Loading...
               </span>
             ) : (
               <>
                 {/* Controls */}
                 <div className="flex items-center gap-1">
-                  <button onClick={prev} className="text-[#1D53FF] text-lg" aria-label="Previous">
+                  <button onClick={prev} className="text-lg" style={{color: theme.fg}} aria-label="Previous">
                     ⏮
                   </button>
                   <button
                     onClick={playPause}
-                    className="text-[#1D53FF] text-lg"
+                    className="text-lg"
+                    style={{color: theme.fg}}
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                   >
                     {isPlaying ? '⏸' : '▶'}
                   </button>
-                  <button onClick={next} className="text-[#1D53FF] text-lg" aria-label="Next">
+                  <button onClick={next} className="text-lg" style={{color: theme.fg}} aria-label="Next">
                     ⏭
                   </button>
                 </div>
@@ -311,16 +349,19 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
                         href={trackInfo.permalink_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-bold text-[#1D53FF] hover:underline text-xs truncate block"
+                        className="font-bold hover:underline text-xs truncate block"
+                        style={{color: theme.fg}}
                       >
                         {trackInfo.title}
                       </a>
                     ) : (
-                      <div className="font-bold text-[#1D53FF] text-xs truncate">
+                      <div className="font-bold text-xs truncate" style={{color: theme.fg}}>
                         {trackInfo.title}
                       </div>
                     )}
-                    <div className="text-[#1D53FF] text-xs truncate">{trackInfo.artist}</div>
+                    <div className="text-xs truncate" style={{color: theme.fg}}>
+                      {trackInfo.artist}
+                    </div>
                   </div>
                 </div>
               </>

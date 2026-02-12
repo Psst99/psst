@@ -9,7 +9,7 @@ import {Toaster} from 'sonner'
 import DraftModeToast from '@/components/DraftModeToast'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
-import {settingsQuery} from '@/sanity/lib/queries'
+import {settingsQuery, themeSettingsQuery} from '@/sanity/lib/queries'
 import {resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from './client-utils'
 
@@ -24,6 +24,7 @@ import ThemeProvider from './ThemeProvider'
 import ThemeToggleButton from '@/components/ThemeToggleButton'
 import RoundedToggleButton from '@/components/RoundedToggleButton'
 import {buildThemeOverrides} from '@/lib/theme/overrides'
+import SupportModalWidget from '@/components/SupportModalWidget'
 
 export async function generateMetadata(): Promise<Metadata> {
   const {data: settings} = await sanityFetch({query: settingsQuery, stega: false})
@@ -61,12 +62,13 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   const {isEnabled: isDraftMode} = await draftMode()
   const cookieStore = await cookies()
 
-  const [{data: settings}] = await Promise.all([
+  const [{data: settings}, {data: themeSettings}] = await Promise.all([
     sanityFetch({query: settingsQuery, stega: false}).catch(() => ({data: null})),
+    sanityFetch({query: themeSettingsQuery, stega: false}).catch(() => ({data: null})),
   ])
 
   const soundcloudPlaylistUrl = settings?.soundcloudPlaylistUrl
-  const themeOverrides = buildThemeOverrides((settings as any)?.theme?.sectionColors)
+  const themeOverrides = buildThemeOverrides((themeSettings as any)?.sectionColors)
   const modeCookie = cookieStore.get('psst-theme-mode')?.value
   const roundedCookie = cookieStore.get('psst-rounded-corners')?.value
   const initialMode = modeCookie === 'accessible' || modeCookie === 'brand' ? modeCookie : 'brand'
@@ -100,6 +102,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
           >
             <RoundedToggleButton />
             <ThemeToggleButton />
+            <SupportModalWidget content={(settings as any)?.support ?? null} />
             <div className="min-[83rem]:hidden">
               <MobileHeader />
             </div>

@@ -312,6 +312,21 @@
   mix-blend-mode: normal;
 }
 
+/* Keep support button fixed during transitions */
+.support-widget-fixed {
+  view-transition-name: support-widget;
+}
+
+::view-transition-group(support-widget) {
+  z-index: 9999;
+}
+
+::view-transition-old(support-widget),
+::view-transition-new(support-widget) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 /* Keep toggle buttons fixed during page transitions */
 .theme-toggle-fixed {
   view-transition-name: theme-toggle;
@@ -433,4 +448,37 @@
 
 .react-datepicker__input-container {
   width: 100%;
+}
+
+.artist-open-pending {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--section-bg) 35%, transparent);
+}
+
+.artist-open-pending::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    color-mix(in oklab, var(--section-bg) 22%, white) 42%,
+    color-mix(in oklab, var(--section-bg) 45%, white) 50%,
+    color-mix(in oklab, var(--section-bg) 22%, white) 58%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  animation: artist-open-sweep 1s ease-in-out infinite;
+  opacity: 0.65;
+}
+
+@keyframes artist-open-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
 }

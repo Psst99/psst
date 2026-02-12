@@ -28,6 +28,7 @@ import {resourceSubmission} from './documents/resourceSubmission'
 import {eventTag} from './documents/eventTag'
 import {membershipPage} from './singletons/membershipPage'
 import homepage from './singletons/homepage'
+import {themeSettings} from './singletons/themeSettings'
 import {pssoundArchive} from './documents/pssoundArchive'
 import {resourceTag} from './documents/resourceTag'
 import psstSection from './documents/psstSection'
@@ -41,6 +42,7 @@ export const schemaTypes = [
   pageSettings,
   membershipPage,
   homepage,
+  themeSettings,
   // Documents
   psstPage,
   psstSection,
