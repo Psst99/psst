@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import {urlForImage} from '@/sanity/lib/utils'
+import {LINK_PILL_CLASS} from '@/lib/linkStyles'
 
 interface Resource {
   _id: string
@@ -95,7 +96,8 @@ export default function ResourcesGrid({resources}: ResourcesGridProps) {
                 href={resource.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#FE93E7] hover:underline"
+                className={LINK_PILL_CLASS}
+                style={{color: '#FE93E7'}}
               >
                 Visit Link
               </a>
@@ -106,7 +108,8 @@ export default function ResourcesGrid({resources}: ResourcesGridProps) {
                 href={resource.fileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#FE93E7] hover:underline"
+                className={LINK_PILL_CLASS}
+                style={{color: '#FE93E7'}}
               >
                 Download
               </a>

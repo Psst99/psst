@@ -3,11 +3,21 @@ import Link from 'next/link'
 import Reveal from './Reveal'
 import RevealStack from './RevealStack'
 import {isValidElement, type CSSProperties, type ReactNode} from 'react'
+import {LINK_PILL_CLASS} from '@/lib/linkStyles'
 
 interface CmsContentProps {
   value: any
   className?: string
   bulletTone?: 'panel' | 'sectionBg' | 'sectionFg' | 'muted'
+}
+
+type PortableTextLinkValue = {
+  linkType?: 'internal' | 'external' | 'href' | 'page' | 'post'
+  internalLink?: string
+  href?: string
+  page?: string
+  post?: string
+  openInNewTab?: boolean
 }
 
 const bulletToneColor = {
@@ -60,6 +70,33 @@ function hasRenderableText(node: ReactNode): boolean {
   return true
 }
 
+function resolvePortableTextLink(value: PortableTextLinkValue | null | undefined): {
+  href: string
+  openInNewTab: boolean
+} | null {
+  if (!value) return null
+
+  const linkType = value.linkType ?? (value.href ? 'href' : undefined)
+
+  if (linkType === 'internal' && value.internalLink) {
+    return {href: value.internalLink, openInNewTab: Boolean(value.openInNewTab)}
+  }
+
+  if ((linkType === 'external' || linkType === 'href') && value.href) {
+    return {href: value.href, openInNewTab: Boolean(value.openInNewTab)}
+  }
+
+  if (linkType === 'page' && value.page) {
+    return {href: `/${value.page}`, openInNewTab: Boolean(value.openInNewTab)}
+  }
+
+  if (linkType === 'post' && value.post) {
+    return {href: `/posts/${value.post}`, openInNewTab: Boolean(value.openInNewTab)}
+  }
+
+  return null
+}
+
 const getHighlightedBlockComponents = (): PortableTextComponents => ({
   block: {
     normal: ({children}) => (
@@ -71,35 +108,35 @@ const getHighlightedBlockComponents = (): PortableTextComponents => ({
   },
   marks: {
     link: ({children, value}) => {
-      const {linkType, internalLink, href, openInNewTab} = value || {}
+      const resolvedLink = resolvePortableTextLink(value)
+      if (!resolvedLink) return <span>{children}</span>
 
-      if (linkType === 'internal' && internalLink) {
+      const {href, openInNewTab} = resolvedLink
+      const isInternal = href.startsWith('/')
+
+      if (isInternal) {
         return (
-          <Link
-            href={internalLink}
-            className="underline hover:opacity-70 transition-opacity"
-            target={openInNewTab ? '_blank' : undefined}
-            rel={openInNewTab ? 'noopener noreferrer' : undefined}
-          >
+            <Link
+              href={href}
+              className={LINK_PILL_CLASS}
+              target={openInNewTab ? '_blank' : undefined}
+              rel={openInNewTab ? 'noopener noreferrer' : undefined}
+            >
             {children}
           </Link>
         )
       }
 
-      if (linkType === 'external' && href) {
-        return (
-          <a
-            href={href}
-            className="underline hover:opacity-70 transition-opacity"
-            target={openInNewTab ? '_blank' : '_self'}
-            rel={openInNewTab ? 'noopener noreferrer' : undefined}
-          >
-            {children}
-          </a>
-        )
-      }
-
-      return <span>{children}</span>
+      return (
+        <a
+          href={href}
+          className={LINK_PILL_CLASS}
+          target={openInNewTab ? '_blank' : '_self'}
+          rel={openInNewTab ? 'noopener noreferrer' : undefined}
+        >
+          {children}
+        </a>
+      )
     },
   },
 })
@@ -178,35 +215,35 @@ const getComponents = (
     ),
 
     link: ({children, value}) => {
-      const {linkType, internalLink, href, openInNewTab} = value || {}
+      const resolvedLink = resolvePortableTextLink(value)
+      if (!resolvedLink) return <span>{children}</span>
 
-      if (linkType === 'internal' && internalLink) {
+      const {href, openInNewTab} = resolvedLink
+      const isInternal = href.startsWith('/')
+
+      if (isInternal) {
         return (
-          <Link
-            href={internalLink}
-            className="underline hover:opacity-70 transition-opacity"
-            target={openInNewTab ? '_blank' : undefined}
-            rel={openInNewTab ? 'noopener noreferrer' : undefined}
-          >
+            <Link
+              href={href}
+              className={LINK_PILL_CLASS}
+              target={openInNewTab ? '_blank' : undefined}
+              rel={openInNewTab ? 'noopener noreferrer' : undefined}
+            >
             {children}
           </Link>
         )
       }
 
-      if (linkType === 'external' && href) {
-        return (
-          <a
-            href={href}
-            className="underline hover:opacity-70 transition-opacity"
-            target={openInNewTab ? '_blank' : '_self'}
-            rel={openInNewTab ? 'noopener noreferrer' : undefined}
-          >
-            {children}
-          </a>
-        )
-      }
-
-      return <span>{children}</span>
+      return (
+        <a
+          href={href}
+          className={LINK_PILL_CLASS}
+          target={openInNewTab ? '_blank' : '_self'}
+          rel={openInNewTab ? 'noopener noreferrer' : undefined}
+        >
+          {children}
+        </a>
+      )
     },
   },
 

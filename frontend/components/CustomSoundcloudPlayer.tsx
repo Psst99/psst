@@ -265,21 +265,9 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
             )}
 
             <div className="min-w-0">
-              {trackInfo.permalink_url ? (
-                <a
-                  href={trackInfo.permalink_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold hover:underline block truncate max-w-[220px]"
-                  style={{color: theme.fg}}
-                >
-                  {trackInfo.title}
-                </a>
-              ) : (
-                <div className="font-bold truncate max-w-[220px]" style={{color: theme.fg}}>
-                  {trackInfo.title}
-                </div>
-              )}
+              <div className="font-bold truncate max-w-[220px]" style={{color: theme.fg}}>
+                {trackInfo.title}
+              </div>
               <div className="truncate max-w-[220px]" style={{color: theme.fg}}>
                 {trackInfo.artist}
               </div>
@@ -362,21 +350,9 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
                     </a>
                   )}
                   <div className="min-w-0 max-w-[120px]">
-                    {trackInfo.permalink_url ? (
-                      <a
-                        href={trackInfo.permalink_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-bold hover:underline text-xs truncate block"
-                        style={{color: theme.fg}}
-                      >
-                        {trackInfo.title}
-                      </a>
-                    ) : (
-                      <div className="font-bold text-xs truncate" style={{color: theme.fg}}>
-                        {trackInfo.title}
-                      </div>
-                    )}
+                    <div className="font-bold text-xs truncate" style={{color: theme.fg}}>
+                      {trackInfo.title}
+                    </div>
                     <div className="text-xs truncate" style={{color: theme.fg}}>
                       {trackInfo.artist}
                     </div>

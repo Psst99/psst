@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { linkResolver } from "@/sanity/lib/utils";
+import { LINK_PILL_CLASS } from "@/lib/linkStyles";
 
 interface ResolvedLinkProps {
   link: any;
@@ -22,7 +23,7 @@ export default function ResolvedLink({
         href={resolvedLink}
         target={link?.openInNewTab ? "_blank" : undefined}
         rel={link?.openInNewTab ? "noopener noreferrer" : undefined}
-        className={className}
+        className={className ?? LINK_PILL_CLASS}
       >
         {children}
       </Link>

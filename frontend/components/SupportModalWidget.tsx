@@ -15,8 +15,10 @@ import {
 import {usePathname, useRouter, useSearchParams} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
+import {motion} from 'framer-motion'
 import {ThemeContext} from '@/app/ThemeProvider'
 import {getTheme} from '@/lib/theme/sections'
+import {LINK_PILL_CLASS} from '@/lib/linkStyles'
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>
 type SupportTab = 'donation' | 'newsletter'
@@ -45,6 +47,8 @@ const SUPPORT_PARAM = 'support'
 const SUPPORT_TAB_PARAM = 'supportTab'
 const DONATION_STATUS_PARAM = 'donation'
 const OPEN_VALUE = 'open'
+const FLOATING_CTA_ROTATION_MS = 5_000
+const MENU_TWEEN = {duration: 0.5, type: 'tween' as const, ease: [0.76, 0, 0.24, 1] as const}
 
 const richTextComponents: PortableTextComponents = {
   block: {
@@ -60,7 +64,7 @@ const richTextComponents: PortableTextComponents = {
             href={href}
             target={openInNewTab ? '_blank' : '_self'}
             rel={openInNewTab ? 'noopener noreferrer' : undefined}
-            className="underline hover:opacity-70 transition-opacity"
+            className={LINK_PILL_CLASS}
           >
             {children}
           </a>
@@ -86,6 +90,18 @@ function getFloatingOffsets() {
   return {left: isLarge ? 32 : 16, bottom: isLarge ? 32 : 24}
 }
 
+function LabelLines({label}: {label: string}) {
+  return (
+    <>
+      {label.split('\n').map((line, index) => (
+        <span key={`${line}-${index}`} className="block">
+          {line}
+        </span>
+      ))}
+    </>
+  )
+}
+
 export default function SupportModalWidget({content = null}: SupportModalWidgetProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -108,6 +124,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false)
   const [shareState, setShareState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [floatingPos, setFloatingPos] = useState<Point | null>(null)
+  const [floatingCtaTab, setFloatingCtaTab] = useState<SupportTab>('donation')
   const floatingContainerRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<{
     dragging: boolean
@@ -134,8 +151,6 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     donationStatus === 'expired'
   const showDonationResultScreen = donationSuccess || donationFailed
   const modalTitle = content?.modalTitle?.trim() || 'Support PSST'
-  const floatingButtonLabel =
-    content?.floatingButtonLabel?.trim() || 'Make a donation\n+ newsletter'
   const shareButtonLabel = content?.shareButtonLabel?.trim() || 'Share'
   const donationTabLabel = content?.donationTabLabel?.trim() || 'Make a donation'
   const newsletterTabLabel = content?.newsletterTabLabel?.trim() || 'Newsletter'
@@ -189,6 +204,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const openModal = useCallback(
     (tab: SupportTab) => {
       setActiveTab(tab)
+      setFloatingCtaTab(tab)
       updateSearchParams((next) => {
         next.set(SUPPORT_PARAM, OPEN_VALUE)
         next.set(SUPPORT_TAB_PARAM, tab)
@@ -435,8 +451,16 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       dragRef.current.didDrag = false
       return
     }
-    openModal('donation')
-  }, [openModal])
+    openModal(floatingCtaTab)
+  }, [floatingCtaTab, openModal])
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setFloatingCtaTab((prev) => (prev === 'donation' ? 'newsletter' : 'donation'))
+    }, FLOATING_CTA_ROTATION_MS)
+
+    return () => window.clearInterval(id)
+  }, [])
 
   if (!isMounted) return null
 
@@ -459,11 +483,23 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           }`}
           style={{backgroundColor: floatingButtonBg, color: floatingButtonFg}}
         >
-          {floatingButtonLabel.split('\n').map((line, index) => (
-            <span key={`${line}-${index}`} className="block">
-              {line}
-            </span>
-          ))}
+          <span className="sr-only">
+            {floatingCtaTab === 'donation' ? donationTabLabel : newsletterTabLabel}
+          </span>
+          <span className="relative block h-[2.3em] overflow-hidden" aria-hidden="true">
+            <motion.span
+              className="absolute inset-0 block h-[200%]"
+              animate={{top: floatingCtaTab === 'donation' ? '0%' : '-100%'}}
+              transition={MENU_TWEEN}
+            >
+              <span className="flex h-1/2 items-center justify-center overflow-hidden">
+                <LabelLines label={donationTabLabel} />
+              </span>
+              <span className="flex h-1/2 items-center justify-center overflow-hidden">
+                <LabelLines label={newsletterTabLabel} />
+              </span>
+            </motion.span>
+          </span>
         </button>
       </div>
 
