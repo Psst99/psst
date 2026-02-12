@@ -481,7 +481,11 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           className={`cursor-pointer w-36 h-36 min-[83rem]:w-48 min-[83rem]:h-48 rounded-full text-[18px] min-[83rem]:text-[28px] leading-[1.05] text-center px-4 font-medium transition-opacity ${
             isOpen ? 'pointer-events-none' : ''
           }`}
-          style={{backgroundColor: floatingButtonBg, color: floatingButtonFg}}
+          style={{
+            backgroundColor: floatingButtonBg,
+            color: floatingButtonFg,
+            border: mode === 'accessible' ? `1px solid ${floatingButtonFg}` : undefined,
+          }}
         >
           <span className="sr-only">
             {floatingCtaTab === 'donation' ? donationTabLabel : newsletterTabLabel}

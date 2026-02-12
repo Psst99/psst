@@ -18,7 +18,7 @@ export default function SubNavigation({items}: SubNavigationProps) {
   const isResourcesItemModalPath = pathname.startsWith('/resources/items/')
 
   return (
-    <div className="shrink-0 hidden md:block rounded-tr-2xl rounded-tl-md border-t pb-0 section-border tab-inactive">
+    <div className="shrink-0 hidden md:block rounded-t-xl overflow-hidden border border-b-0 pb-0 section-border tab-inactive">
       <div className="flex relative w-full">
         {items.map((item, idx) => {
           const shouldForceBrowseActive =

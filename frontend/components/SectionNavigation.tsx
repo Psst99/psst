@@ -4,6 +4,8 @@ import SectionScope from './SectionScope'
 
 interface SectionNavigationProps {
   currentSection?: string
+  hideCurrentSection?: boolean
+  onlyCurrentSection?: boolean
 }
 
 const TABS: Array<{href: string; label: string; slug: SectionSlug; zBase: number}> = [
@@ -16,25 +18,46 @@ const TABS: Array<{href: string; label: string; slug: SectionSlug; zBase: number
   {href: '/archive', label: 'ARCHIVE', slug: 'archive', zBase: 13},
 ]
 
-export default function SectionNavigation({currentSection = ''}: SectionNavigationProps) {
+export default function SectionNavigation({
+  currentSection = '',
+  hideCurrentSection = false,
+  onlyCurrentSection = false,
+}: SectionNavigationProps) {
   return (
     <div className="w-full">
       <div className="flex relative w-full">
         {TABS.map((tab, idx) => {
-          const isActive = currentSection === tab.slug
+          const isCurrent = currentSection === tab.slug
+          const shouldHide =
+            (hideCurrentSection && isCurrent) || (onlyCurrentSection && !isCurrent)
+          const isActive = !hideCurrentSection && isCurrent
           const href = isActive ? '/' : tab.href
+          const tabClassName = [
+            'relative font-normal text-[24px] leading-[22px] uppercase tracking-tight',
+            'px-10 py-1 border border-b-0 rounded-t-xl flex items-center justify-center',
+            'section-bg section-fg section-border',
+            idx > 0 ? '-ml-px' : '',
+            shouldHide ? 'invisible' : '',
+            isActive ? 'z-30 section-underline' : `z-[${tab.zBase}]`,
+          ].join(' ')
+
+          if (shouldHide) {
+            return (
+              <SectionScope key={tab.slug} section={tab.slug} className="contents">
+                <div aria-hidden="true" className={tabClassName}>
+                  {tab.label}
+                </div>
+              </SectionScope>
+            )
+          }
 
           return (
             <SectionScope key={tab.slug} section={tab.slug} className="contents">
               <CustomLink
                 href={href}
-                className={[
-                  'relative font-normal text-[24px] leading-[22px] uppercase tracking-tight',
-                  'px-10 py-1 border border-b-0 rounded-t-xl flex items-center justify-center',
-                  'section-bg section-fg section-border',
-                  idx > 0 ? '-ml-px' : '',
-                  isActive ? 'z-30 section-underline' : `z-[${tab.zBase}]`,
-                ].join(' ')}
+                intercalaire
+                prefetch={false}
+                className={tabClassName}
                 style={
                   isActive
                     ? {

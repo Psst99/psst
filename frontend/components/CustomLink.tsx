@@ -15,9 +15,19 @@ type Props = {
   className?: string
   style?: CSSProperties & {[key: string]: any}
   onClick?: (e: MouseEvent<HTMLAnchorElement>) => void
+  intercalaire?: boolean
+  prefetch?: boolean
 }
 
-export default function CustomLink({href, children, className, style, onClick}: Props) {
+export default function CustomLink({
+  href,
+  children,
+  className,
+  style,
+  onClick,
+  intercalaire = false,
+  prefetch = true,
+}: Props) {
   const router = useTransitionRouter()
   const pathname = usePathname()
 
@@ -39,6 +49,7 @@ export default function CustomLink({href, children, className, style, onClick}: 
         pseudoElement: '::view-transition-new(root)',
       },
     )
+    return lastAnimRef.current
   }
 
   const closeToHomeAnimation = () => {
@@ -84,15 +95,27 @@ export default function CustomLink({href, children, className, style, onClick}: 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
     onClick?.(e)
 
-    // HOME -> SECTION
+    if (e.defaultPrevented) return
+    const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 83rem)').matches
+
+    // HOME -> SECTION (legacy full-page slide)
     if (pathname === '/' && href !== '/') {
       e.preventDefault()
       document.documentElement.classList.remove('vt-close')
-      safePush(href, () => openFromHomeAnimation())
+      if (intercalaire && isDesktop) document.documentElement.classList.add('vt-open')
+      safePush(href, () => {
+        const anim = openFromHomeAnimation()
+        const cleanup = () => {
+          if (document.documentElement.classList.contains('vt-open')) {
+            document.documentElement.classList.remove('vt-open')
+          }
+        }
+        anim?.finished?.then(cleanup).catch(cleanup)
+      })
       return
     }
 
-    // SECTION -> HOME
+    // SECTION -> HOME (legacy full-page slide)
     if (pathname !== '/' && href === '/') {
       e.preventDefault()
       document.documentElement.classList.add('vt-close')
@@ -116,7 +139,7 @@ export default function CustomLink({href, children, className, style, onClick}: 
   }
 
   return (
-    <Link href={href} prefetch onClick={handleClick} className={className} style={style}>
+    <Link href={href} prefetch={prefetch} onClick={handleClick} className={className} style={style}>
       {children}
     </Link>
   )

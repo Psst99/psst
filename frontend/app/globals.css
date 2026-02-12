@@ -327,6 +327,36 @@
   mix-blend-mode: normal;
 }
 
+/* Keep desktop section nav fixed during transitions */
+.section-nav-fixed {
+  view-transition-name: section-nav-fixed;
+}
+
+::view-transition-group(section-nav-fixed) {
+  z-index: 9998;
+}
+
+::view-transition-old(section-nav-fixed),
+::view-transition-new(section-nav-fixed) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* During close-to-home, keep old nav snapshot on top and hide incoming one
+   until the slide-down finishes to avoid double-tab artifacts. */
+:root.vt-close::view-transition-old(section-nav-fixed) {
+  opacity: 1 !important;
+}
+
+:root.vt-close::view-transition-new(section-nav-fixed) {
+  opacity: 0 !important;
+}
+
+/* During open-from-home, hide old bottom-nav snapshot to avoid double-tab flicker. */
+:root.vt-open::view-transition-old(section-nav-fixed) {
+  opacity: 0 !important;
+}
+
 /* Keep toggle buttons fixed during page transitions */
 .theme-toggle-fixed {
   view-transition-name: theme-toggle;
