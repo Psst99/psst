@@ -435,7 +435,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       dragRef.current.didDrag = false
       return
     }
-    openModal('newsletter')
+    openModal('donation')
   }, [openModal])
 
   if (!isMounted) return null
@@ -444,7 +444,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     <>
       <div
         ref={floatingContainerRef}
-        className="support-widget-fixed fixed z-40"
+        className="support-widget-fixed fixed z-[51]"
         style={floatingPos ? {left: floatingPos.x, top: floatingPos.y} : {left: 16, bottom: 24}}
       >
         <button
@@ -455,7 +455,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           onPointerUp={onFloatingPointerUp}
           onPointerCancel={onFloatingPointerUp}
           className={`cursor-pointer w-36 h-36 min-[83rem]:w-48 min-[83rem]:h-48 rounded-full text-[18px] min-[83rem]:text-[28px] leading-[1.05] text-center px-4 font-medium transition-opacity ${
-            isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            isOpen ? 'pointer-events-none' : ''
           }`}
           style={{backgroundColor: floatingButtonBg, color: floatingButtonFg}}
         >

@@ -92,23 +92,28 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
               {workshop.title}
             </h1>
 
-            {/* Dates (right under title) */}
+            {/* Dates + tags (stacked lines with matching spacing) */}
             {workshop.dates?.length > 0 && (
-              <div className="mt-2">
-                <div className="flex flex-wrap gap-2">
-                  {workshop.dates.map((date: string, idx: number) => (
-                    <span
-                      key={idx}
-                      className="invert-panel py-0 font-mono font-normal px-2 text-sm min-[83rem]:text-lg"
-                    >
-                      {new Date(date).toLocaleDateString('en-US', {
-                        month: 'numeric',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </span>
-                  ))}
-                </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {workshop.dates.map((date: string, idx: number) => (
+                  <span
+                    key={idx}
+                    className="invert-panel py-0 font-mono font-normal px-2 text-sm min-[83rem]:text-lg"
+                  >
+                    {new Date(date).toLocaleDateString('en-US', {
+                      month: 'numeric',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </span>
+                ))}
+              </div>
+            )}
+            {workshop.tags?.length > 0 && (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {workshop.tags.map((tag: any) => (
+                  <Tag key={tag._id} label={tag.title} size="sm" className="block w-fit" />
+                ))}
               </div>
             )}
           </div>
@@ -140,17 +145,8 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
 
           {/* Description */}
           <div className="mb-6 panel-fg text-lg leading-snug">
-            <CmsContent value={workshop.description} />
+            <CmsContent value={workshop.description} bulletTone="sectionBg" />
           </div>
-
-          {/* Tags */}
-          {workshop.tags?.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-16">
-              {workshop.tags.map((tag: any) => (
-                <Tag key={tag._id} label={tag.title} size="sm" className="block w-fit" />
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Close button */}

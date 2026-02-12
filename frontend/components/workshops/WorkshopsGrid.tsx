@@ -1,6 +1,6 @@
 'use client'
 
-import {useState, useMemo, useContext} from 'react'
+import {useState, useMemo, useContext, useTransition} from 'react'
 import {useRouter} from 'next/navigation'
 import WorkshopsFilter from './WorkshopsFilter'
 import Tag from '../Tag'
@@ -23,6 +23,8 @@ interface WorkshopsGridProps {
 
 export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [pendingOpenSlug, setPendingOpenSlug] = useState<string | null>(null)
   const [activeFilters, setActiveFilters] = useState<string[]>([])
   const ctx = useContext(ThemeContext)
   const mode = ctx?.mode ?? 'brand'
@@ -57,7 +59,10 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
 
   const handleWorkshopClick = (workshop: Workshop) => {
     const slug = workshop.slug || workshop._id
-    router.push(`/workshops/w/${slug}`)
+    setPendingOpenSlug(slug)
+    startTransition(() => {
+      router.push(`/workshops/w/${slug}`, {scroll: false})
+    })
   }
 
   // Helper to format date range
@@ -98,13 +103,18 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto">
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto group-has-[[data-pending]]:opacity-50 group-has-[[data-pending]]:transition-opacity"
+        data-pending={isPending ? '' : undefined}
+      >
         {filteredWorkshops.map((item) => (
           <div
             key={item._id}
             onMouseEnter={() => handleWorkshopHover(item)}
             onClick={() => handleWorkshopClick(item)}
             className={`p-4 sm:p-2 sm:px-4 rounded-lg cursor-pointer transition-all relative overflow-hidden ${
+              pendingOpenSlug === (item.slug || item._id) ? 'artist-open-pending' : ''
+            } ${
               item.isUpcoming
                 ? 'animated-gradient-bg shadow-md hover:shadow-lg border section-border'
                 : 'bg-white hover:shadow-md'
