@@ -23,6 +23,8 @@ export default function SectionNavigation({
   hideCurrentSection = false,
   onlyCurrentSection = false,
 }: SectionNavigationProps) {
+  const enableDockHover = !onlyCurrentSection && (currentSection === 'home' || hideCurrentSection)
+
   return (
     <div className="w-full">
       <div className="flex relative w-full">
@@ -52,8 +54,11 @@ export default function SectionNavigation({
 
           const tabClassName = [
             'relative font-normal text-[24px] leading-[22px] uppercase tracking-tight',
-            'px-10 py-1 border border-b rounded-t-xl flex items-center justify-center',
-            'section-bg bg-black section-fg section-border',
+            'px-10 pt-1 pb-1 border border-b-0 rounded-t-xl flex items-center justify-center',
+            'section-bg section-fg section-border',
+            enableDockHover
+              ? 'motion-safe:transition-[margin] motion-safe:duration-300 motion-safe:[transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-mt-1 hover:mb-1'
+              : '',
             idx > 0 ? '-ml-px' : '',
             shouldHide ? 'invisible' : '',
             isActive ? 'z-30 section-underline' : `z-[${tab.zBase}]`,
@@ -71,21 +76,23 @@ export default function SectionNavigation({
 
           return (
             <SectionScope key={tab.slug} section={tab.slug} className="contents">
-              <CustomLink
-                href={href}
-                intercalaire
-                prefetch={false}
-                className={tabClassName}
-                style={
-                  isActive
-                    ? {
-                        '--underline-color': 'var(--section-bg)',
-                      }
-                    : undefined
-                }
-              >
-                {tab.label}
-              </CustomLink>
+              <div className={enableDockHover ? 'section-bg rounded-t-xl' : ''}>
+                <CustomLink
+                  href={href}
+                  intercalaire
+                  prefetch={false}
+                  className={tabClassName}
+                  style={
+                    isActive
+                      ? {
+                          '--underline-color': 'var(--section-bg)',
+                        }
+                      : undefined
+                  }
+                >
+                  {tab.label}
+                </CustomLink>
+              </div>
             </SectionScope>
           )
         })}
