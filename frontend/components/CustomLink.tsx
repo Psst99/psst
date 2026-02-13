@@ -35,8 +35,16 @@ export default function CustomLink({
     if (pathname !== '/') router.prefetch('/')
   }, [pathname, router])
 
+  useEffect(() => {
+    if (!prefetch || !intercalaire || href === pathname) return
+    router.prefetch(href)
+  }, [href, intercalaire, pathname, prefetch, router])
+
   const navIdRef = useRef(0)
   const lastAnimRef = useRef<Animation | null>(null)
+  const clearTransitionClasses = () => {
+    document.documentElement.classList.remove('vt-close', 'vt-open', 'vt-section-switch')
+  }
 
   const openFromHomeAnimation = () => {
     lastAnimRef.current?.cancel()
@@ -73,6 +81,7 @@ export default function CustomLink({
     const fallback = window.setTimeout(() => {
       if (navIdRef.current !== navId) return
       if (transitionStarted) return
+      clearTransitionClasses()
       if (window.location.pathname !== to) window.location.assign(to)
     }, FALLBACK_MS)
 
@@ -86,6 +95,7 @@ export default function CustomLink({
       router.push(to, {onTransitionReady: onReadyWrapped})
     } catch {
       window.clearTimeout(fallback)
+      clearTransitionClasses()
       window.location.assign(to)
     }
 
@@ -96,12 +106,13 @@ export default function CustomLink({
     onClick?.(e)
 
     if (e.defaultPrevented) return
-    const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 83rem)').matches
+    const isDesktop =
+      typeof window !== 'undefined' && window.matchMedia('(min-width: 83rem)').matches
 
     // HOME -> SECTION (legacy full-page slide)
     if (pathname === '/' && href !== '/') {
       e.preventDefault()
-      document.documentElement.classList.remove('vt-close')
+      clearTransitionClasses()
       if (intercalaire && isDesktop) document.documentElement.classList.add('vt-open')
       safePush(href, () => {
         const anim = openFromHomeAnimation()
@@ -118,6 +129,7 @@ export default function CustomLink({
     // SECTION -> HOME (legacy full-page slide)
     if (pathname !== '/' && href === '/') {
       e.preventDefault()
+      clearTransitionClasses()
       document.documentElement.classList.add('vt-close')
 
       safePush('/', (navId) => {

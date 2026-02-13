@@ -1,3 +1,5 @@
+'use client'
+
 import CustomLink from './CustomLink'
 import type {SectionSlug} from '@/lib/theme/sections'
 import SectionScope from './SectionScope'
@@ -80,7 +82,6 @@ export default function SectionNavigation({
                 <CustomLink
                   href={href}
                   intercalaire
-                  prefetch={false}
                   className={tabClassName}
                   style={
                     isActive

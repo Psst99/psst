@@ -2,7 +2,7 @@ import PssoundManifestoContentAsync from '@/components/pssound-system/PssoundMan
 
 export default function ManifestoPage() {
   return (
-    <div className='p-6 md:px-20 text-[#07f25b]'>
+    <div className="p-6 md:px-20 text-[color:var(--section-accent)]">
       <PssoundManifestoContentAsync />
     </div>
   )

@@ -10,7 +10,7 @@ export default async function MembershipPage() {
   return (
     <>
       {/* <Loading /> */}
-      <div className="p-6 text-[#07f25b] md:mx-16">
+      <div className="p-6 text-[color:var(--section-accent)] md:mx-16">
         <h1 className="text-3xl md:text-4xl mb-6 text-center capitalize">{page.title}</h1>
         <CmsContent value={page.description} />
         <div className="mt-8">

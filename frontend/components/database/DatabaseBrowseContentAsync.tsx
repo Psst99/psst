@@ -21,8 +21,6 @@ export default async function DatabaseBrowseContentAsync({
 }) {
   const sp = await searchParams
 
-  console.log(sp, 'search params')
-
   const tagSlugs = (sp.tags ?? '')
     .split(',')
     .map((s) => s.trim())

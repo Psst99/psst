@@ -25,6 +25,7 @@ import ThemeToggleButton from '@/components/ThemeToggleButton'
 import RoundedToggleButton from '@/components/RoundedToggleButton'
 import {buildThemeOverrides} from '@/lib/theme/overrides'
 import SupportModalWidget from '@/components/SupportModalWidget'
+import NavigationPendingProvider from './NavigationPendingProvider'
 
 export async function generateMetadata(): Promise<Metadata> {
   const {data: settings} = await sanityFetch({query: settingsQuery, stega: false})
@@ -117,7 +118,9 @@ export default async function RootLayout({children}: {children: React.ReactNode}
               )}
               <SanityLive onError={handleError} />
 
-              <DynamicLayout>{children}</DynamicLayout>
+              <NavigationPendingProvider>
+                <DynamicLayout>{children}</DynamicLayout>
+              </NavigationPendingProvider>
 
               <CustomSoundcloudPlayer playlistUrl={soundcloudPlaylistUrl} />
             </section>

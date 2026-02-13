@@ -2,7 +2,7 @@ import PssoundArchiveContentAsync from '@/components/pssound-system/PssoundArchi
 
 export default function ArchivePage() {
   return (
-    <div className='text-[#07f25b]'>
+    <div className="text-[color:var(--section-accent)]">
       <PssoundArchiveContentAsync />
     </div>
   )

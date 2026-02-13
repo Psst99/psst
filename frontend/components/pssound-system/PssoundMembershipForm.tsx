@@ -1,22 +1,19 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  pssoundMembershipSchema,
-  PssoundMembershipFormData,
-} from '@/lib/schemas/pssoundMembership'
-import { FormField } from '@/components/form/FormField'
-import { TextInput } from '@/components/form/TextInput'
-import { StyledCheckbox } from '../StyledCheckbox'
+import React, {useState} from 'react'
+import {useForm} from 'react-hook-form'
+import {zodResolver} from '@hookform/resolvers/zod'
+import {pssoundMembershipSchema, PssoundMembershipFormData} from '@/lib/schemas/pssoundMembership'
+import {FormField} from '@/components/form/FormField'
+import {TextInput} from '@/components/form/TextInput'
+import {StyledCheckbox} from '../StyledCheckbox'
 import CmsContent from '../CmsContent'
 
 export default function PssoundMembershipForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: {errors},
     reset,
     watch,
   } = useForm<PssoundMembershipFormData>({
@@ -41,7 +38,7 @@ export default function PssoundMembershipForm() {
     try {
       const res = await fetch('/api/register-pssound-membership', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data),
       })
       if (!res.ok) throw new Error('Submission failed')
@@ -55,116 +52,104 @@ export default function PssoundMembershipForm() {
   }
 
   return (
-    <div className='h-full w-full md:max-w-[65vw] mx-auto mt-16'>
-      <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+    <div className="h-full w-full md:max-w-[65vw] mx-auto mt-16">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormField
-          label='Name of your collective / association'
+          label="Name of your collective / association"
           error={errors.collectiveName}
           required
-          bgClassName='bg-[#07f25b]'
+          bgClassName="bg-[color:var(--section-accent)]"
         >
           <TextInput registration={register('collectiveName')} />
         </FormField>
 
         <FormField
-          label='Is your project political?'
+          label="Is your project political?"
           error={errors.isPolitical}
-          bgClassName='bg-[#07f25b] items-center'
+          bgClassName="bg-[color:var(--section-accent)] items-center"
         >
-          <div className='flex flex-col gap-4'>
-            <div className='flex gap-x-4 flex-wrap px-4 py-2'>
-              {['feminist', 'queer', 'racial', 'disability', 'other'].map(
-                (opt) => (
-                  <StyledCheckbox
-                    key={opt}
-                    label={opt}
-                    value={opt}
-                    {...register('isPolitical')}
-                  />
-                )
-              )}
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-x-4 flex-wrap px-4 py-2">
+              {['feminist', 'queer', 'racial', 'disability', 'other'].map((opt) => (
+                <StyledCheckbox key={opt} label={opt} value={opt} {...register('isPolitical')} />
+              ))}
             </div>
             {watch('isPolitical')?.includes('other') && (
-              <TextInput
-                registration={register('otherPolitical')}
-                placeholder='Other (specify)'
-              />
+              <TextInput registration={register('otherPolitical')} placeholder="Other (specify)" />
             )}
           </div>
         </FormField>
 
         <FormField
-          label='Does your project include/feature people of Caribbean or Afro descent?'
+          label="Does your project include/feature people of Caribbean or Afro descent?"
           error={errors.caribbeanOrAfro}
           required
-          bgClassName='bg-[#07f25b]'
+          bgClassName="bg-[color:var(--section-accent)]"
         >
           <select
             {...register('caribbeanOrAfro')}
-            className='w-full rounded-t-none rounded-b-lg text-[#07f25b] px-4 py-2 text-2xl md:text-3xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-full'
+            className="w-full rounded-t-none rounded-b-lg text-[color:var(--section-accent)] px-4 py-2 text-2xl md:text-3xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-full"
           >
-            <option value=''>Select…</option>
-            <option value='true'>Yes</option>
-            <option value='false'>No</option>
+            <option value="">Select…</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
           </select>
         </FormField>
 
         <FormField
-          label='Qualified sound engineer in your team?'
+          label="Qualified sound engineer in your team?"
           error={errors.qualifiedSoundEngineer}
           required
-          bgClassName='bg-[#07f25b]'
+          bgClassName="bg-[color:var(--section-accent)]"
         >
           <select
             {...register('qualifiedSoundEngineer')}
-            className='w-full rounded-t-none rounded-b-lg text-[#07f25b] px-4 py-2 text-2xl md:text-3xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-full'
+            className="w-full rounded-t-none rounded-b-lg text-[color:var(--section-accent)] px-4 py-2 text-2xl md:text-3xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-full"
           >
-            <option value=''>Select…</option>
-            <option value='yes'>Yes</option>
-            <option value='no_commit'>
+            <option value="">Select…</option>
+            <option value="yes">Yes</option>
+            <option value="no_commit">
               No, but we commit to work with a qualified person at our events.
             </option>
           </select>
         </FormField>
 
         <FormField
-          label='Annual contribution (between 75 and 150 euros)'
+          label="Annual contribution (between 75 and 150 euros)"
           error={errors.annualContribution}
           required
-          bgClassName='bg-[#07f25b]'
+          bgClassName="bg-[color:var(--section-accent)]"
         >
           <TextInput registration={register('annualContribution')} />
         </FormField>
 
         <FormField
-          label='Charter of principles signed?'
+          label="Charter of principles signed?"
           error={errors.charterSigned}
           required
-          bgClassName='bg-[#07f25b]'
+          bgClassName="bg-[color:var(--section-accent)]"
         >
-          <div className='flex justify-start items-center h-full w-full p-4'>
+          <div className="flex justify-start items-center h-full w-full p-4">
             <StyledCheckbox
-              label='I certify all persons involved have read and signed the charter.'
+              label="I certify all persons involved have read and signed the charter."
               {...register('charterSigned')}
             />
           </div>
         </FormField>
 
         {submitStatus === 'success' && (
-          <div className='text-green-600 text-center'>
+          <div className="text-green-600 text-center">
             Thank you! Your membership request was received.
           </div>
         )}
         {submitStatus === 'error' && (
-          <div className='text-red-600 text-center'>
-            Something went wrong. Please try again.
-          </div>
+          <div className="text-red-600 text-center">Something went wrong. Please try again.</div>
         )}
 
         <button
-          type='submit'
+          type="submit"
           disabled={isSubmitting}
-          className='mt-16 bg-[#07f25b] text-[#81520A] text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50'
+          className="mt-16 bg-[color:var(--section-accent)] text-[color:var(--section-bg)] text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50"
         >
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>

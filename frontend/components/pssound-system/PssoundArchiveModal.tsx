@@ -45,7 +45,7 @@ export default function PssoundArchiveModal({archive, onClose}: PssoundArchiveMo
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       {/* Overlay */}
       <div
-        className={`absolute inset-0 bg-[#07f25b]/50 transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-[color:var(--section-accent)]/50 transition-opacity duration-300 ${
           isVisible ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={handleClose}
@@ -59,14 +59,14 @@ export default function PssoundArchiveModal({archive, onClose}: PssoundArchiveMo
       >
         {/* Scrollable content area */}
         <div className="overflow-y-auto max-h-full no-scrollbar">
-          <h1 className="text-[#07f25b] text-4xl sm:text-4xl font-bold mb-4 capitalize">
+          <h1 className="text-[color:var(--section-accent)] text-4xl sm:text-4xl font-bold mb-4 capitalize">
             {archive.title}
           </h1>
 
           {/* Date */}
           {archive.date && (
             <div className="mb-4">
-              <span className="bg-[#07f25b] text-white py-0 font-mono font-normal px-1 text-lg">
+              <span className="bg-[color:var(--section-accent)] text-white py-0 font-mono font-normal px-1 text-lg">
                 {archive.date}
               </span>
             </div>
@@ -87,8 +87,8 @@ export default function PssoundArchiveModal({archive, onClose}: PssoundArchiveMo
 
           {/* Description */}
           <div className="mb-6">
-            <h2 className="text-xl mb-2 text-[#07f25b]">About</h2>
-            <div className="text-[#07f25b] mb-8 text-lg leading-snug max-h-[30vh] overflow-y-auto no-scrollbar">
+            <h2 className="text-xl mb-2 text-[color:var(--section-accent)]">About</h2>
+            <div className="text-[color:var(--section-accent)] mb-8 text-lg leading-snug max-h-[30vh] overflow-y-auto no-scrollbar">
               <CmsContent value={archive.description} />
             </div>
           </div>
@@ -104,7 +104,7 @@ export default function PssoundArchiveModal({archive, onClose}: PssoundArchiveMo
         </div>
 
         {/* Close button - positioned outside scrollable area */}
-        <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-[#07f25b] z-10">
+        <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-[color:var(--section-accent)] z-10">
           <button onClick={handleClose} className="text-[#fff] text-3xl">
             <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
           </button>

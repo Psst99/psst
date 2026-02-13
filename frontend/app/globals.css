@@ -314,6 +314,14 @@
   z-index: 2 !important;
 }
 
+/* section switch - new section slides up over old section sliding down */
+:root.vt-section-switch::view-transition-old(root) {
+  z-index: 2 !important;
+}
+:root.vt-section-switch::view-transition-new(root) {
+  z-index: 1 !important;
+}
+
 /* Keep soundcloud player fixed during transitions */
 .soundcloud-player-fixed {
   view-transition-name: soundcloud-player;

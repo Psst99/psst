@@ -8,3 +8,4 @@ export default function PsstSkeleton() {
       <div className='panel-fg/30 p-4 rounded-3xl mb-8 h-16' />
     </div>
   )
+}

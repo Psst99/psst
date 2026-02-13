@@ -1,12 +1,26 @@
 'use client'
 
 import {usePathname} from 'next/navigation'
-import {useMemo} from 'react'
+import {useEffect, useMemo, useState} from 'react'
 import {getSectionConfig} from '@/lib/route-utils'
 
+import CustomLink from './CustomLink'
 import SectionNavigation from './SectionNavigation'
-import SubNavigation from './SubNavigation'
+import SubNavigation, {resolveActiveSubNavHref} from './SubNavigation'
 import SectionScope from './SectionScope'
+import SectionLoading from './loading/SectionLoading'
+import DatabaseGuidelinesLoading from '@/app/database/loading'
+import DatabaseBrowseLoading from '@/app/database/(browse)/browse/loading'
+import DatabaseSubmitLoading from '@/app/database/submit/loading'
+import ResourcesGuidelinesLoading from '@/app/resources/loading'
+import ResourcesBrowseLoading from '@/app/resources/(browse)/browse/loading'
+import ResourcesSubmitLoading from '@/app/resources/submit/loading'
+import WorkshopsBrowseLoading from '@/app/workshops/loading'
+import WorkshopsRegisterLoading from '@/app/workshops/register/loading'
+import PsstRouteLoading from '@/app/psst/loading'
+import PssoundSystemLoading from '@/app/pssound-system/loading'
+import PssoundSystemRequestLoading from '@/app/pssound-system/request/loading'
+import PssoundSystemMembershipLoading from '@/app/pssound-system/membership/loading'
 
 interface DynamicLayoutProps {
   children: React.ReactNode
@@ -16,6 +30,7 @@ interface DynamicLayoutProps {
 export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLayoutProps) {
   const pathname = usePathname()
   const {section, hasSubNav, subNavItems} = getSectionConfig(pathname, dynamicSubNavItems)
+  const [pendingSubNavHref, setPendingSubNavHref] = useState<string | null>(null)
 
   const isRootArchive = pathname === '/archive'
 
@@ -29,6 +44,10 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
     return subNavItems || []
   }, [section, subNavItems])
 
+  useEffect(() => {
+    setPendingSubNavHref(null)
+  }, [pathname])
+
   if (section === 'home') {
     return (
       <SectionScope section="home" variant="page" className="min-h-screen site-bg">
@@ -38,15 +57,92 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
   }
 
   const hasDesktopSubNav = hasSubNav && finalSubNavItems.length > 0
+  const isPendingSubNavNavigation =
+    pendingSubNavHref != null &&
+    pendingSubNavHref !== pathname &&
+    finalSubNavItems.some((item) => item.href === pendingSubNavHref)
+  // Use pending href for immediate visual feedback, fallback to actual pathname
+  const displayActiveHref = pendingSubNavHref || pathname
+  const activeSubNavHref = hasDesktopSubNav
+    ? resolveActiveSubNavHref(displayActiveHref, finalSubNavItems)
+    : null
+  const activeSubNavIndex =
+    activeSubNavHref != null
+      ? finalSubNavItems.findIndex((item) => item.href === activeSubNavHref)
+      : -1
+  const activeSubNavItem = activeSubNavIndex >= 0 ? finalSubNavItems[activeSubNavIndex] : null
+
   const paddingClasses = isRootArchive
     ? 'pt-0 pb-0'
     : hasDesktopSubNav
-      ? 'py-16 pt-32'
+      ? 'pt-8 pb-0 min-[83rem]:pt-14'
       : 'pt-16 pb-0'
-  const contentOverflowClasses = 'overflow-y-auto no-scrollbar'
+  const contentOffsetClass = '-mt-0'
+  const contentTopSpacerClass = hasDesktopSubNav ? 'pt-2 min-[83rem]:pt-0' : 'pt-0'
+  const contentOverflowClasses = 'overflow-visible'
   const desktopSheetTopClass = hasDesktopSubNav
     ? 'min-[83rem]:top-[calc(var(--home-nav-h)*2)]'
     : 'min-[83rem]:top-[var(--home-nav-h)]'
+
+  const handleSubNavItemClick = (href: string) => {
+    if (href === pathname) return
+    // Set pending state immediately (synchronously) for instant skeleton display
+    setPendingSubNavHref(href)
+  }
+
+  const renderPendingSubNavLoading = (href: string) => {
+    switch (href) {
+      case '/database':
+      case '/database/guidelines':
+        return <DatabaseGuidelinesLoading />
+      case '/database/browse':
+        return <DatabaseBrowseLoading />
+      case '/database/submit':
+        return <DatabaseSubmitLoading />
+      case '/resources':
+      case '/resources/guidelines':
+        return <ResourcesGuidelinesLoading />
+      case '/resources/browse':
+        return <ResourcesBrowseLoading />
+      case '/resources/submit':
+        return <ResourcesSubmitLoading />
+      case '/workshops':
+        return <WorkshopsBrowseLoading />
+      case '/workshops/register':
+        return <WorkshopsRegisterLoading />
+      case '/psst':
+      case '/psst/about':
+        return <PsstRouteLoading />
+      case '/pssound-system':
+      case '/pssound-system/manifesto':
+      case '/pssound-system/archive':
+        return <PssoundSystemLoading />
+      case '/pssound-system/request':
+        return <PssoundSystemRequestLoading />
+      case '/pssound-system/membership':
+        return <PssoundSystemMembershipLoading />
+      default:
+        switch (section) {
+          case 'database':
+            return <DatabaseGuidelinesLoading />
+          case 'resources':
+            return <ResourcesGuidelinesLoading />
+          case 'workshops':
+            return <WorkshopsBrowseLoading />
+          case 'psst':
+            return <PsstRouteLoading />
+          case 'pssound-system':
+            return <PssoundSystemLoading />
+          default:
+            return <SectionLoading section={section as any} />
+        }
+    }
+  }
+
+  const pendingSubNavLoading =
+    isPendingSubNavNavigation && pendingSubNavHref
+      ? renderPendingSubNavLoading(pendingSubNavHref)
+      : null
 
   return (
     <SectionScope
@@ -69,7 +165,12 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
 
           {hasSubNav && finalSubNavItems.length > 0 && (
             <SectionScope section={section as any} variant="page" className="contents">
-              <SubNavigation items={finalSubNavItems} />
+              <SubNavigation
+                items={finalSubNavItems}
+                hideActiveTab
+                onItemClick={handleSubNavItemClick}
+                activeHref={activeSubNavHref}
+              />
             </SectionScope>
           )}
         </div>
@@ -87,10 +188,65 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
           <SectionNavigation currentSection={section} hideCurrentSection />
         </div>
 
+        {hasDesktopSubNav && activeSubNavItem && (
+          <div
+            className={[
+              'pointer-events-none hidden min-[83rem]:block fixed left-0 right-0 z-[27] -translate-y-[calc(100%-1px)]',
+              desktopSheetTopClass,
+              contentOffsetClass,
+            ].join(' ')}
+          >
+            <div className="flex relative w-full">
+              {finalSubNavItems.map((item, idx) => {
+                if (idx > activeSubNavIndex) return null
+
+                const marginLeft = idx > 0 ? '-ml-px' : ''
+                const isActive = idx === activeSubNavIndex
+                const shapeClass = idx === 0 && isActive ? 'rounded-tr-xl' : 'rounded-t-xl'
+                const baseClass =
+                  'relative h-[var(--home-nav-h)] font-normal text-[24px] leading-[22px] uppercase tracking-normal px-10 border border-b-0 section-border flex items-center justify-center'
+
+                if (!isActive) {
+                  return (
+                    <div
+                      key={item.href}
+                      aria-hidden="true"
+                      className={[
+                        baseClass,
+                        shapeClass,
+                        marginLeft,
+                        'opacity-0 pointer-events-none select-none border-transparent text-transparent',
+                      ].join(' ')}
+                    >
+                      {item.label}
+                    </div>
+                  )
+                }
+
+                return (
+                  <CustomLink
+                    key={item.href}
+                    href={activeSubNavItem.href}
+                    className={[
+                      baseClass,
+                      shapeClass,
+                      marginLeft,
+                      'pointer-events-auto z-30 tab-active ',
+                    ].join(' ')}
+                  >
+                    {activeSubNavItem.label}
+                  </CustomLink>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Main content */}
         <div
           className={[
-            'flex-1 border border-t-0 min-[83rem]:border-t min-[83rem]:rounded-r-2xl z-10',
+            'mt-0 relative flex-1 border border-t min-[83rem]:border-t min-[83rem]:rounded-r-2xl min-[83rem]:rounded-l-2xl z-10',
+            contentOffsetClass,
             contentOverflowClasses,
             'panel-bg panel-fg panel-border',
             paddingClasses,
@@ -99,8 +255,10 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
             desktopSheetTopClass,
           ].join(' ')}
         >
-          <div className="pt-8"></div>
-          {children}
+          <div className="h-full overflow-y-auto no-scrollbar">
+            <div className={contentTopSpacerClass}></div>
+            {pendingSubNavLoading ?? children}
+          </div>
         </div>
       </div>
     </SectionScope>
