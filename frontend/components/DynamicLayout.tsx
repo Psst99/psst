@@ -57,6 +57,7 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
     >
       {/* Mobile background layer */}
       <div className="fixed top-0 inset-0 -z-10 min-[83rem]:hidden section-bg section-border border" />
+
       <div className="min-h-screen flex flex-col overflow-hidden min-[83rem]:h-screen">
         {/* Desktop top active intercalaire + optional subnav */}
         <div className="hidden min-[83rem]:block fixed top-0 left-0 right-0 z-[26]">
@@ -77,7 +78,7 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
         {hasDesktopSubNav && (
           <div
             aria-hidden="true"
-            className="pointer-events-none hidden min-[83rem]:block fixed left-0 right-0 top-[var(--home-nav-h)] bottom-0 z-[8] border border-t-0 section-bg section-border min-[83rem]:rounded-r-2xl"
+            className="pointer-events-none hidden min-[83rem]:block fixed left-0 right-0 top-[var(--home-nav-h)] bottom-0 z-[8] border border-t section-bg section-border min-[83rem]:rounded-l-2xl min-[83rem]:rounded-r-2xl"
           />
         )}
 

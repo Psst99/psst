@@ -18,7 +18,7 @@ export default function SubNavigation({items}: SubNavigationProps) {
   const isResourcesItemModalPath = pathname.startsWith('/resources/items/')
 
   return (
-    <div className="shrink-0 hidden md:block rounded-t-xl overflow-hidden border border-b-0 pb-0 section-border tab-inactive">
+    <div className="shrink-0 hidden md:block rounded-t-xl overflow-hidden border-x border-b-0 pb-0 section-border tab-inactive">
       <div className="flex relative w-full">
         {items.map((item, idx) => {
           const shouldForceBrowseActive =
@@ -38,26 +38,15 @@ export default function SubNavigation({items}: SubNavigationProps) {
               items.every((i) => i.href !== pathname))
 
           const marginLeft = idx > 0 ? '-ml-px' : ''
-          const marginTop = '-mt-px'
-
           return (
             <CustomLink
               key={item.href}
               href={item.href}
               className={[
-                'relative z-30 font-normal text-[24px] leading-[22px] uppercase tracking-normal px-10 py-1 border border-b-0 rounded-t-xl flex items-center justify-center',
-                'section-border',
+                'relative font-normal text-[24px] leading-[22px] uppercase tracking-normal px-10 py-1 border border-b-0 rounded-t-xl flex items-center justify-center',
                 marginLeft,
-                marginTop,
-                isActive ? 'tab-active sub-navigation-underline' : 'tab-inactive',
+                isActive ? 'z-30 tab-active' : 'z-20 tab-inactive',
               ].join(' ')}
-              style={
-                isActive
-                  ? {
-                      '--underline-color': 'var(--section-fg)',
-                    }
-                  : undefined
-              }
             >
               {item.label}
             </CustomLink>

@@ -28,14 +28,32 @@ export default function SectionNavigation({
       <div className="flex relative w-full">
         {TABS.map((tab, idx) => {
           const isCurrent = currentSection === tab.slug
-          const shouldHide =
-            (hideCurrentSection && isCurrent) || (onlyCurrentSection && !isCurrent)
+          const shouldHide = hideCurrentSection && isCurrent
+          const shouldRenderPlaceholder = onlyCurrentSection && !isCurrent
           const isActive = !hideCurrentSection && isCurrent
           const href = isActive ? '/' : tab.href
+
+          if (shouldRenderPlaceholder) {
+            return (
+              <div
+                key={tab.slug}
+                aria-hidden="true"
+                className={[
+                  'relative font-normal text-[24px] leading-[22px] uppercase tracking-tight',
+                  'px-10 py-1 border border-b-0 rounded-t-xl flex items-center justify-center',
+                  idx > 0 ? '-ml-px' : '',
+                  'opacity-0 pointer-events-none select-none border-transparent text-transparent',
+                ].join(' ')}
+              >
+                {tab.label}
+              </div>
+            )
+          }
+
           const tabClassName = [
             'relative font-normal text-[24px] leading-[22px] uppercase tracking-tight',
-            'px-10 py-1 border border-b-0 rounded-t-xl flex items-center justify-center',
-            'section-bg section-fg section-border',
+            'px-10 py-1 border border-b rounded-t-xl flex items-center justify-center',
+            'section-bg bg-black section-fg section-border',
             idx > 0 ? '-ml-px' : '',
             shouldHide ? 'invisible' : '',
             isActive ? 'z-30 section-underline' : `z-[${tab.zBase}]`,

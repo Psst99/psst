@@ -26,6 +26,7 @@
     --rounded-xl: 0.75rem;
     --rounded-2xl: 1rem;
     --rounded-3xl: 1.5rem;
+    --rounded-4xl: 2rem;
     --rounded-full: 9999px;
   }
 
@@ -37,6 +38,7 @@
     --rounded-xl: 0;
     --rounded-2xl: 0;
     --rounded-3xl: 0;
+    --rounded-4xl: 0;
     --rounded-full: 0;
   }
 
@@ -256,6 +258,21 @@
     border-top-right-radius: var(--rounded-2xl) !important;
     border-bottom-right-radius: var(--rounded-2xl) !important;
   }
+  .rounded-l-2xl,
+  [class*='rounded-l-2xl'] {
+    border-top-left-radius: var(--rounded-2xl) !important;
+    border-bottom-left-radius: var(--rounded-2xl) !important;
+  }
+  .rounded-l-3xl,
+  [class*='rounded-l-3xl'] {
+    border-top-left-radius: var(--rounded-3xl) !important;
+    border-bottom-left-radius: var(--rounded-3xl) !important;
+  }
+  .rounded-l-4xl,
+  [class*='rounded-l-4xl'] {
+    border-top-left-radius: var(--rounded-4xl) !important;
+    border-bottom-left-radius: var(--rounded-4xl) !important;
+  }
 
   /* None overrides */
   [class*='rounded-t-none'] {
@@ -377,17 +394,6 @@
 ::view-transition-new(rounded-toggle) {
   animation: none !important;
   mix-blend-mode: normal;
-}
-
-.sub-navigation-underline::after {
-  content: '';
-  display: block;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 1px;
-  background: var(--underline-color, currentColor);
 }
 
 .section-underline::after {
