@@ -51,14 +51,14 @@ export default function SubNavigation({
   const activeHref = activeHrefProp ?? resolveActiveSubNavHref(pathname, items)
 
   return (
-    <div className="mt-0 shrink-0 hidden md:block rounded-t-xl overflow-hidden border-x border-b-0 pb-0 section-border">
+    <div className="mt-0 shrink-0 hidden md:block rounded-t-xl border-x-0 border-b-0 pb-0 section-border">
       <div className="flex relative w-full">
         {items.map((item, idx) => {
           const isActive = activeHref === item.href
           const marginLeft = idx > 0 ? (isActive ? '-ml-[3px]' : '-ml-[2px]') : ''
           const shapeClass = idx === 0 && isActive ? 'rounded-tr-xl' : 'rounded-t-xl'
           const baseClass =
-            'relative h-[var(--home-nav-h)] font-normal text-[24px] leading-[22px] uppercase tracking-normal px-10 border border-b-0 section-border flex items-center justify-center'
+            'relative h-[var(--home-nav-h)] font-normal text-[24px] leading-[22px] uppercase tracking-normal px-10 border border-b-0 section-border flex items-center justify-center transition-[margin] duration-300 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]'
 
           if (hideActiveTab && isActive) {
             return (
@@ -77,20 +77,34 @@ export default function SubNavigation({
             )
           }
 
+          if (isActive) {
+            return (
+              <CustomLink
+                key={item.href}
+                href={item.href}
+                onClick={() => onItemClick?.(item.href)}
+                className={[baseClass, shapeClass, marginLeft, 'z-40 tab-active'].join(' ')}
+              >
+                {item.label}
+              </CustomLink>
+            )
+          }
+
           return (
-            <CustomLink
-              key={item.href}
-              href={item.href}
-              onClick={() => onItemClick?.(item.href)}
-              className={[
-                baseClass,
-                shapeClass,
-                marginLeft,
-                isActive ? 'z-40 tab-active' : 'z-30 tab-inactive hover:tab-active',
-              ].join(' ')}
-            >
-              {item.label}
-            </CustomLink>
+            <div key={item.href} className="tab-inactive rounded-t-xl">
+              <CustomLink
+                href={item.href}
+                onClick={() => onItemClick?.(item.href)}
+                className={[
+                  baseClass,
+                  shapeClass,
+                  marginLeft,
+                  'z-30 tab-inactive hover:tab-active hover:-mt-1 hover:mb-1 hover:!z-[100]',
+                ].join(' ')}
+              >
+                {item.label}
+              </CustomLink>
+            </div>
           )
         })}
       </div>

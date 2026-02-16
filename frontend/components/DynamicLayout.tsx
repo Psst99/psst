@@ -84,6 +84,12 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
     ? 'min-[83rem]:top-[calc(var(--home-nav-h)*2)]'
     : 'min-[83rem]:top-[var(--home-nav-h)]'
 
+  // When first tab is active, content shouldn't have top-left rounded corner (intercalaire effect)
+  const isFirstTabActive = activeSubNavIndex === 0
+  const contentLeftRoundingClass = isFirstTabActive
+    ? 'min-[83rem]:rounded-bl-2xl' // Only round bottom-left
+    : 'min-[83rem]:rounded-l-2xl' // Round both left corners
+
   const handleSubNavItemClick = (href: string) => {
     if (href === pathname) return
     // Set pending state immediately (synchronously) for instant skeleton display
@@ -202,7 +208,8 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
 
                 const marginLeft = idx > 0 ? '-ml-px' : ''
                 const isActive = idx === activeSubNavIndex
-                const shapeClass = idx === 0 && isActive ? 'rounded-tr-xl' : 'rounded-t-xl'
+                // const shapeClass = idx === 0 && isActive ? 'rounded-tr-xl' : 'rounded-t-xl'
+                const shapeClass = 'rounded-t-xl'
                 const baseClass =
                   'relative h-[var(--home-nav-h)] font-normal text-[24px] leading-[22px] uppercase tracking-normal px-10 border border-b-0 section-border flex items-center justify-center'
 
@@ -231,7 +238,7 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
                       baseClass,
                       shapeClass,
                       marginLeft,
-                      'pointer-events-auto z-30 tab-active ',
+                      'pointer-events-auto z-30 tab-active',
                     ].join(' ')}
                   >
                     {activeSubNavItem.label}
@@ -245,7 +252,8 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
         {/* Main content */}
         <div
           className={[
-            'mt-0 relative flex-1 border border-t min-[83rem]:border-t min-[83rem]:rounded-r-2xl min-[83rem]:rounded-l-2xl z-10',
+            'mt-0 relative flex-1 border-0 border-t min-[83rem]:border-t min-[83rem]:rounded-r-2xl z-10',
+            contentLeftRoundingClass,
             contentOffsetClass,
             contentOverflowClasses,
             'panel-bg panel-fg panel-border',
