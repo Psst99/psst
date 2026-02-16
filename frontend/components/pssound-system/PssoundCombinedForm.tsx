@@ -118,6 +118,14 @@ export default function PssoundCombinedForm({
       ? `${selectedStartDate} → ${selectedEndDate}`
       : selectedStartDate
     : 'Dates'
+  const membershipErrors =
+    isMember === false && errors.membership && typeof errors.membership === 'object'
+      ? (errors.membership as Partial<Record<keyof PssoundMembershipFormData, any>>)
+      : undefined
+  const membershipTouched =
+    isMember === false && touchedFields.membership && typeof touchedFields.membership === 'object'
+      ? (touchedFields.membership as Partial<Record<keyof PssoundMembershipFormData, boolean>>)
+      : undefined
 
   // Auto-populate dates from calendar selection
   useEffect(() => {
@@ -271,17 +279,17 @@ export default function PssoundCombinedForm({
             <div className="space-y-4">
               <FormField
                 label="Name of your collective / association"
-                error={errors.membership?.collectiveName}
+                error={membershipErrors?.collectiveName}
                 required
-                showError={!!touchedFields.membership?.collectiveName || isSubmitted}
+                showError={!!membershipTouched?.collectiveName || isSubmitted}
               >
                 <TextInput registration={register('membership.collectiveName')} />
               </FormField>
 
               <FormField
                 label="Is your project political?"
-                error={errors.membership?.isPolitical}
-                showError={!!touchedFields.membership?.isPolitical || isSubmitted}
+                error={membershipErrors?.isPolitical}
+                showError={!!membershipTouched?.isPolitical || isSubmitted}
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex gap-x-4 flex-wrap px-4 py-2">
@@ -306,9 +314,9 @@ export default function PssoundCombinedForm({
 
               <FormField
                 label="Does your project include/feature people of Caribbean or Afro descent?"
-                error={errors.membership?.caribbeanOrAfro}
+                error={membershipErrors?.caribbeanOrAfro}
                 required
-                showError={!!touchedFields.membership?.caribbeanOrAfro || isSubmitted}
+                showError={!!membershipTouched?.caribbeanOrAfro || isSubmitted}
               >
                 <select
                   {...register('membership.caribbeanOrAfro')}
@@ -322,9 +330,9 @@ export default function PssoundCombinedForm({
 
               <FormField
                 label="Qualified sound engineer in your team?"
-                error={errors.membership?.qualifiedSoundEngineer}
+                error={membershipErrors?.qualifiedSoundEngineer}
                 required
-                showError={!!touchedFields.membership?.qualifiedSoundEngineer || isSubmitted}
+                showError={!!membershipTouched?.qualifiedSoundEngineer || isSubmitted}
               >
                 <select
                   {...register('membership.qualifiedSoundEngineer')}
@@ -340,18 +348,18 @@ export default function PssoundCombinedForm({
 
               <FormField
                 label="Annual contribution (between 75 and 150 euros to BE78735060790086)"
-                error={errors.membership?.annualContribution}
+                error={membershipErrors?.annualContribution}
                 required
-                showError={!!touchedFields.membership?.annualContribution || isSubmitted}
+                showError={!!membershipTouched?.annualContribution || isSubmitted}
               >
                 <TextInput registration={register('membership.annualContribution')} />
               </FormField>
 
               <FormField
                 label="Manifesto"
-                error={errors.membership?.charterSigned}
+                error={membershipErrors?.charterSigned}
                 required
-                showError={!!touchedFields.membership?.charterSigned || isSubmitted}
+                showError={!!membershipTouched?.charterSigned || isSubmitted}
               >
                 <div className="flex justify-start items-center h-full w-full p-4">
                   <StyledCheckbox

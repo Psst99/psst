@@ -7,6 +7,7 @@ interface FormFieldProps {
   children: React.ReactNode
   required?: boolean
   showError?: boolean
+  bgClassName?: string
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -15,11 +16,14 @@ export const FormField: React.FC<FormFieldProps> = ({
   children,
   required,
   showError = false,
+  bgClassName = 'section-bg',
 }) => {
   return (
     <>
       <div className="w-full rounded-xl mb-4 flex items-stretch overflow-hidden border section-border">
-        <label className="section-bg section-fg font-mono text-center uppercase tracking-tighter text-[24px] leading-[22px] flex items-center justify-center px-8 py-4 flex-shrink-0 w-[250px]">
+        <label
+          className={`${bgClassName} section-fg font-mono text-center uppercase tracking-tighter text-[24px] leading-[22px] flex items-center justify-center px-8 py-4 flex-shrink-0 w-[250px]`}
+        >
           <span>{label}</span>
           {required && <span className="text-base -mt-3 text-red-500 ml-2">*</span>}
         </label>
