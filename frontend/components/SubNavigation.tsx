@@ -55,7 +55,7 @@ export default function SubNavigation({
       <div className="flex relative w-full">
         {items.map((item, idx) => {
           const isActive = activeHref === item.href
-          const marginLeft = idx > 0 ? (isActive ? '-ml-[3px]' : '-ml-[2px]') : ''
+          const marginLeft = idx > 0 ? (isActive ? '-ml-[3px]' : '-ml-[1px]') : ''
           const shapeClass = idx === 0 && isActive ? 'rounded-tr-xl' : 'rounded-t-xl'
           const baseClass =
             'relative h-[var(--home-nav-h)] font-normal text-[24px] leading-[22px] uppercase tracking-normal px-10 border border-b-0 section-border flex items-center justify-center transition-[margin] duration-300 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]'
