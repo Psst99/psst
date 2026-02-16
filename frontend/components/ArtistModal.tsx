@@ -84,31 +84,32 @@ export default function ArtistModal({artist}: ArtistModalProps) {
     if (!rawLinks) return []
 
     if (Array.isArray(rawLinks)) {
-      return rawLinks
-        .map((link, index) => {
+      return rawLinks.reduce<ArtistLink[]>((acc, link, index) => {
           if (typeof link === 'string') {
-            return {_key: `link-${index}`, url: link, platform: detectPlatform(link)}
+            acc.push({_key: `link-${index}`, url: link, platform: detectPlatform(link)})
+            return acc
           }
 
           if (link && typeof link === 'object' && 'url' in link) {
             const url = typeof link.url === 'string' ? link.url : ''
-            if (!url) return null
+            if (!url) return acc
 
             const platform =
               typeof link.platform === 'string' && link.platform.trim()
                 ? link.platform
                 : detectPlatform(url)
 
-            return {
+            acc.push({
               _key: typeof link._key === 'string' ? link._key : `link-${index}`,
               url,
               platform,
-            }
+            })
+
+            return acc
           }
 
-          return null
-        })
-        .filter((link): link is ArtistLink => link !== null)
+          return acc
+        }, [])
     }
 
     if (typeof rawLinks === 'object') {
