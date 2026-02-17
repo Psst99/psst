@@ -396,30 +396,35 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     return () => window.removeEventListener('resize', updateInitialOrClamp)
   }, [isMounted])
 
-  const onFloatingPointerDown = useCallback((e: PointerEvent<HTMLButtonElement>) => {
-    if (isOpen || !floatingPos) return
+  const onFloatingPointerDown = useCallback(
+    (e: PointerEvent<HTMLButtonElement>) => {
+      if (isOpen || !floatingPos) return
 
-    e.currentTarget.setPointerCapture(e.pointerId)
+      e.preventDefault()
+      e.currentTarget.setPointerCapture(e.pointerId)
 
-    const container = floatingContainerRef.current
-    if (!container) return
-    const rect = container.getBoundingClientRect()
-    const maxX = Math.max(0, window.innerWidth - rect.width)
-    const maxY = Math.max(0, window.innerHeight - rect.height)
+      const container = floatingContainerRef.current
+      if (!container) return
+      const rect = container.getBoundingClientRect()
+      const maxX = Math.max(0, window.innerWidth - rect.width)
+      const maxY = Math.max(0, window.innerHeight - rect.height)
 
-    dragRef.current = {
-      dragging: true,
-      didDrag: false,
-      startPointer: {x: e.clientX, y: e.clientY},
-      startPos: {x: floatingPos.x, y: floatingPos.y},
-      bounds: {maxX, maxY},
-    }
+      dragRef.current = {
+        dragging: true,
+        didDrag: false,
+        startPointer: {x: e.clientX, y: e.clientY},
+        startPos: {x: floatingPos.x, y: floatingPos.y},
+        bounds: {maxX, maxY},
+      }
 
-    document.body.style.userSelect = 'none'
-  }, [floatingPos, isOpen])
+      document.body.style.userSelect = 'none'
+    },
+    [floatingPos, isOpen],
+  )
 
   const onFloatingPointerMove = useCallback((e: PointerEvent<HTMLButtonElement>) => {
     if (!dragRef.current.dragging) return
+    e.preventDefault()
 
     const dx = e.clientX - dragRef.current.startPointer.x
     const dy = e.clientY - dragRef.current.startPointer.y
@@ -478,7 +483,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           onPointerMove={onFloatingPointerMove}
           onPointerUp={onFloatingPointerUp}
           onPointerCancel={onFloatingPointerUp}
-          className={`cursor-pointer w-36 h-36 min-[83rem]:w-48 min-[83rem]:h-48 rounded-full text-[18px] min-[83rem]:text-[28px] leading-[1.05] text-center px-4 font-medium transition-opacity ${
+          className={`cursor-pointer touch-none select-none w-36 h-36 min-[83rem]:w-48 min-[83rem]:h-48 rounded-full text-[18px] min-[83rem]:text-[28px] leading-[1.05] text-center px-4 font-medium transition-opacity ${
             isOpen ? 'pointer-events-none' : ''
           }`}
           style={{

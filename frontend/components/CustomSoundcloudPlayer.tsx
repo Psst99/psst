@@ -2,8 +2,10 @@
 
 import {useContext, useEffect, useMemo, useRef, useState} from 'react'
 import {usePathname} from 'next/navigation'
+import {MdPause, MdPlayArrow, MdSkipNext, MdSkipPrevious} from 'react-icons/md'
 import {ThemeContext} from '@/app/ThemeProvider'
 import {getTheme, type MainSectionSlug, type SectionSlug} from '@/lib/theme/sections'
+import {CgPlayList} from 'react-icons/cg'
 
 declare global {
   interface Window {
@@ -49,12 +51,14 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
   const mode = ctx?.mode ?? 'brand'
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const mobileContainerRef = useRef<HTMLDivElement>(null)
 
   const [widget, setWidget] = useState<any>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [loading, setLoading] = useState(true)
   const [trackInfo, setTrackInfo] = useState<TrackInfo>({})
   const [isExpanded, setIsExpanded] = useState(false)
+  const [mobileBottom, setMobileBottom] = useState(40)
 
   // Drag state
   const [pos, setPos] = useState<Point>({x: 0, y: 0}) // interpreted as offsets from bottom/right
@@ -68,6 +72,19 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
     startPointer: {x: 0, y: 0},
     startPos: {x: 0, y: 0},
     bounds: {maxX: 0, maxY: 0},
+  })
+  const mobileDragRef = useRef<{
+    dragging: boolean
+    didDrag: boolean
+    startY: number
+    startBottom: number
+    maxBottom: number
+  }>({
+    dragging: false,
+    didDrag: false,
+    startY: 0,
+    startBottom: 40,
+    maxBottom: 0,
   })
 
   const SOUNDCLOUD_PLAYLIST_URL =
@@ -139,21 +156,16 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
 
   // Pointer-based dragging: handle-only
   const onDragStart = (e: React.PointerEvent<HTMLButtonElement>) => {
-    e.preventDefault() // important on mobile
-    const el = containerRef.current
-    if (!el) return
+    e.preventDefault()
+    e.stopPropagation()
 
     e.currentTarget.setPointerCapture(e.pointerId)
-
-    const rect = el.getBoundingClientRect()
-    const maxX = Math.max(0, window.innerWidth - rect.width - 16)
-    const maxY = Math.max(0, window.innerHeight - rect.height - 16)
 
     dragRef.current = {
       dragging: true,
       startPointer: {x: e.clientX, y: e.clientY},
       startPos: {x: pos.x, y: pos.y},
-      bounds: {maxX, maxY},
+      bounds: {maxX: 0, maxY: 0}, // not used anymore
     }
 
     document.body.style.userSelect = 'none'
@@ -161,15 +173,16 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
 
   const onDragMove = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (!dragRef.current.dragging) return
+    e.preventDefault()
 
     const dx = e.clientX - dragRef.current.startPointer.x
     const dy = e.clientY - dragRef.current.startPointer.y
 
     // Because we are using bottom/right offsets:
     // moving pointer right decreases "right offset" (x), moving left increases it.
-    // For simplicity, treat pos.x/pos.y as positive offsets away from bottom/right.
-    const nextX = clamp(dragRef.current.startPos.x - dx, 0, dragRef.current.bounds.maxX)
-    const nextY = clamp(dragRef.current.startPos.y - dy, 0, dragRef.current.bounds.maxY)
+    // Allow free movement without viewport constraints
+    const nextX = dragRef.current.startPos.x - dx
+    const nextY = dragRef.current.startPos.y - dy
 
     setPos({x: nextX, y: nextY})
   }
@@ -184,6 +197,75 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       // ignore
     }
   }
+
+  const onMobileTogglePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const container = mobileContainerRef.current
+    if (!container) return
+
+    e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
+
+    const rect = container.getBoundingClientRect()
+    const maxBottom = Math.max(40, window.innerHeight - rect.height - 8)
+    mobileDragRef.current = {
+      dragging: true,
+      didDrag: false,
+      startY: e.clientY,
+      startBottom: mobileBottom,
+      maxBottom,
+    }
+    document.body.style.userSelect = 'none'
+  }
+
+  const onMobileTogglePointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!mobileDragRef.current.dragging) return
+    e.preventDefault()
+
+    const dy = e.clientY - mobileDragRef.current.startY
+    if (Math.abs(dy) > 3) {
+      mobileDragRef.current.didDrag = true
+    }
+
+    const nextBottom = clamp(
+      mobileDragRef.current.startBottom - dy,
+      8,
+      mobileDragRef.current.maxBottom,
+    )
+    setMobileBottom(nextBottom)
+  }
+
+  const onMobileTogglePointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!mobileDragRef.current.dragging) return
+    mobileDragRef.current.dragging = false
+    document.body.style.userSelect = ''
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    } catch {
+      // ignore
+    }
+  }
+
+  const onMobileToggleClick = () => {
+    if (mobileDragRef.current.didDrag) {
+      mobileDragRef.current.didDrag = false
+      return
+    }
+    setIsExpanded((prev) => !prev)
+  }
+
+  useEffect(() => {
+    const clampMobileBottom = () => {
+      const container = mobileContainerRef.current
+      if (!container) return
+      const rect = container.getBoundingClientRect()
+      const maxBottom = Math.max(40, window.innerHeight - rect.height - 8)
+      setMobileBottom((prev) => clamp(prev, 8, maxBottom))
+    }
+
+    clampMobileBottom()
+    window.addEventListener('resize', clampMobileBottom)
+    return () => window.removeEventListener('resize', clampMobileBottom)
+  }, [])
 
   return (
     <>
@@ -201,7 +283,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       {/* Draggable desktop player */}
       <div
         ref={containerRef}
-        className="soundcloud-player-fixed flex fixed z-50 items-center gap-3 rounded-md px-4 py-2 border shadow-sm"
+        className="soundcloud-player-fixed hidden md:flex fixed z-50 items-center gap-3 rounded-md px-4 py-2 border shadow-sm"
         style={{
           right: 16 + pos.x,
           bottom: 16 + pos.y,
@@ -234,22 +316,27 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           <>
             <button
               onClick={prev}
-              className="text-xl"
+              className="flex items-center justify-center"
               style={{color: theme.fg}}
               aria-label="Previous"
             >
-              ⏮
+              <MdSkipPrevious size={24} />
             </button>
             <button
               onClick={playPause}
-              className="text-xl"
+              className="flex items-center justify-center"
               style={{color: theme.fg}}
               aria-label={isPlaying ? 'Pause' : 'Play'}
             >
-              {isPlaying ? '⏸' : '▶'}
+              {isPlaying ? <MdPause size={24} /> : <MdPlayArrow size={24} />}
             </button>
-            <button onClick={next} className="text-xl" style={{color: theme.fg}} aria-label="Next">
-              ⏭
+            <button
+              onClick={next}
+              className="flex items-center justify-center"
+              style={{color: theme.fg}}
+              aria-label="Next"
+            >
+              <MdSkipNext size={24} />
             </button>
 
             {trackInfo.artwork && trackInfo.permalink_url && (
@@ -277,28 +364,40 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       </div>
 
       {/* Mobile sliding drawer */}
-      <div className="hidden fixed bottom-10 right-0 z-50">
+      <div
+        ref={mobileContainerRef}
+        className="md:hidden fixed right-0 z-50"
+        style={{bottom: mobileBottom}}
+      >
         <div
           className={`
             border rounded-l-md
             transition-transform duration-300 ease-in-out
-            ${isExpanded ? 'translate-x-0' : 'translate-x-[calc(100%-48px)]'}
+            ${isExpanded ? 'translate-x-0' : 'translate-x-[calc(100%-40px)]'}
             flex items-center
+            max-w-[calc(100vw-8px)]
           `}
           style={{backgroundColor: theme.bg, borderColor: theme.fg, color: theme.fg}}
         >
           {/* Toggle button (always visible) */}
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="w-12 h-12 flex items-center justify-center text-xl border-r rounded-l-md flex-shrink-0"
+            onClick={onMobileToggleClick}
+            onPointerDown={onMobileTogglePointerDown}
+            onPointerMove={onMobileTogglePointerMove}
+            onPointerUp={onMobileTogglePointerUp}
+            onPointerCancel={onMobileTogglePointerUp}
+            className="w-10 h-10 flex items-center justify-center text-lg border-r-0 rounded-l-md flex-shrink-0 touch-none select-none"
             style={{backgroundColor: theme.bg, borderColor: theme.fg, color: theme.fg}}
             aria-label={isExpanded ? 'Collapse player' : 'Expand player'}
           >
-            {isExpanded ? '→' : '←'}
+            ♪{/* <CgPlayList /> */}
           </button>
 
           {/* Player content (slides in/out) */}
-          <div className="flex items-center gap-2 px-3 py-2 min-w-0">
+          <div
+            className="flex items-center gap-1.5 px-2 py-1.5 border-l border-black min-w-0 max-w-[220px] overflow-hidden"
+            style={{borderColor: theme.fg}}
+          >
             {loading ? (
               <span
                 className="animate-pulse font-bold text-sm whitespace-nowrap"
@@ -309,35 +408,35 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
             ) : (
               <>
                 {/* Controls */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5">
                   <button
                     onClick={prev}
-                    className="text-lg"
+                    className="flex items-center justify-center"
                     style={{color: theme.fg}}
                     aria-label="Previous"
                   >
-                    ⏮
+                    <MdSkipPrevious size={20} />
                   </button>
                   <button
                     onClick={playPause}
-                    className="text-lg"
+                    className="flex items-center justify-center"
                     style={{color: theme.fg}}
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                   >
-                    {isPlaying ? '⏸' : '▶'}
+                    {isPlaying ? <MdPause size={20} /> : <MdPlayArrow size={20} />}
                   </button>
                   <button
                     onClick={next}
-                    className="text-lg"
+                    className="flex items-center justify-center"
                     style={{color: theme.fg}}
                     aria-label="Next"
                   >
-                    ⏭
+                    <MdSkipNext size={20} />
                   </button>
                 </div>
 
                 {/* Track info */}
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-1.5 min-w-0">
                   {trackInfo.artwork && trackInfo.permalink_url && (
                     <a
                       href={trackInfo.permalink_url}
@@ -346,14 +445,16 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
                       className="flex-shrink-0"
                       title={trackInfo.title}
                     >
-                      <img src={trackInfo.artwork} alt="" className="w-8 h-8 rounded" />
+                      <img src={trackInfo.artwork} alt="" className="w-7 h-7 rounded" />
                     </a>
                   )}
-                  <div className="min-w-0 max-w-[120px]">
-                    <div className="font-bold text-xs truncate" style={{color: theme.fg}}>
-                      {trackInfo.title}
+                  <div className="min-w-0 max-w-[128px]">
+                    <div className="font-bold text-sm truncate" style={{color: theme.fg}}>
+                      {trackInfo.title && trackInfo.title.length > 16
+                        ? `${trackInfo.title.substring(0, 16)}...`
+                        : trackInfo.title}
                     </div>
-                    <div className="text-xs truncate" style={{color: theme.fg}}>
+                    <div className="text-sm truncate" style={{color: theme.fg}}>
                       {trackInfo.artist}
                     </div>
                   </div>
