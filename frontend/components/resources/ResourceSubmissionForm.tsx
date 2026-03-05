@@ -120,35 +120,29 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
     tags?.map((t) => ({
       id: t._id,
       label: t.title,
-      color: 'bg-[#FE93E7] text-white',
+      color: 'section-bg section-fg',
     })) ?? []
 
   const categoryOptions =
     categories?.map((c) => ({
       id: c._id,
       label: c.title,
-      color: 'bg-[#FE93E7] text-white',
+      color: 'section-bg section-fg',
     })) ?? []
 
   return (
     <div className="p-4 h-full w-full md:max-w-[65vw] mx-auto">
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         <FormField
-          bgClassName="bg-[#FE93E7]"
           label="Title"
           error={errors.title}
           required
           showError={!!touchedFields.title || isSubmitted}
         >
-          <TextInput
-            registration={register('title')}
-            inputClassName="text-[#FE93E7]"
-            fieldClassName="bg-[#FE93E7]"
-          />
+          <TextInput registration={register('title')} />
         </FormField>
 
         <FormField
-          bgClassName="bg-[#FE93E7]"
           label="URL"
           error={errors.url}
           showError={!!touchedFields.url || isSubmitted}
@@ -157,28 +151,19 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
             registration={register('url')}
             type="url"
             placeholder="https://..."
-            inputClassName="text-[#FE93E7]"
-            fieldClassName="bg-[#FE93E7]"
           />
         </FormField>
 
         <FormField
-          bgClassName="bg-[#FE93E7]"
           label="E-mail"
           error={errors.email}
           required
           showError={!!touchedFields.email || isSubmitted}
         >
-          <TextInput
-            registration={register('email')}
-            type="email"
-            inputClassName="text-[#FE93E7]"
-            fieldClassName="bg-[#FE93E7]"
-          />
+          <TextInput registration={register('email')} type="email" />
         </FormField>
 
         <FormField
-          bgClassName="bg-[#FE93E7]"
           label="Category"
           error={errors.categories}
           required
@@ -194,7 +179,6 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
         </FormField>
 
         <FormField
-          bgClassName="bg-[#FE93E7]"
           label="Tag(s)"
           error={errors.tags}
           showError={!!touchedFields.tags || isSubmitted}
@@ -209,23 +193,15 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
         </FormField>
 
         <FormField
-          bgClassName="bg-[#FE93E7]"
           label="Description"
           error={errors.description}
           required
           showError={!!touchedFields.description || isSubmitted}
         >
-          <TextInput
-            registration={register('description')}
-            isTextArea
-            rows={4}
-            inputClassName="text-[#FE93E7]"
-            fieldClassName="bg-[#FE93E7]"
-          />
+          <TextInput registration={register('description')} isTextArea rows={4} />
         </FormField>
 
         <FormField
-          bgClassName="bg-[#FE93E7]"
           label="PDF"
           error={errors.file}
           showError={!!touchedFields.file || isSubmitted}
@@ -243,7 +219,7 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-16 bg-[#FE93E7] text-white text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50"
+          className="mt-16 section-bg section-fg text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50"
         >
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>

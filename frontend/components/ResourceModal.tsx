@@ -113,7 +113,7 @@ export default function ResourceModal({resource}: ResourceModalProps) {
         )}
 
         {resource.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-16">
+          <div className="flex flex-wrap gap-0 mb-16">
             {resource.tags.map((tag: any, idx: number) => (
               <Tag key={tag._id || `tag-${idx}`} label={tag.title} size="sm" />
             ))}

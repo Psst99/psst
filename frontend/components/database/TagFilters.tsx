@@ -17,7 +17,7 @@ export default function TagFilters({ tags }: { tags: TagDoc[] }) {
   )
 
   return (
-    <div className='flex flex-wrap gap-1.5'>
+    <div className='flex flex-wrap gap-0'>
       {tags.map((t) => (
         <TagPill
           key={t._id}

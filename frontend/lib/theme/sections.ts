@@ -11,13 +11,15 @@ export const SECTION_COLORS = {
 
 export const ACCESSIBLE_COLORS = {
   home: {a: '#FFFFFF', b: '#111111'},
-  psst: {a: '#FFFFFF', b: '#111111'},
-  database: {a: '#F6F6F6', b: '#111111'},
-  workshops: {a: '#F2F2F2', b: '#111111'},
-  events: {a: '#FAFAFA', b: '#111111'},
-  'pssound-system': {a: '#F4F4F4', b: '#111111'},
-  resources: {a: '#F8F8F8', b: '#111111'},
-  archive: {a: '#EFEFEF', b: '#111111'},
+  // Deliberate grayscale steps to avoid a flat "all light gray" accessible mode.
+  // Approx tonal steps from ~10% to ~35% black on white.
+  psst: {a: '#E8E8E8', b: '#111111'},
+  database: {a: '#DDDDDD', b: '#111111'},
+  workshops: {a: '#D2D2D2', b: '#111111'},
+  events: {a: '#C7C7C7', b: '#111111'},
+  'pssound-system': {a: '#BCBCBC', b: '#111111'},
+  resources: {a: '#B1B1B1', b: '#111111'},
+  archive: {a: '#A6A6A6', b: '#111111'},
 } as const
 
 export const MAIN_SECTIONS = [

@@ -148,7 +148,7 @@ export default function InfiniteArtistsList({
                 ))}
               </div>
 
-              <div className="flex flex-wrap gap-1 w-full xl:w-1/3">
+              <div className="flex flex-wrap gap-0 w-full xl:w-1/3">
                 {artist.tags?.map((tag: any, idx: number) => (
                   <Tag key={tag._key || `fallback-${idx}`} label={tag.title} size="sm" />
                 ))}

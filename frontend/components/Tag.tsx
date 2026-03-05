@@ -1,7 +1,7 @@
 'use client'
 
-import { getTagColors, getActiveTagColors } from '@/lib/tags'
-import { IoMdClose } from 'react-icons/io'
+import {getTagColors, getActiveTagColors} from '@/lib/tags'
+import {IoMdClose} from 'react-icons/io'
 import clsx from 'clsx'
 
 type TagProps = {
@@ -47,19 +47,19 @@ export default function Tag({
     <TagElement
       onClick={onClick}
       className={clsx(
-        'inline-flex items-center gap-1 rounded-full border',
+        'inline-flex items-center gap-1 rounded-none border',
         'font-mono lowercase',
         'bg-[var(--tag-bg)] text-[var(--tag-fg)] border-[var(--tag-bd)]',
         sizeClasses[size],
         interactive && 'hover:opacity-90 transition-colors',
-        className
+        className,
       )}
       style={style}
       {...(interactive ? { type: 'button', 'aria-pressed': isActive } : {})}
     >
       {label}
       {isActive && showCloseIcon && (
-        <IoMdClose className='h-3 w-3' aria-hidden='true' />
+        <IoMdClose className="h-3 w-3" aria-hidden="true" />
       )}
     </TagElement>
   )

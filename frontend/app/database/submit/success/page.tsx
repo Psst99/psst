@@ -33,7 +33,7 @@ export default function WorkshopSuccessPage() {
           <div className='space-y-3'>
             <Link
               href='/workshops'
-              className='block w-full bg-[#F50806] text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity'
+              className='block w-full section-fg text-[color:var(--section-bg)] py-2 px-4 rounded-lg hover:opacity-90 transition-opacity'
             >
               View All Workshops
             </Link>

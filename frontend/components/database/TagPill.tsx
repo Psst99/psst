@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
-import { slugifyTag, getTagColors } from '@/lib/tags'
+import {ChevronRight} from 'lucide-react'
+import {slugifyTag, getTagColors} from '@/lib/tags'
 import clsx from 'clsx'
 
 type TagPillProps = {
@@ -60,10 +60,10 @@ export default function TagPill({
       href={href}
       prefetch={false}
       className={clsx(
-        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs',
+        'inline-flex items-center gap-1 rounded-none border px-2 py-0.5 text-xs',
         'transition-colors',
         'bg-[var(--tag-bg)] text-[var(--tag-fg)] border-[var(--tag-bd)]',
-        'hover:opacity-90'
+        'hover:opacity-90',
       )}
       style={style}
       aria-pressed={isActive}

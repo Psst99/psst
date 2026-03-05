@@ -4,7 +4,6 @@ import {usePathname} from 'next/navigation'
 import {useEffect, useMemo, useState} from 'react'
 import {getSectionConfig} from '@/lib/route-utils'
 
-import CustomLink from './CustomLink'
 import SectionNavigation from './SectionNavigation'
 import SubNavigation, {resolveActiveSubNavHref} from './SubNavigation'
 import SectionScope from './SectionScope'
@@ -70,7 +69,6 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
     activeSubNavHref != null
       ? finalSubNavItems.findIndex((item) => item.href === activeSubNavHref)
       : -1
-  const activeSubNavItem = activeSubNavIndex >= 0 ? finalSubNavItems[activeSubNavIndex] : null
 
   const paddingClasses = isRootArchive
     ? 'pt-0 pb-0'
@@ -173,7 +171,7 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
             <SectionScope section={section as any} variant="page" className="contents">
               <SubNavigation
                 items={finalSubNavItems}
-                hideActiveTab
+                hideActiveTab={false}
                 onItemClick={handleSubNavItemClick}
                 activeHref={activeSubNavHref}
               />
@@ -185,7 +183,7 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
         {hasDesktopSubNav && (
           <div
             aria-hidden="true"
-            className="pointer-events-none hidden min-[83rem]:block fixed left-0 right-0 top-[var(--home-nav-h)] bottom-0 z-[8] border border-t section-bg section-border min-[83rem]:rounded-l-2xl min-[83rem]:rounded-r-2xl"
+            className="pointer-events-none hidden min-[83rem]:block fixed left-0 right-0 top-[var(--home-nav-h)] bottom-0 z-[8] border border-t section-bg section-border min-[83rem]:rounded-l-0 min-[83rem]:rounded-r-0"
           />
         )}
 
@@ -194,66 +192,11 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
           <SectionNavigation currentSection={section} hideCurrentSection />
         </div>
 
-        {hasDesktopSubNav && activeSubNavItem && (
-          <div
-            className={[
-              'pointer-events-none hidden min-[83rem]:block fixed left-0 right-0 z-[27] -translate-y-[calc(100%-1px)]',
-              desktopSheetTopClass,
-              contentOffsetClass,
-            ].join(' ')}
-          >
-            <div className="flex relative w-full">
-              {finalSubNavItems.map((item, idx) => {
-                if (idx > activeSubNavIndex) return null
-
-                const marginLeft = idx > 0 ? '-ml-px' : ''
-                const isActive = idx === activeSubNavIndex
-                // const shapeClass = idx === 0 && isActive ? 'rounded-tr-xl' : 'rounded-t-xl'
-                const shapeClass = 'rounded-t-xl'
-                const baseClass =
-                  'relative h-[var(--home-nav-h)] font-normal text-[24px] leading-[22px] uppercase tracking-normal px-10 border border-b-0 section-border flex items-center justify-center'
-
-                if (!isActive) {
-                  return (
-                    <div
-                      key={item.href}
-                      aria-hidden="true"
-                      className={[
-                        baseClass,
-                        shapeClass,
-                        marginLeft,
-                        'opacity-0 pointer-events-none select-none border-transparent text-transparent',
-                      ].join(' ')}
-                    >
-                      {item.label}
-                    </div>
-                  )
-                }
-
-                return (
-                  <CustomLink
-                    key={item.href}
-                    href={activeSubNavItem.href}
-                    className={[
-                      baseClass,
-                      shapeClass,
-                      marginLeft,
-                      'pointer-events-auto z-30 tab-active',
-                    ].join(' ')}
-                  >
-                    {activeSubNavItem.label}
-                  </CustomLink>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
         {/* Main content */}
         <div
           className={[
-            'mt-0 relative flex-1 border-0 border-t min-[83rem]:border-t min-[83rem]:rounded-r-2xl z-10',
-            contentLeftRoundingClass,
+            '-mt-[4px] relative flex-1 border-0 border-t min-[83rem]:border-t-0 z-10',
+            // contentLeftRoundingClass,
             contentOffsetClass,
             contentOverflowClasses,
             'panel-bg panel-fg panel-border',

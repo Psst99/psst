@@ -143,12 +143,12 @@ export default function OptimisticFilters({
   return (
     <div className="w-full md:w-80 space-y-3" data-pending={isPending ? '' : undefined}>
       {/* Search */}
-      <div className="bg-white py-1 px-6 rounded-md">
+      <div className="bg-white py-1 px-6 rounded-md border-2 border-transparent focus-within:border-[var(--section-bg)] transition-colors">
         <input
           type="text"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className={`w-full p-1 text-center uppercase tracking-tight text-xl ${headingClass}`}
+          className={`w-full p-1 text-center uppercase tracking-tight text-xl ${headingClass} focus:outline-none focus:ring-0`}
           placeholder="Search"
         />
       </div>
@@ -230,11 +230,12 @@ export default function OptimisticFilters({
           </button>
         </div>
 
-        <motion.div className="flex flex-wrap gap-1.5" layout>
+        <motion.div className="flex flex-wrap gap-0" layout>
           <AnimatePresence mode="popLayout">
             {shuffledTags.map((tag) => (
               <motion.div
                 key={tag._id}
+                className="flex"
                 layout
                 initial={{opacity: 0, scale: 0.8}}
                 animate={{opacity: 1, scale: 1}}

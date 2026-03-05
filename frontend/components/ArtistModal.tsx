@@ -192,7 +192,7 @@ export default function ArtistModal({artist}: ArtistModalProps) {
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-2 mb-16">
+        <div className="flex flex-wrap gap-0 mb-16">
           {artist.tags?.map((tag: any) => (
             <Tag key={tag._id} label={tag.title} size="sm" />
           ))}

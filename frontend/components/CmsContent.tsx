@@ -2,7 +2,7 @@ import {PortableText, type PortableTextComponents} from '@portabletext/react'
 import Link from 'next/link'
 import Reveal from './Reveal'
 import RevealStack from './RevealStack'
-import {isValidElement, type CSSProperties, type ReactNode} from 'react'
+import {Children, isValidElement, type CSSProperties, type ReactNode} from 'react'
 import {LINK_PILL_CLASS} from '@/lib/linkStyles'
 
 interface CmsContentProps {
@@ -70,6 +70,46 @@ function hasRenderableText(node: ReactNode): boolean {
   return true
 }
 
+function TapeMark({children}: {children: ReactNode}) {
+  const nodes = Children.toArray(children)
+  if (nodes.length === 0) return null
+
+  let leading = ''
+  let trailing = ''
+
+  // Pull leading whitespace out of first text node.
+  const first = nodes[0]
+  if (typeof first === 'string') {
+    const firstMatch = first.match(/^(\s*)(.*)$/s)
+    if (firstMatch) {
+      leading = firstMatch[1]
+      nodes[0] = firstMatch[2]
+    }
+  }
+
+  // Pull trailing whitespace out of last text node.
+  const lastIndex = nodes.length - 1
+  const last = nodes[lastIndex]
+  if (typeof last === 'string') {
+    const lastMatch = last.match(/^(.*?)(\s*)$/s)
+    if (lastMatch) {
+      trailing = lastMatch[2]
+      nodes[lastIndex] = lastMatch[1]
+    }
+  }
+
+  const coreNodes = nodes.filter((node) => !(typeof node === 'string' && node.length === 0))
+  if (coreNodes.length === 0) return <>{leading + trailing}</>
+
+  return (
+    <>
+      {leading}
+      <span className="cms-tape-mark">{coreNodes}</span>
+      {trailing}
+    </>
+  )
+}
+
 function resolvePortableTextLink(value: PortableTextLinkValue | null | undefined): {
   href: string
   openInNewTab: boolean
@@ -107,6 +147,7 @@ const getHighlightedBlockComponents = (): PortableTextComponents => ({
     ),
   },
   marks: {
+    strong: ({children}) => <TapeMark>{children}</TapeMark>,
     link: ({children, value}) => {
       const resolvedLink = resolvePortableTextLink(value)
       if (!resolvedLink) return <span>{children}</span>
@@ -200,6 +241,7 @@ const getComponents = (
   ),
 
   marks: {
+    strong: ({children}) => <TapeMark>{children}</TapeMark>,
     textColor: ({children, value}) => <span style={{color: value?.value}}>{children}</span>,
 
     highlightColor: ({children, value}) => (

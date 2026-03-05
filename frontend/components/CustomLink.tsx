@@ -14,7 +14,10 @@ type Props = {
   children: ReactNode
   className?: string
   style?: CSSProperties & {[key: string]: any}
+  ariaLabel?: string
   onClick?: (e: MouseEvent<HTMLAnchorElement>) => void
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
   intercalaire?: boolean
   prefetch?: boolean
 }
@@ -24,16 +27,68 @@ export default function CustomLink({
   children,
   className,
   style,
+  ariaLabel,
   onClick,
+  onMouseEnter,
+  onMouseLeave,
   intercalaire = false,
   prefetch = true,
 }: Props) {
   const router = useTransitionRouter()
   const pathname = usePathname()
+  const commitElRef = useRef<HTMLAnchorElement | null>(null)
+
+  const getCurrentLiftPx = (el: HTMLAnchorElement) => {
+    const computed = window.getComputedStyle(el)
+    if (computed.transform === 'none') return 0
+    try {
+      const matrix = new DOMMatrixReadOnly(computed.transform)
+      return Math.max(0, -matrix.m42)
+    } catch {
+      return 0
+    }
+  }
+
+  const armIntercalaireCommit = (el: HTMLAnchorElement) => {
+    const tabHeightPx = el.getBoundingClientRect().height
+    const currentLiftPx = getCurrentLiftPx(el)
+    const commitLiftPx = Math.max(currentLiftPx, tabHeightPx)
+    const openStartOffsetPx = Math.max(0, commitLiftPx - tabHeightPx)
+
+    commitElRef.current = el
+    el.style.setProperty('--intercalaire-commit-lift', `${commitLiftPx}px`)
+    document.documentElement.style.setProperty('--intercalaire-open-start-offset', `${openStartOffsetPx}px`)
+    el.dataset.committing = 'true'
+    document.documentElement.classList.add('intercalaire-committing')
+  }
+
+  const clearIntercalaireCommit = () => {
+    document.documentElement.classList.remove('intercalaire-committing')
+    document.documentElement.style.removeProperty('--intercalaire-open-start-offset')
+    if (!commitElRef.current) return
+    delete commitElRef.current.dataset.committing
+    commitElRef.current.style.removeProperty('--intercalaire-commit-lift')
+    commitElRef.current = null
+  }
 
   useEffect(() => {
     if (pathname !== '/') router.prefetch('/')
   }, [pathname, router])
+
+  useEffect(() => {
+    // Don't clear during active view transition — the animation cleanup callback handles it
+    if (
+      document.documentElement.classList.contains('vt-open') ||
+      document.documentElement.classList.contains('vt-close')
+    )
+      return
+    document.documentElement.classList.remove('intercalaire-committing')
+    document.documentElement.style.removeProperty('--intercalaire-open-start-offset')
+    if (!commitElRef.current) return
+    delete commitElRef.current.dataset.committing
+    commitElRef.current.style.removeProperty('--intercalaire-commit-lift')
+    commitElRef.current = null
+  }, [pathname])
 
   useEffect(() => {
     if (!prefetch || !intercalaire || href === pathname) return
@@ -44,12 +99,16 @@ export default function CustomLink({
   const lastAnimRef = useRef<Animation | null>(null)
   const clearTransitionClasses = () => {
     document.documentElement.classList.remove('vt-close', 'vt-open', 'vt-section-switch')
+    clearIntercalaireCommit()
   }
 
   const openFromHomeAnimation = () => {
     lastAnimRef.current?.cancel()
     lastAnimRef.current = document.documentElement.animate(
-      [{transform: 'translateY(calc(100% - var(--home-nav-h)))'}, {transform: 'translateY(0)'}],
+      [
+        {transform: 'translateY(calc(100% - var(--home-nav-h) - var(--intercalaire-open-start-offset, 0px)))'},
+        {transform: 'translateY(0)'},
+      ],
       {
         duration: VT_DURATION_MS,
         easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
@@ -108,11 +167,20 @@ export default function CustomLink({
     if (e.defaultPrevented) return
     const isDesktop =
       typeof window !== 'undefined' && window.matchMedia('(min-width: 83rem)').matches
+    const isDesktopIntercalaire = intercalaire && isDesktop
+
+    if (isDesktopIntercalaire) {
+      clearIntercalaireCommit()
+      armIntercalaireCommit(e.currentTarget)
+    }
 
     // HOME -> SECTION (legacy full-page slide)
     if (pathname === '/' && href !== '/') {
       e.preventDefault()
       clearTransitionClasses()
+      if (isDesktopIntercalaire) {
+        armIntercalaireCommit(e.currentTarget)
+      }
       if (intercalaire && isDesktop) document.documentElement.classList.add('vt-open')
       safePush(href, () => {
         const anim = openFromHomeAnimation()
@@ -120,6 +188,7 @@ export default function CustomLink({
           if (document.documentElement.classList.contains('vt-open')) {
             document.documentElement.classList.remove('vt-open')
           }
+          clearIntercalaireCommit()
         }
         anim?.finished?.then(cleanup).catch(cleanup)
       })
@@ -151,7 +220,16 @@ export default function CustomLink({
   }
 
   return (
-    <Link href={href} prefetch={prefetch} onClick={handleClick} className={className} style={style}>
+    <Link
+      href={href}
+      prefetch={prefetch}
+      onClick={handleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      className={className}
+      style={style}
+      aria-label={ariaLabel}
+    >
       {children}
     </Link>
   )

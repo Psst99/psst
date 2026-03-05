@@ -74,7 +74,7 @@
     scrollbar-width: none;
   }
 
-  /* Use Geist for bold text */
+  /* Use Geist/Karrik fallback for bold text when source font has no true bold face. */
   strong,
   b,
   .font-bold {
@@ -82,6 +82,17 @@
     font-weight: 500;
     letter-spacing: -0.02em;
     font-size: 1.1em;
+  }
+
+  /* CMS "tape" emphasis */
+  .cms-tape-mark {
+    display: inline;
+    text-transform: uppercase;
+    background: var(--panel-fg);
+    color: var(--panel-bg);
+    padding: 0 0.2em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
 
   .font-mono {
@@ -300,10 +311,12 @@
 ::view-transition-new(root) {
   z-index: 2;
   animation: none !important;
+  background: transparent !important;
 }
 ::view-transition-old(root) {
   z-index: 1;
   animation: none !important;
+  background: transparent !important;
 }
 
 /* close override (must be after defaults) */
@@ -374,6 +387,48 @@
   opacity: 0 !important;
 }
 
+/* During open, keep section-nav snapshots behind/hidden so clicked tab is dominant. */
+:root.vt-open::view-transition-group(section-nav-fixed) {
+  z-index: 0 !important;
+}
+
+:root.vt-open::view-transition-new(section-nav-fixed) {
+  opacity: 0 !important;
+}
+
+/* Avoid opaque fill on incoming root while sliding up over the homepage. */
+:root.vt-open::view-transition-new(root),
+:root.vt-open::view-transition-group(root),
+:root.vt-open::view-transition-image-pair(root) {
+  background: transparent !important;
+}
+
+/* Keep the incoming document canvas transparent while opening from home. */
+:root.vt-open,
+:root.vt-open body,
+:root.vt-open .site-bg {
+  background: transparent !important;
+}
+
+/* Push live bottom nav down during open, then let it slide back up when vt-open is removed. */
+.section-nav-fixed {
+  transition:
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms linear;
+}
+
+:root.vt-open .section-nav-fixed {
+  transform: translateY(calc(var(--home-nav-h) + 8px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+:root.vt-close .section-nav-fixed {
+  transform: translateY(calc(var(--home-nav-h) + 8px));
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Keep toggle buttons fixed during page transitions */
 .theme-toggle-fixed {
   view-transition-name: theme-toggle;
@@ -402,9 +457,220 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -1px;
+  bottom: 0;
   height: 1px;
   background: var(--underline-color, currentColor);
+}
+
+.intercalaire-row {
+  overflow: visible;
+  position: relative;
+}
+
+.intercalaire-tab {
+  --intercalaire-notch: 14px;
+  --intercalaire-radius: var(--intercalaire-notch);
+  --intercalaire-cover-opacity: 0;
+  position: relative;
+  isolation: isolate;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: var(--intercalaire-radius) !important;
+  overflow: visible;
+}
+
+.intercalaire-tab--hoverlift {
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.intercalaire-tab-extension {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100vw;
+  height: var(--home-nav-h);
+  background: var(--section-bg);
+  opacity: var(--intercalaire-cover-opacity);
+  /* Instant on hover-in (set by lifted class), delayed hide on hover-out to stay glued. */
+  transition: opacity 0ms linear 300ms;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 2;
+  white-space: nowrap;
+  /* Must stay visible during hover-out slide-down so the lower sheet remains attached. */
+  overflow: visible;
+  isolation: isolate;
+}
+
+.intercalaire-tab-extension-item {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 1.5rem;
+  font-size: 24px;
+  line-height: 22px;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.intercalaire-tab-extension-secondary {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: var(--home-nav-h);
+  background: var(--section-fg);
+  opacity: 0;
+  transition: opacity 0ms linear 300ms;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.intercalaire-tab-extension--with-items .intercalaire-tab-extension-item {
+  display: inline-flex;
+}
+
+.intercalaire-tab--lifted {
+  transform: translateY(calc(-1 * var(--home-nav-h)));
+  --intercalaire-cover-opacity: 1;
+}
+
+.intercalaire-tab--lifted.intercalaire-tab--lifted-double {
+  transform: translateY(calc(-2 * var(--home-nav-h)));
+}
+
+.intercalaire-tab--lifted.intercalaire-tab--lifted-double .intercalaire-tab-extension-secondary {
+  opacity: 1;
+  transition-delay: 0ms;
+}
+
+.intercalaire-tab--lifted .intercalaire-tab-extension {
+  transition-delay: 0ms;
+}
+
+[data-committing] {
+  transform: translateY(calc(-1 * var(--intercalaire-commit-lift, var(--home-nav-h))));
+  --intercalaire-cover-opacity: 1;
+  z-index: 5000 !important;
+}
+
+[data-committing] .intercalaire-tab-extension {
+  opacity: 1;
+  transition-delay: 0ms;
+}
+
+.intercalaire-tab--with-preview[data-committing] .intercalaire-tab-extension-secondary {
+  opacity: 1;
+  transition-delay: 0ms;
+}
+
+:root.intercalaire-committing .section-nav-fixed .intercalaire-row .intercalaire-tab {
+  pointer-events: none;
+}
+
+:root.intercalaire-committing
+  .section-nav-fixed
+  .intercalaire-row
+  .intercalaire-tab:not([data-committing]) {
+  opacity: 0;
+}
+
+/* First tab - square top-left corner */
+.intercalaire-tab--first {
+  border-top-left-radius: 0 !important;
+}
+
+/* Last tab - no right radius */
+.intercalaire-tab--last {
+  border-top-right-radius: 0 !important;
+}
+
+/* Bottom right concave corner - overlays the next tab */
+.intercalaire-tab:not(.intercalaire-tab--last)::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: calc(-1 * var(--intercalaire-notch));
+  width: var(--intercalaire-notch);
+  height: var(--intercalaire-notch);
+  background: radial-gradient(
+    circle at top right,
+    transparent var(--intercalaire-radius),
+    var(--section-bg) var(--intercalaire-radius)
+  );
+  z-index: 10;
+}
+
+/* Panel tab concave corners - keep notch geometry aligned */
+.tab-active:not(.intercalaire-tab--last)::before {
+  background: radial-gradient(
+    circle at top right,
+    transparent var(--intercalaire-radius),
+    var(--panel-fg) var(--intercalaire-radius)
+  );
+  bottom: 0;
+}
+
+.tab-inactive:not(.intercalaire-tab--last)::before {
+  background: radial-gradient(
+    circle at top right,
+    transparent var(--intercalaire-radius),
+    var(--panel-bg) var(--intercalaire-radius)
+  );
+  bottom: 0;
+}
+
+/* Subtle separation only for adjacent inactive tabs (top-right corner) */
+.tab-inactive.has-right-border:not(.intercalaire-tab--last)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: calc(-1 * var(--intercalaire-notch));
+  width: var(--intercalaire-notch);
+  height: var(--intercalaire-notch);
+  border-top-left-radius: var(--intercalaire-notch);
+  box-shadow:
+    -1px -1px 0 0 color-mix(in oklab, var(--section-fg) 80%, transparent),
+    -8px -6px 12px -3px color-mix(in oklab, var(--section-fg) 68%, transparent);
+  opacity: 1;
+  pointer-events: none;
+  z-index: 12;
+}
+
+/* ── Ghost tab: hidden behind active but intentionally visible ─────────
+   Keep it clickable and readable with transparent paper-like blending.  */
+.intercalaire-tab.is-hidden-behind {
+  opacity: 1 !important;
+  background-color: color-mix(in oklab, var(--section-bg) 56%, transparent) !important;
+  color: color-mix(in oklab, var(--section-fg) 72%, transparent) !important;
+  border-color: transparent !important;
+  mix-blend-mode: multiply;
+  isolation: auto;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    margin 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intercalaire-tab.is-hidden-behind:hover {
+  background-color: color-mix(in oklab, var(--section-bg) 80%, transparent) !important;
+  color: var(--section-fg) !important;
+  mix-blend-mode: normal;
+  margin-top: -1px !important;
+  margin-bottom: 1px !important;
+}
+
+/* Hidden-behind tabs keep notch geometry so inactive tabs still read as intercalaires. */
+.intercalaire-tab.is-hidden-behind::before {
+  display: block !important;
+  opacity: 0.7;
 }
 
 .mobile-subsection-underline::after {
@@ -489,7 +755,6 @@
 .artist-open-pending {
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--section-bg) 35%, transparent);
 }
 
 .artist-open-pending::after {

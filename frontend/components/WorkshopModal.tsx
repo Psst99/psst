@@ -110,7 +110,7 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
               </div>
             )}
             {workshop.tags?.length > 0 && (
-              <div className="mt-2 flex flex-wrap items-center gap-2">
+              <div className="mt-2 flex flex-wrap items-center gap-0">
                 {workshop.tags.map((tag: any) => (
                   <Tag key={tag._id} label={tag.title} size="sm" className="block w-fit" />
                 ))}

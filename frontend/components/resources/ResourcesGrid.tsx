@@ -24,7 +24,7 @@ export default function ResourcesGrid({resources}: ResourcesGridProps) {
   if (!resources?.length) {
     return (
       <div className="text-center py-10">
-        <p className="text-[#FE93E7] text-xl">No resources found</p>
+        <p className="text-[color:var(--section-accent)] text-xl">No resources found</p>
       </div>
     )
   }
@@ -49,7 +49,7 @@ export default function ResourcesGrid({resources}: ResourcesGridProps) {
       {resources.map((resource) => (
         <div
           key={resource._id}
-          className="border border-[#FE93E7] rounded-lg p-4 hover:shadow-md transition-shadow"
+          className="border border-[color:var(--section-accent)] rounded-lg p-4 hover:shadow-md transition-shadow"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-2xl" aria-hidden="true">
@@ -60,7 +60,9 @@ export default function ResourcesGrid({resources}: ResourcesGridProps) {
             </span>
           </div>
 
-          <h3 className="text-xl font-semibold text-[#FE93E7] mb-2">{resource.title}</h3>
+          <h3 className="text-xl font-semibold text-[color:var(--section-accent)] mb-2">
+            {resource.title}
+          </h3>
 
           {resource.image && (
             <div className="mb-3 relative h-40">
@@ -82,7 +84,7 @@ export default function ResourcesGrid({resources}: ResourcesGridProps) {
               {resource.tags.filter(Boolean).map((tag) => (
                 <span
                   key={tag._id}
-                  className="text-xs bg-[#FE93E7] bg-opacity-20 text-[#FE93E7] px-2 py-1 rounded"
+                  className="text-xs bg-[color:var(--section-accent)]/20 text-[color:var(--section-accent)] px-2 py-1 rounded"
                 >
                   {tag.title}
                 </span>
@@ -97,7 +99,7 @@ export default function ResourcesGrid({resources}: ResourcesGridProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={LINK_PILL_CLASS}
-                style={{color: '#FE93E7'}}
+                style={{color: 'var(--section-accent)'}}
               >
                 Visit Link
               </a>
@@ -109,7 +111,7 @@ export default function ResourcesGrid({resources}: ResourcesGridProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={LINK_PILL_CLASS}
-                style={{color: '#FE93E7'}}
+                style={{color: 'var(--section-accent)'}}
               >
                 Download
               </a>

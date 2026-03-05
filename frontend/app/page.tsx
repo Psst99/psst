@@ -12,7 +12,7 @@ export default async function Page() {
       <main className="h-[100svh] overflow-hidden">
         <div className="fixed inset-0 flex items-center justify-center">
           <video
-            src="/assets/hp-video.mp4"
+            src="/assets/hp-video-2.mp4"
             autoPlay
             loop
             muted

@@ -27,20 +27,22 @@ export default async function ResourcesContentAsync() {
     })) || []
 
   return (
-    <div className="p-6 text-[#FE93E7] md:mx-16">
+    <div className="p-6 text-[color:var(--section-accent)] md:mx-16">
       <h1 className="text-3xl md:text-4xl mb-6 text-center">{settings?.title}</h1>
       <CmsContent value={settings?.about} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto mt-20">
         {items.map((item, idx) => (
           <div key={idx} className="bg-white p-4 sm:p-2 sm:px-4 rounded-lg">
-            <h2 className="text-4xl md:text-3xl mb-2 text-[#1D53FF]">{item.title}</h2>
+            <h2 className="text-4xl md:text-3xl mb-2 text-[color:var(--section-fg)]">
+              {item.title}
+            </h2>
             {item.date && (
-              <span className="mt-1 bg-[#1D53FF] text-white px-1 py-0 text-sm font-mono block w-fit">
+              <span className="mt-1 section-fg text-[color:var(--section-bg)] px-1 py-0 text-sm font-mono block w-fit">
                 {item.date}
               </span>
             )}
             {item.tags && item.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-0 mt-3">
                 {item.tags.map((tag: string, tagIdx: number) => (
                   <Tag key={tagIdx} label={tag} size="sm" className="block w-fit" />
                 ))}
@@ -56,7 +58,7 @@ export default async function ResourcesContentAsync() {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block mt-2 text-[#1D53FF] text-sm tracking-tighter xl:text-base"
+                className="inline-block mt-2 text-[color:var(--section-fg)] text-sm tracking-tighter xl:text-base"
               >
                 View Resource
               </a>

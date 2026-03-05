@@ -103,7 +103,7 @@ export default function EventModal({event}: EventModalProps) {
 
         {/* Tags */}
         {event.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-16">
+          <div className="flex flex-wrap gap-0 mb-16">
             {event.tags.map((tag: any) => (
               <Tag key={tag._id} label={tag.title} size="sm" className="block w-fit" />
             ))}

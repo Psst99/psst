@@ -139,7 +139,7 @@ export default function InfiniteResourcesList({
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-1 w-full xl:w-1/3">
+              <div className="flex flex-wrap gap-0 w-full xl:w-1/3">
                 {resource.tags?.map((tag: any, idx: number) => (
                   <Tag key={tag._id || `fallback-${idx}`} label={tag.title} size="sm" />
                 ))}

@@ -49,7 +49,7 @@ export default function PssoundArchiveGrid({items}: PssoundArchiveGridProps) {
             )}
 
             {item.tags && item.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-0 mt-3">
                 {item.tags.map(
                   (tag: any, tagIdx: number) =>
                     tag &&
