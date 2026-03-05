@@ -386,21 +386,21 @@
   }
 }
 
-:root.vt-open::view-transition-new(section-page-nav-fixed) {
-  opacity: 0 !important;
-}
-
-/* During open-from-home, hide old bottom-nav snapshot to avoid double-tab flicker. */
-:root.vt-open::view-transition-old(section-page-nav-fixed) {
-  opacity: 0 !important;
-}
-
-/* During open, keep section-nav snapshots behind/hidden so clicked tab is dominant. */
+/* During open-from-home: show left tabs from the incoming section nav above the
+   root transition so they stay visible like real-life dividers.
+   Right tabs are off-screen via translateY(100%) on the actual DOM. */
 :root.vt-open::view-transition-group(section-page-nav-fixed) {
-  z-index: 0 !important;
+  z-index: 2100 !important; /* Above root transition – left tabs stay visible */
 }
 
 :root.vt-open::view-transition-new(section-page-nav-fixed) {
+  animation: none !important;
+  mix-blend-mode: normal;
+  /* No opacity:0 — left tabs remain visible throughout the slide-up */
+}
+
+/* Hide old bottom-nav snapshot (home page has no matching element anyway). */
+:root.vt-open::view-transition-old(section-page-nav-fixed) {
   opacity: 0 !important;
 }
 
@@ -425,7 +425,7 @@
 }
 
 .section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {
-  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1) 120ms;
 }
 
 /* During vt-close, keep the container stationary but push individual nav tabs down on the HOME page */
