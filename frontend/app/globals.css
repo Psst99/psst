@@ -445,8 +445,11 @@
   transition: none !important;
 }
 
+/* Right-side tabs stagger in when section page loads.
+   Each right tab gets a delay based on distance from active section. */
 .section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {
-  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1) 120ms;
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc((var(--intercalaire-index, 0) - var(--active-section-index, 0)) * 100ms);
 }
 
 /* During vt-close, keep the container stationary but push individual nav tabs down on the HOME page */
@@ -499,9 +502,13 @@
   transform: translateY(100%);
 }
 
-/* When vt-close is removed, animate only the right tabs UP to 0 over 500ms */
+/* When vt-close is removed, animate only the right tabs UP to 0 over 500ms.
+   Stagger based on distance from the closing section tab. */
 :root[data-closing-section] .home-nav-fixed .intercalaire-tab {
   transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+  transition-delay: calc(
+    (var(--intercalaire-index, 0) - var(--closing-section-index, 0)) * 100ms
+  ) !important;
 }
 
 /* Keep toggle buttons fixed during page transitions */
@@ -546,11 +553,27 @@
   --intercalaire-notch: 14px;
   --intercalaire-radius: var(--intercalaire-notch);
   --intercalaire-cover-opacity: 0;
+  --intercalaire-stagger-delay: calc(var(--intercalaire-index, 0) * 100ms);
   position: relative;
   isolation: isolate;
   border-top-left-radius: 0 !important;
   border-top-right-radius: var(--intercalaire-radius) !important;
   overflow: visible;
+}
+
+/* ── Initial page-load stagger (runs once) ── */
+@keyframes intercalaire-entrance {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+:root:not(.intercalaire-entered) .home-nav-fixed .intercalaire-tab {
+  animation: intercalaire-entrance 500ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: var(--intercalaire-stagger-delay);
 }
 
 .intercalaire-tab--hoverlift {
@@ -841,4 +864,17 @@
   100% {
     transform: translateX(120%);
   }
+}
+
+/* Prevent duplicate active tabs during view transition.
+   The active tab on the home page is extracted and hidden so the incoming tab (sliding up seamlessly with the page) is the only one visible. */
+::view-transition-group(committing-tab-ghost) {
+  z-index: 1; /* keep behind the incoming page */
+}
+::view-transition-old(committing-tab-ghost) {
+  opacity: 0 !important;
+  animation: none !important;
+}
+::view-transition-new(committing-tab-ghost) {
+  display: none !important;
 }

@@ -56,10 +56,16 @@ export default function CustomLink({
   const armIntercalaireCommit = (el: HTMLAnchorElement) => {
     const tabHeightPx = el.getBoundingClientRect().height
     const currentLiftPx = getCurrentLiftPx(el)
-    const commitLiftPx = Math.max(currentLiftPx, tabHeightPx)
+
+    // We just keep the current hover lift, so the active tab stays perfectly still
+    // while the right-side tabs slide down. Then the VT smoothly slides it up.
+    const commitLiftPx = currentLiftPx
     const rectTopPx = el.getBoundingClientRect().top
 
     commitElRef.current = el
+    // Isolate the old tab so it doesn't leave a ghost in the view transition photograph that fights with the newly mounting one
+    el.style.viewTransitionName = 'committing-tab-ghost'
+
     el.style.setProperty('--intercalaire-commit-lift', `${commitLiftPx}px`)
     document.documentElement.style.setProperty('--intercalaire-rect-top', `${rectTopPx}px`)
     el.dataset.committing = 'true'
@@ -72,6 +78,7 @@ export default function CustomLink({
     if (!commitElRef.current) return
     delete commitElRef.current.dataset.committing
     commitElRef.current.style.removeProperty('--intercalaire-commit-lift')
+    commitElRef.current.style.removeProperty('view-transition-name')
     commitElRef.current = null
   }
 
@@ -188,9 +195,46 @@ export default function CustomLink({
     if (pathname === '/' && href !== '/') {
       e.preventDefault()
       clearTransitionClasses()
+
+      // Mark entrance complete so it never replays
+      document.documentElement.classList.add('intercalaire-entered')
+
+      // Store active section index for right-tab stagger on section page
+      const sectionOrder = [
+        'psst',
+        'database',
+        'resources',
+        'pssound-system',
+        'workshops',
+        'events',
+        'archive',
+      ]
+      const targetSection = href.split('/').filter(Boolean)[0] || ''
+      const activeIdx = sectionOrder.indexOf(targetSection)
+      if (activeIdx !== -1) {
+        document.documentElement.style.setProperty('--active-section-index', String(activeIdx))
+      }
+
       if (isDesktopIntercalaire) {
         armIntercalaireCommit(e.currentTarget)
+
+        // Wait for the right tabs to slide down before taking the view transition snapshot
+        setTimeout(() => {
+          document.documentElement.classList.add('vt-open')
+          safePush(href, () => {
+            const anim = openFromHomeAnimation()
+            const cleanup = () => {
+              if (document.documentElement.classList.contains('vt-open')) {
+                document.documentElement.classList.remove('vt-open')
+              }
+              clearIntercalaireCommit()
+            }
+            anim?.finished?.then(cleanup).catch(cleanup)
+          })
+        }, 350)
+        return
       }
+
       if (intercalaire && isDesktop) document.documentElement.classList.add('vt-open')
       safePush(href, () => {
         const anim = openFromHomeAnimation()
@@ -213,6 +257,21 @@ export default function CustomLink({
       const closingSection = pathname.split('/').filter(Boolean)[0] || ''
       document.documentElement.dataset.closingSection = closingSection
 
+      // Store closing section index for staggered right-tab reappearance
+      const sectionOrder = [
+        'psst',
+        'database',
+        'resources',
+        'pssound-system',
+        'workshops',
+        'events',
+        'archive',
+      ]
+      const closingIdx = sectionOrder.indexOf(closingSection)
+      if (closingIdx !== -1) {
+        document.documentElement.style.setProperty('--closing-section-index', String(closingIdx))
+      }
+
       // Phase 1: slide right tabs down on the SECTION page before snapshotting
       document.documentElement.classList.add('vt-close-prep')
 
@@ -233,6 +292,7 @@ export default function CustomLink({
 
             setTimeout(() => {
               delete document.documentElement.dataset.closingSection
+              document.documentElement.style.removeProperty('--closing-section-index')
             }, 500) // allow the other tabs to slide up smoothly
           }
 
