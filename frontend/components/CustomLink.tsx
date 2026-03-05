@@ -102,7 +102,12 @@ export default function CustomLink({
   const navIdRef = useRef(0)
   const lastAnimRef = useRef<Animation | null>(null)
   const clearTransitionClasses = () => {
-    document.documentElement.classList.remove('vt-close', 'vt-open', 'vt-section-switch')
+    document.documentElement.classList.remove(
+      'vt-close',
+      'vt-close-prep',
+      'vt-open',
+      'vt-section-switch',
+    )
     clearIntercalaireCommit()
   }
 
@@ -129,7 +134,7 @@ export default function CustomLink({
       [{transform: 'translateY(0)'}, {transform: 'translateY(calc(100% - var(--home-nav-h)))'}],
       {
         duration: VT_DURATION_MS,
-        delay: 350, // Wait for the bottom nav to slide down before falling
+        delay: 0, // Right tabs already slid down during prep phase
         easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
         fill: 'forwards',
         pseudoElement: '::view-transition-old(root)',
@@ -207,25 +212,33 @@ export default function CustomLink({
 
       const closingSection = pathname.split('/').filter(Boolean)[0] || ''
       document.documentElement.dataset.closingSection = closingSection
-      document.documentElement.classList.add('vt-close')
 
-      safePush('/', (navId) => {
-        const anim = closeToHomeAnimation()
+      // Phase 1: slide right tabs down on the SECTION page before snapshotting
+      document.documentElement.classList.add('vt-close-prep')
 
-        const done = () => {
-          // only remove if this is still the latest nav
-          if (navIdRef.current !== navId) return
-          if (document.documentElement.classList.contains('vt-close')) {
-            document.documentElement.classList.remove('vt-close')
+      // Wait for right tabs to finish sliding down, then start the view transition
+      setTimeout(() => {
+        document.documentElement.classList.remove('vt-close-prep')
+        document.documentElement.classList.add('vt-close')
+
+        safePush('/', (navId) => {
+          const anim = closeToHomeAnimation()
+
+          const done = () => {
+            // only remove if this is still the latest nav
+            if (navIdRef.current !== navId) return
+            if (document.documentElement.classList.contains('vt-close')) {
+              document.documentElement.classList.remove('vt-close')
+            }
+
+            setTimeout(() => {
+              delete document.documentElement.dataset.closingSection
+            }, 500) // allow the other tabs to slide up smoothly
           }
 
-          setTimeout(() => {
-            delete document.documentElement.dataset.closingSection
-          }, 500) // allow the other tabs to slide up smoothly
-        }
-
-        anim?.finished?.then(done).catch(done)
-      })
+          anim?.finished?.then(done).catch(done)
+        })
+      }, 380) // slightly longer than the 350ms right-tab slide-down
 
       return
     }

@@ -372,11 +372,21 @@
   mix-blend-mode: normal;
 }
 
-/* During close-to-home, push the old nav snapshot down so it slides away first over 350ms.
-   By keeping opacity: 1, it looks like it physically slides out of the way. */
+/* During close-to-home, the old section-nav snapshot stays visible so left tabs
+   remain on screen while the page slides away. Right tabs are already off-screen
+   by the time the snapshot is captured (pushed down via .vt-close-prep). */
 :root.vt-close::view-transition-old(section-page-nav-fixed) {
-  animation: nav-slide-down 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+  animation: none !important;
   mix-blend-mode: normal;
+}
+
+:root.vt-close::view-transition-group(section-page-nav-fixed) {
+  z-index: 2100 !important; /* Keep left tabs above the sliding-down page */
+}
+
+/* Hide the incoming (home) nav snapshot during the close — the real home-nav-fixed handles it */
+:root.vt-close::view-transition-new(section-page-nav-fixed) {
+  opacity: 0 !important;
 }
 
 @keyframes nav-slide-down {
@@ -384,6 +394,17 @@
     transform: translateY(100%);
     opacity: 1;
   }
+}
+
+/* ── Close prep: slide right tabs down BEFORE the view-transition snapshot ── */
+:root.vt-close-prep .section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {
+  transform: translateY(100%) !important;
+  transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* Keep left tabs in place during prep */
+:root.vt-close-prep .section-page-nav-fixed .intercalaire-tab[data-tab-side='left'] {
+  transform: translateY(0) !important;
 }
 
 /* During open-from-home: show left tabs from the incoming section nav above the
@@ -433,37 +454,52 @@
   pointer-events: none;
 }
 
+/* Left tabs + closing tab stay in place (already visible from section-page-nav snapshot) */
 :root.vt-close .home-nav-fixed .intercalaire-tab {
-  transform: translateY(100%);
   transition: none !important;
 }
 
-/* Let the newly opened/closed matching tab sit at 0% from the start so it seamlessly catches the falling page */
+/* Only right-side tabs (after the closing section) start hidden below */
 :root[data-closing-section='psst'].vt-close
   .home-nav-fixed
-  .intercalaire-tab[data-section-slug='psst'],
+  .intercalaire-row
+  div:has([data-section-slug='psst'])
+  ~ div
+  .intercalaire-tab,
 :root[data-closing-section='database'].vt-close
   .home-nav-fixed
-  .intercalaire-tab[data-section-slug='database'],
+  .intercalaire-row
+  div:has([data-section-slug='database'])
+  ~ div
+  .intercalaire-tab,
 :root[data-closing-section='resources'].vt-close
   .home-nav-fixed
-  .intercalaire-tab[data-section-slug='resources'],
+  .intercalaire-row
+  div:has([data-section-slug='resources'])
+  ~ div
+  .intercalaire-tab,
 :root[data-closing-section='pssound-system'].vt-close
   .home-nav-fixed
-  .intercalaire-tab[data-section-slug='pssound-system'],
+  .intercalaire-row
+  div:has([data-section-slug='pssound-system'])
+  ~ div
+  .intercalaire-tab,
 :root[data-closing-section='workshops'].vt-close
   .home-nav-fixed
-  .intercalaire-tab[data-section-slug='workshops'],
+  .intercalaire-row
+  div:has([data-section-slug='workshops'])
+  ~ div
+  .intercalaire-tab,
 :root[data-closing-section='events'].vt-close
   .home-nav-fixed
-  .intercalaire-tab[data-section-slug='events'],
-:root[data-closing-section='archive'].vt-close
-  .home-nav-fixed
-  .intercalaire-tab[data-section-slug='archive'] {
-  transform: translateY(0);
+  .intercalaire-row
+  div:has([data-section-slug='events'])
+  ~ div
+  .intercalaire-tab {
+  transform: translateY(100%);
 }
 
-/* When vt-close is removed, animate the non-matching tabs UP to 0 over 500ms */
+/* When vt-close is removed, animate only the right tabs UP to 0 over 500ms */
 :root[data-closing-section] .home-nav-fixed .intercalaire-tab {
   transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
@@ -525,7 +561,7 @@
 .intercalaire-tab-extension {
   position: absolute;
   left: 0;
-  top: 100%;
+  top: calc(100% - 1px); /* overlap 1px to eliminate sub-pixel gap */
   /* Make the background extension stretch 5x screen width (simulating an infinite full-width sheet that's anchored to the tab left/right) so that no matter the tab width, it covers the remaining screen width fully on both sides */
   width: 500vw;
   /* Push it physically to the left so it definitely spans the full screen to the right */
