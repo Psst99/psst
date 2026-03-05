@@ -7,7 +7,6 @@ import type {CSSProperties, MouseEvent as ReactMouseEvent} from 'react'
 import {useState} from 'react'
 import {subNavigation} from '@/lib/theme'
 import {usePathname} from 'next/navigation'
-import {resolveActiveSubNavHref} from './SubNavigation'
 import {useTransitionRouter} from 'next-view-transitions'
 
 interface SectionNavigationProps {
@@ -38,22 +37,6 @@ const TABS: Array<{
   {href: '/archive', label: 'ARCHIVE', slug: 'archive', zBase: 13, widthWeight: 1.1},
 ]
 
-type PreviewItem = {label: string; href: string}
-
-const HOVER_PREVIEW_ITEMS: Partial<Record<SectionSlug, readonly PreviewItem[]>> = {
-  psst: [
-    {label: 'MANIFESTO', href: '/psst'},
-    {label: 'ABOUT', href: '/psst/about'},
-  ],
-  database: subNavigation.database.map((item) => ({label: item.label.toUpperCase(), href: item.href})),
-  workshops: subNavigation.workshops.map((item) => ({label: item.label.toUpperCase(), href: item.href})),
-  'pssound-system': subNavigation['pssound-system'].map((item) => ({
-    label: item.label.toUpperCase(),
-    href: item.href,
-  })),
-  resources: subNavigation.resources.map((item) => ({label: item.label.toUpperCase(), href: item.href})),
-}
-
 export default function SectionNavigation({
   currentSection = '',
   hideCurrentSection = false,
@@ -63,7 +46,13 @@ export default function SectionNavigation({
   const router = useTransitionRouter()
   const [hoveredTab, setHoveredTab] = useState<SectionSlug | null>(null)
   const enableDockHover = !onlyCurrentSection && (currentSection === 'home' || hideCurrentSection)
-  const hoveredTabIndex = hoveredTab != null ? TABS.findIndex((item) => item.slug === hoveredTab) : -1
+  const hoveredTabIndex =
+    hoveredTab != null ? TABS.findIndex((item) => item.slug === hoveredTab) : -1
+
+  const activeIdx =
+    currentSection === 'home' || !currentSection
+      ? -1
+      : TABS.findIndex((item) => item.slug === currentSection)
 
   // Calculate cumulative width for cascading effect
   const cumulativeWidths = TABS.map((_, idx) => {
@@ -88,31 +77,25 @@ export default function SectionNavigation({
           const shouldHide = hideCurrentSection && isCurrent
           const shouldRenderPlaceholder = onlyCurrentSection && !isCurrent
           const isActive = !hideCurrentSection && isCurrent
-          const isBlockedByHoveredTab =
-            enableDockHover && hoveredTabIndex >= 0 && idx > hoveredTabIndex && !isHovered
+          const isBlockedByHoveredTab = false // Removed strict hover blocking
           const href = isActive ? '/' : tab.href
           const isFirst = idx === 0
           const isLast = idx === TABS.length - 1
+
+          let tabSide = 'none'
+          if (activeIdx !== -1) {
+            tabSide = idx < activeIdx ? 'left' : idx > activeIdx ? 'right' : 'active'
+          }
+
           // Keep the natural intercalaires stack order stable across states.
           const baseZIndex = 1000 - idx
           const zIndex = isActive ? 2200 : baseZIndex
           const widthPercent = (cumulativeWidths[idx] / totalWeight) * 100
-          const previewItems = HOVER_PREVIEW_ITEMS[tab.slug] ?? []
-          const fallbackActiveHref =
-            previewItems.find((item) => item.href === tab.href)?.href ?? previewItems[0]?.href ?? null
-          const resolvedActivePreviewHref =
-            previewItems.length > 0 ? resolveActiveSubNavHref(pathname, previewItems) : null
-          const activePreviewHref = resolvedActivePreviewHref ?? fallbackActiveHref
-          const previewLength = previewItems.length
-          const activePreviewIndex = previewItems.findIndex((item) => item.href === activePreviewHref)
-          const normalizedActivePreviewIndex = activePreviewIndex >= 0 ? activePreviewIndex : 0
-          const previewCoverStartPercent =
-            previewLength > 0 ? ((normalizedActivePreviewIndex + 1) / previewLength) * 100 : 100
+
           const tabStyle: CSSProperties & {[key: string]: number | string} = {
             zIndex,
             '--intercalaire-index': idx,
             '--intercalaire-flex': tab.widthWeight,
-            '--intercalaire-preview-cover-start': `${previewCoverStartPercent}%`,
             position: 'absolute',
             left: 0,
             width: `${widthPercent}%`,
@@ -123,6 +106,8 @@ export default function SectionNavigation({
               <div
                 key={tab.slug}
                 aria-hidden="true"
+                data-section-slug={tab.slug}
+                data-tab-side={tabSide}
                 className={[
                   'intercalaire-tab h-[var(--home-nav-h)] whitespace-nowrap',
                   'font-normal text-[24px] leading-[22px] uppercase tracking-tight',
@@ -143,10 +128,8 @@ export default function SectionNavigation({
             'font-normal text-[24px] leading-[22px] uppercase tracking-tight',
             'px-6 pt-1 pb-1 flex items-center justify-end',
             'section-bg section-fg',
-            previewLength > 0 ? 'intercalaire-tab--with-preview' : '',
             enableDockHover ? 'intercalaire-tab--hoverlift' : '',
             enableDockHover && isHovered ? 'intercalaire-tab--lifted' : '',
-            enableDockHover && isHovered && previewLength > 0 ? 'intercalaire-tab--lifted-double' : '',
             isFirst ? 'intercalaire-tab--first' : '',
             isLast ? 'intercalaire-tab--last' : '',
             isBlockedByHoveredTab ? 'pointer-events-none' : '',
@@ -157,7 +140,13 @@ export default function SectionNavigation({
           if (shouldHide) {
             return (
               <SectionScope key={tab.slug} section={tab.slug} className="contents">
-                <div aria-hidden="true" className={tabClassName} style={tabStyle}>
+                <div
+                  aria-hidden="true"
+                  data-section-slug={tab.slug}
+                  data-tab-side={tabSide}
+                  className={tabClassName}
+                  style={tabStyle}
+                >
                   {tab.label}
                 </div>
               </SectionScope>
@@ -169,9 +158,10 @@ export default function SectionNavigation({
               <CustomLink
                 href={href}
                 intercalaire
+                data-section-slug={tab.slug}
+                data-tab-side={tabSide}
                 onMouseEnter={() => {
                   if (!enableDockHover) return
-                  if (hoveredTabIndex >= 0 && idx > hoveredTabIndex) return
                   setHoveredTab(tab.slug)
                 }}
                 className={tabClassName}
@@ -185,51 +175,11 @@ export default function SectionNavigation({
                 }}
               >
                 <span>{tab.label}</span>
+                {/* The extension background that mimics the full sheet under the tab */}
                 <span
+                  className="intercalaire-tab-extension pointer-events-none"
                   aria-hidden="true"
-                  className={[
-                    'intercalaire-tab-extension',
-                    previewLength > 0 ? 'intercalaire-tab-extension--with-items' : '',
-                  ].join(' ')}
-                >
-                  {previewItems.map((item, previewIdx) => {
-                    const isItemActive = activePreviewHref === item.href
-                    const isItemFirst = previewIdx === 0
-                    const isItemLast = previewIdx === previewLength - 1
-                    const nextItem = previewItems[previewIdx + 1]
-                    const isNextItemActive = nextItem ? activePreviewHref === nextItem.href : false
-                    const shouldShowRightBorder = !isItemActive && !isNextItemActive && !isItemLast
-                    const previewItemZIndex = isItemActive ? 1800 : 900 - previewIdx
-
-                    return (
-                      <span
-                        key={`${tab.slug}-${item.href}`}
-                        className={[
-                          'intercalaire-tab intercalaire-tab-extension-item',
-                          isItemFirst ? 'intercalaire-tab--first' : '',
-                          isItemLast ? 'intercalaire-tab--last' : '',
-                          isItemActive ? 'tab-active' : 'tab-inactive',
-                          shouldShowRightBorder ? 'border-r border-r-current has-right-border' : '',
-                        ].join(' ')}
-                        style={{
-                          zIndex: previewItemZIndex,
-                          left: 0,
-                          width: `${((previewIdx + 1) / previewLength) * 100}%`,
-                        }}
-                        onClick={(event: ReactMouseEvent<HTMLSpanElement>) => {
-                          event.preventDefault()
-                          event.stopPropagation()
-                          setHoveredTab(null)
-                          if (pathname === item.href) return
-                          router.push(item.href)
-                        }}
-                      >
-                        {item.label}
-                      </span>
-                    )
-                  })}
-                  <span className="intercalaire-tab-extension-secondary" />
-                </span>
+                />
               </CustomLink>
             </SectionScope>
           )

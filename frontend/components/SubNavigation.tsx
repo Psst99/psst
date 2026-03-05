@@ -62,8 +62,7 @@ export default function SubNavigation({
           const nextItem = items[idx + 1]
           const isNextActive = nextItem ? activeHref === nextItem.href : false
           const isHiddenBehindActive = !isActive && activeTabIndex > idx
-          const shouldShowRightBorder =
-            !isActive && !isNextActive && !isLast && !isHiddenBehindActive
+          const shouldShowRightBorder = !isActive && !isNextActive && !isLast
 
           /* z-index layers:
              - ghost tabs:  1850+ (above active so they peek through)
@@ -73,7 +72,7 @@ export default function SubNavigation({
           if (isActive) {
             zIndex = 1800
           } else if (isHiddenBehindActive) {
-            zIndex = 1850 + idx
+            zIndex = 1850 - idx
           } else {
             zIndex = 900 - idx
           }
@@ -159,6 +158,7 @@ export default function SubNavigation({
                     isFirst ? 'intercalaire-tab--first' : '',
                     isLast ? 'intercalaire-tab--last' : '',
                     'tab-inactive is-hidden-behind',
+                    shouldShowRightBorder ? 'has-right-border' : '',
                   ].join(' ')}
                   style={hiddenVisualStyle}
                 >
@@ -186,7 +186,7 @@ export default function SubNavigation({
                 baseClass,
                 isFirst ? 'intercalaire-tab--first' : '',
                 isLast ? 'intercalaire-tab--last' : '',
-                'tab-inactive hover:tab-active hover:-mt-1 hover:mb-1',
+                'tab-inactive',
                 shouldShowRightBorder ? 'has-right-border' : '',
               ].join(' ')}
               style={tabStyle}

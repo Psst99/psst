@@ -358,41 +358,49 @@
 }
 
 /* Keep desktop section nav fixed during transitions */
-.section-nav-fixed {
-  view-transition-name: section-nav-fixed;
+.section-page-nav-fixed {
+  view-transition-name: section-page-nav-fixed;
 }
 
-::view-transition-group(section-nav-fixed) {
-  z-index: 9998;
+::view-transition-group(section-page-nav-fixed) {
+  z-index: 3; /* Just above the old sliding page which is z-index 2 */
 }
 
-::view-transition-old(section-nav-fixed),
-::view-transition-new(section-nav-fixed) {
+::view-transition-old(section-page-nav-fixed),
+::view-transition-new(section-page-nav-fixed) {
   animation: none;
   mix-blend-mode: normal;
 }
 
-/* During close-to-home, keep old nav snapshot on top and hide incoming one
-   until the slide-down finishes to avoid double-tab artifacts. */
-:root.vt-close::view-transition-old(section-nav-fixed) {
-  opacity: 1 !important;
+/* During close-to-home, push the old nav snapshot down so it slides away first over 350ms.
+   By keeping opacity: 1, it looks like it physically slides out of the way. */
+:root.vt-close::view-transition-old(section-page-nav-fixed) {
+  animation: nav-slide-down 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+  mix-blend-mode: normal;
 }
 
-:root.vt-close::view-transition-new(section-nav-fixed) {
+@keyframes nav-slide-down {
+  to {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+}
+
+:root.vt-open::view-transition-new(section-page-nav-fixed) {
   opacity: 0 !important;
 }
 
 /* During open-from-home, hide old bottom-nav snapshot to avoid double-tab flicker. */
-:root.vt-open::view-transition-old(section-nav-fixed) {
+:root.vt-open::view-transition-old(section-page-nav-fixed) {
   opacity: 0 !important;
 }
 
 /* During open, keep section-nav snapshots behind/hidden so clicked tab is dominant. */
-:root.vt-open::view-transition-group(section-nav-fixed) {
+:root.vt-open::view-transition-group(section-page-nav-fixed) {
   z-index: 0 !important;
 }
 
-:root.vt-open::view-transition-new(section-nav-fixed) {
+:root.vt-open::view-transition-new(section-page-nav-fixed) {
   opacity: 0 !important;
 }
 
@@ -410,23 +418,54 @@
   background: transparent !important;
 }
 
-/* Push live bottom nav down during open, then let it slide back up when vt-open is removed. */
-.section-nav-fixed {
-  transition:
-    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 180ms linear;
+/* Ensure the incoming right tabs slide up after the new page has transitioned */
+:root.vt-open .section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {
+  transform: translateY(100%);
+  transition: none !important;
 }
 
-:root.vt-open .section-nav-fixed {
-  transform: translateY(calc(var(--home-nav-h) + 8px));
-  opacity: 0;
+.section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* During vt-close, keep the container stationary but push individual nav tabs down on the HOME page */
+:root.vt-close .home-nav-fixed {
   pointer-events: none;
 }
 
-:root.vt-close .section-nav-fixed {
-  transform: translateY(calc(var(--home-nav-h) + 8px));
-  opacity: 0;
-  pointer-events: none;
+:root.vt-close .home-nav-fixed .intercalaire-tab {
+  transform: translateY(100%);
+  transition: none !important;
+}
+
+/* Let the newly opened/closed matching tab sit at 0% from the start so it seamlessly catches the falling page */
+:root[data-closing-section='psst'].vt-close
+  .home-nav-fixed
+  .intercalaire-tab[data-section-slug='psst'],
+:root[data-closing-section='database'].vt-close
+  .home-nav-fixed
+  .intercalaire-tab[data-section-slug='database'],
+:root[data-closing-section='resources'].vt-close
+  .home-nav-fixed
+  .intercalaire-tab[data-section-slug='resources'],
+:root[data-closing-section='pssound-system'].vt-close
+  .home-nav-fixed
+  .intercalaire-tab[data-section-slug='pssound-system'],
+:root[data-closing-section='workshops'].vt-close
+  .home-nav-fixed
+  .intercalaire-tab[data-section-slug='workshops'],
+:root[data-closing-section='events'].vt-close
+  .home-nav-fixed
+  .intercalaire-tab[data-section-slug='events'],
+:root[data-closing-section='archive'].vt-close
+  .home-nav-fixed
+  .intercalaire-tab[data-section-slug='archive'] {
+  transform: translateY(0);
+}
+
+/* When vt-close is removed, animate the non-matching tabs UP to 0 over 500ms */
+:root[data-closing-section] .home-nav-fixed .intercalaire-tab {
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 /* Keep toggle buttons fixed during page transitions */
@@ -487,19 +526,34 @@
   position: absolute;
   left: 0;
   top: 100%;
-  width: 100vw;
-  height: var(--home-nav-h);
+  /* Make the background extension stretch 5x screen width (simulating an infinite full-width sheet that's anchored to the tab left/right) so that no matter the tab width, it covers the remaining screen width fully on both sides */
+  width: 500vw;
+  /* Push it physically to the left so it definitely spans the full screen to the right */
+  transform: translateX(-50%);
+  height: min(
+    200vh,
+    2000px
+  ); /* Extend far down as well to show its solid color as the tab translates up */
   background: var(--section-bg);
   opacity: var(--intercalaire-cover-opacity);
-  /* Instant on hover-in (set by lifted class), delayed hide on hover-out to stay glued. */
-  transition: opacity 0ms linear 300ms;
+  /* Stay solid until the 300ms tab slide-down finishes, but appear instantly on hover */
+  transition:
+    opacity 0ms linear 300ms,
+    visibility 0ms linear 300ms;
   pointer-events: auto;
   cursor: pointer;
   z-index: 2;
   white-space: nowrap;
-  /* Must stay visible during hover-out slide-down so the lower sheet remains attached. */
   overflow: visible;
   isolation: isolate;
+  /* Ensure the background doesn't interfere when not hovered */
+  visibility: hidden;
+}
+
+.intercalaire-tab--lifted .intercalaire-tab-extension,
+[data-committing] .intercalaire-tab-extension {
+  visibility: visible;
+  transition: none;
 }
 
 .intercalaire-tab-extension-item {
@@ -536,48 +590,31 @@
 }
 
 .intercalaire-tab--lifted {
-  transform: translateY(calc(-1 * var(--home-nav-h)));
+  transform: translateY(-8px);
   --intercalaire-cover-opacity: 1;
-}
-
-.intercalaire-tab--lifted.intercalaire-tab--lifted-double {
-  transform: translateY(calc(-2 * var(--home-nav-h)));
-}
-
-.intercalaire-tab--lifted.intercalaire-tab--lifted-double .intercalaire-tab-extension-secondary {
-  opacity: 1;
-  transition-delay: 0ms;
-}
-
-.intercalaire-tab--lifted .intercalaire-tab-extension {
-  transition-delay: 0ms;
 }
 
 [data-committing] {
   transform: translateY(calc(-1 * var(--intercalaire-commit-lift, var(--home-nav-h))));
   --intercalaire-cover-opacity: 1;
-  z-index: 5000 !important;
 }
 
-[data-committing] .intercalaire-tab-extension {
-  opacity: 1;
-  transition-delay: 0ms;
-}
-
-.intercalaire-tab--with-preview[data-committing] .intercalaire-tab-extension-secondary {
-  opacity: 1;
-  transition-delay: 0ms;
-}
+/* Allow natural z-index to manage visibility, but let's ensure the committing tab doesn't hide behind anything awkwardly while animating its body up.
+   Wait, if it stays at natural z-index, the left tabs stay ON TOP.
+   The right tabs stay BEHIND it. This is exactly what the user wants! */
 
 :root.intercalaire-committing .section-nav-fixed .intercalaire-row .intercalaire-tab {
   pointer-events: none;
+  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root.intercalaire-committing
   .section-nav-fixed
   .intercalaire-row
-  .intercalaire-tab:not([data-committing]) {
-  opacity: 0;
+  div:has([data-committing])
+  ~ div
+  .intercalaire-tab {
+  transform: translateY(100%);
 }
 
 /* First tab - square top-left corner */
@@ -626,31 +663,26 @@
 }
 
 /* Subtle separation only for adjacent inactive tabs (top-right corner) */
+.tab-inactive.has-right-border:not(.intercalaire-tab--last) {
+  box-shadow: 1px 0 0 0 color-mix(in oklab, var(--section-fg) 40%, transparent);
+}
+
 .tab-inactive.has-right-border:not(.intercalaire-tab--last)::after {
   content: '';
   position: absolute;
-  top: 0;
+  bottom: 0;
   right: calc(-1 * var(--intercalaire-notch));
   width: var(--intercalaire-notch);
   height: var(--intercalaire-notch);
-  border-top-left-radius: var(--intercalaire-notch);
-  box-shadow:
-    -1px -1px 0 0 color-mix(in oklab, var(--section-fg) 80%, transparent),
-    -8px -6px 12px -3px color-mix(in oklab, var(--section-fg) 68%, transparent);
-  opacity: 1;
+  border-bottom-left-radius: var(--intercalaire-notch);
+  box-shadow: inset 1px -1px 0 0 color-mix(in oklab, var(--section-fg) 40%, transparent);
   pointer-events: none;
   z-index: 12;
 }
 
-/* ── Ghost tab: hidden behind active but intentionally visible ─────────
-   Keep it clickable and readable with transparent paper-like blending.  */
+/* ── Ghost tab: hidden behind active ─────────
+   Just normal inactive colors, no weird overlays. */
 .intercalaire-tab.is-hidden-behind {
-  opacity: 1 !important;
-  background-color: color-mix(in oklab, var(--section-bg) 56%, transparent) !important;
-  color: color-mix(in oklab, var(--section-fg) 72%, transparent) !important;
-  border-color: transparent !important;
-  mix-blend-mode: multiply;
-  isolation: auto;
   pointer-events: auto !important;
   cursor: pointer !important;
   transition:
@@ -659,18 +691,9 @@
     margin 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.intercalaire-tab.is-hidden-behind:hover {
-  background-color: color-mix(in oklab, var(--section-bg) 80%, transparent) !important;
-  color: var(--section-fg) !important;
-  mix-blend-mode: normal;
-  margin-top: -1px !important;
-  margin-bottom: 1px !important;
-}
-
-/* Hidden-behind tabs keep notch geometry so inactive tabs still read as intercalaires. */
+/* Hidden-behind tabs keep notch geometry */
 .intercalaire-tab.is-hidden-behind::before {
-  display: block !important;
-  opacity: 0.7;
+  display: block;
 }
 
 .mobile-subsection-underline::after {

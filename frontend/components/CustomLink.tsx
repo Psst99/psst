@@ -20,6 +20,8 @@ type Props = {
   onMouseLeave?: () => void
   intercalaire?: boolean
   prefetch?: boolean
+  'data-section-slug'?: string
+  'data-tab-side'?: string
 }
 
 export default function CustomLink({
@@ -33,6 +35,8 @@ export default function CustomLink({
   onMouseLeave,
   intercalaire = false,
   prefetch = true,
+  'data-section-slug': dataSectionSlug,
+  'data-tab-side': dataTabSide,
 }: Props) {
   const router = useTransitionRouter()
   const pathname = usePathname()
@@ -53,18 +57,18 @@ export default function CustomLink({
     const tabHeightPx = el.getBoundingClientRect().height
     const currentLiftPx = getCurrentLiftPx(el)
     const commitLiftPx = Math.max(currentLiftPx, tabHeightPx)
-    const openStartOffsetPx = Math.max(0, commitLiftPx - tabHeightPx)
+    const rectTopPx = el.getBoundingClientRect().top
 
     commitElRef.current = el
     el.style.setProperty('--intercalaire-commit-lift', `${commitLiftPx}px`)
-    document.documentElement.style.setProperty('--intercalaire-open-start-offset', `${openStartOffsetPx}px`)
+    document.documentElement.style.setProperty('--intercalaire-rect-top', `${rectTopPx}px`)
     el.dataset.committing = 'true'
     document.documentElement.classList.add('intercalaire-committing')
   }
 
   const clearIntercalaireCommit = () => {
     document.documentElement.classList.remove('intercalaire-committing')
-    document.documentElement.style.removeProperty('--intercalaire-open-start-offset')
+    document.documentElement.style.removeProperty('--intercalaire-rect-top')
     if (!commitElRef.current) return
     delete commitElRef.current.dataset.committing
     commitElRef.current.style.removeProperty('--intercalaire-commit-lift')
@@ -83,7 +87,7 @@ export default function CustomLink({
     )
       return
     document.documentElement.classList.remove('intercalaire-committing')
-    document.documentElement.style.removeProperty('--intercalaire-open-start-offset')
+    document.documentElement.style.removeProperty('--intercalaire-rect-top')
     if (!commitElRef.current) return
     delete commitElRef.current.dataset.committing
     commitElRef.current.style.removeProperty('--intercalaire-commit-lift')
@@ -106,7 +110,7 @@ export default function CustomLink({
     lastAnimRef.current?.cancel()
     lastAnimRef.current = document.documentElement.animate(
       [
-        {transform: 'translateY(calc(100% - var(--home-nav-h) - var(--intercalaire-open-start-offset, 0px)))'},
+        {transform: 'translateY(var(--intercalaire-rect-top, 100vh))'},
         {transform: 'translateY(0)'},
       ],
       {
@@ -125,6 +129,7 @@ export default function CustomLink({
       [{transform: 'translateY(0)'}, {transform: 'translateY(calc(100% - var(--home-nav-h)))'}],
       {
         duration: VT_DURATION_MS,
+        delay: 350, // Wait for the bottom nav to slide down before falling
         easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
         fill: 'forwards',
         pseudoElement: '::view-transition-old(root)',
@@ -199,6 +204,9 @@ export default function CustomLink({
     if (pathname !== '/' && href === '/') {
       e.preventDefault()
       clearTransitionClasses()
+
+      const closingSection = pathname.split('/').filter(Boolean)[0] || ''
+      document.documentElement.dataset.closingSection = closingSection
       document.documentElement.classList.add('vt-close')
 
       safePush('/', (navId) => {
@@ -210,6 +218,10 @@ export default function CustomLink({
           if (document.documentElement.classList.contains('vt-close')) {
             document.documentElement.classList.remove('vt-close')
           }
+
+          setTimeout(() => {
+            delete document.documentElement.dataset.closingSection
+          }, 500) // allow the other tabs to slide up smoothly
         }
 
         anim?.finished?.then(done).catch(done)
@@ -229,6 +241,8 @@ export default function CustomLink({
       className={className}
       style={style}
       aria-label={ariaLabel}
+      data-section-slug={dataSectionSlug}
+      data-tab-side={dataTabSide}
     >
       {children}
     </Link>

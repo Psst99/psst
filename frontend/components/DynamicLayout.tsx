@@ -188,7 +188,7 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
         )}
 
         {/* Desktop bottom stack of remaining intercalaires */}
-        <div className="shrink-0 hidden min-[83rem]:block fixed bottom-0 left-0 right-0 z-20 section-nav-fixed">
+        <div className="shrink-0 hidden min-[83rem]:block fixed bottom-0 left-0 right-0 z-20 section-nav-fixed section-page-nav-fixed">
           <SectionNavigation currentSection={section} hideCurrentSection />
         </div>
 
