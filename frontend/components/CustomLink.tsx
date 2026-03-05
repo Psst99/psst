@@ -90,7 +90,8 @@ export default function CustomLink({
     // Don't clear during active view transition — the animation cleanup callback handles it
     if (
       document.documentElement.classList.contains('vt-open') ||
-      document.documentElement.classList.contains('vt-close')
+      document.documentElement.classList.contains('vt-close') ||
+      document.documentElement.classList.contains('vt-section-switch')
     )
       return
     document.documentElement.classList.remove('intercalaire-committing')
@@ -147,6 +148,37 @@ export default function CustomLink({
         pseudoElement: '::view-transition-old(root)',
       },
     )
+    return lastAnimRef.current
+  }
+
+  const sectionSwitchAnimation = () => {
+    lastAnimRef.current?.cancel()
+
+    // Old section slides down (behind)
+    document.documentElement.animate(
+      [{transform: 'translateY(0)'}, {transform: 'translateY(100%)'}],
+      {
+        duration: VT_DURATION_MS,
+        easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
+        fill: 'both',
+        pseudoElement: '::view-transition-old(root)',
+      },
+    )
+
+    // New section slides up (on top)
+    lastAnimRef.current = document.documentElement.animate(
+      [
+        {transform: 'translateY(var(--intercalaire-rect-top, 100vh))'},
+        {transform: 'translateY(0)'},
+      ],
+      {
+        duration: VT_DURATION_MS,
+        easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
+        fill: 'both',
+        pseudoElement: '::view-transition-new(root)',
+      },
+    )
+
     return lastAnimRef.current
   }
 
@@ -299,6 +331,57 @@ export default function CustomLink({
           anim?.finished?.then(done).catch(done)
         })
       }, 380) // slightly longer than the 350ms right-tab slide-down
+
+      return
+    }
+
+    // SECTION -> SECTION (intercalaire switch on desktop)
+    if (pathname !== '/' && href !== '/' && isDesktopIntercalaire) {
+      e.preventDefault()
+      clearTransitionClasses()
+
+      // Mark entrance complete so it never replays
+      document.documentElement.classList.add('intercalaire-entered')
+
+      // Store active section index for right-tab stagger on new section page
+      const sectionOrder = [
+        'psst',
+        'database',
+        'resources',
+        'pssound-system',
+        'workshops',
+        'events',
+        'archive',
+      ]
+      const targetSection = href.split('/').filter(Boolean)[0] || ''
+      const activeIdx = sectionOrder.indexOf(targetSection)
+      if (activeIdx !== -1) {
+        document.documentElement.style.setProperty('--active-section-index', String(activeIdx))
+      }
+
+      // Wait for commit animation (right tabs slide down) then start transition
+      setTimeout(() => {
+        // DON'T add vt-section-switch yet — the old snapshot must be captured
+        // with opaque backgrounds. We add it inside onTransitionReady, which
+        // fires after snapshots are taken but before the first paint.
+        safePush(href, (navId) => {
+          // Now both snapshots are captured; add the class so CSS rules
+          // match the view-transition pseudo-elements from the first frame.
+          document.documentElement.classList.add('vt-section-switch')
+
+          const anim = sectionSwitchAnimation()
+
+          const cleanup = () => {
+            if (navIdRef.current !== navId) return
+            if (document.documentElement.classList.contains('vt-section-switch')) {
+              document.documentElement.classList.remove('vt-section-switch')
+            }
+            clearIntercalaireCommit()
+          }
+
+          anim?.finished?.then(cleanup).catch(cleanup)
+        })
+      }, 350)
 
       return
     }

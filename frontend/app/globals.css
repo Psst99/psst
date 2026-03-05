@@ -445,6 +445,60 @@
   transition: none !important;
 }
 
+/* ── Section-to-section switch ──────────────────────────────── */
+/* New section slides up on top, old section slides down behind */
+
+/* Hold the new root at the tab position until the JS animation takes over.
+   Without this, the new page flashes at Y=0 for one frame. */
+@keyframes vt-section-switch-hold {
+  from,
+  to {
+    transform: translateY(var(--intercalaire-rect-top, 100vh));
+  }
+}
+
+/* New page (incoming section) on top — held at tab position */
+:root.vt-section-switch::view-transition-new(root) {
+  z-index: 2 !important;
+  background: transparent !important;
+  animation: vt-section-switch-hold 999s both !important;
+}
+
+/* Old page (outgoing section) behind */
+:root.vt-section-switch::view-transition-old(root) {
+  z-index: 1 !important;
+  background: transparent !important;
+}
+
+/* Keep the view-transition layer transparent so both old & new images show.
+   Do NOT make the live DOM transparent — that would corrupt the snapshots. */
+:root.vt-section-switch::view-transition-group(root),
+:root.vt-section-switch::view-transition-image-pair(root) {
+  background: transparent !important;
+}
+
+/* Bottom nav during section switch */
+:root.vt-section-switch::view-transition-group(section-page-nav-fixed) {
+  z-index: 2100 !important;
+}
+
+/* Hide old bottom nav snapshot (has the wrong active section) */
+:root.vt-section-switch::view-transition-old(section-page-nav-fixed) {
+  opacity: 0 !important;
+}
+
+/* Show new bottom nav immediately */
+:root.vt-section-switch::view-transition-new(section-page-nav-fixed) {
+  animation: none !important;
+  mix-blend-mode: normal;
+}
+
+/* Right tabs on new section stay hidden during transition, then stagger in */
+:root.vt-section-switch .section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {
+  transform: translateY(100%);
+  transition: none !important;
+}
+
 /* Right-side tabs stagger in when section page loads.
    Each right tab gets a delay based on distance from active section. */
 .section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {

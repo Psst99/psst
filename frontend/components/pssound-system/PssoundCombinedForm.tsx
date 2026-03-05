@@ -202,8 +202,8 @@ export default function PssoundCombinedForm({
                 }}
                 className={`w-32 h-32 rounded-full text-2xl font-medium cursor-pointer ${
                   isMember === true
-                    ? 'panel-bg ring-4 ring-[var(--panel-fg)]/30'
-                    : 'bg-white section-fg hover:opacity-80'
+                    ? 'panel-bg panel-fg ring-4 ring-[var(--panel-fg)]/30'
+                    : 'bg-white section-fg hover:[background:var(--panel-bg)] hover:[color:var(--panel-fg)] hover:ring-4 hover:ring-[var(--panel-fg)]/30'
                 }`}
               >
                 Yes
@@ -224,8 +224,8 @@ export default function PssoundCombinedForm({
                 }}
                 className={`w-32 h-32 rounded-full text-2xl font-medium cursor-pointer ${
                   isMember === false
-                    ? 'panel-bg ring-4 ring-[var(--panel-fg)]/30'
-                    : 'bg-white section-fg hover:opacity-80'
+                    ? 'panel-bg panel-fg ring-4 ring-[var(--panel-fg)]/30'
+                    : 'bg-white section-fg hover:[background:var(--panel-bg)] hover:[color:var(--panel-fg)] hover:ring-4 hover:ring-[var(--panel-fg)]/30'
                 }`}
               >
                 No
