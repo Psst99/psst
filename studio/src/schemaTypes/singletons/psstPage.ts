@@ -13,8 +13,8 @@ export const psstPage = defineType({
         {
           type: 'block',
           styles: [
-            {title: 'Heading', value: 'h2'},
             {title: 'Paragraph', value: 'normal'},
+            {title: 'Heading', value: 'h2'},
           ],
           marks: {
             decorators: [
@@ -81,8 +81,8 @@ export const psstPage = defineType({
         {
           type: 'block',
           styles: [
-            {title: 'Heading', value: 'h2'},
             {title: 'Paragraph', value: 'normal'},
+            {title: 'Heading', value: 'h2'},
           ],
           marks: {
             decorators: [
@@ -149,8 +149,8 @@ export const psstPage = defineType({
         {
           type: 'block',
           styles: [
-            {title: 'Heading', value: 'h2'},
             {title: 'Paragraph', value: 'normal'},
+            {title: 'Heading', value: 'h2'},
           ],
           marks: {
             decorators: [

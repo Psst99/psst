@@ -11,25 +11,37 @@ import SectionLoading from './loading/SectionLoading'
 import DatabaseGuidelinesLoading from '@/app/database/loading'
 import DatabaseBrowseLoading from '@/app/database/(browse)/browse/loading'
 import DatabaseSubmitLoading from '@/app/database/submit/loading'
-import ResourcesGuidelinesLoading from '@/app/resources/loading'
 import ResourcesBrowseLoading from '@/app/resources/(browse)/browse/loading'
 import ResourcesSubmitLoading from '@/app/resources/submit/loading'
 import WorkshopsBrowseLoading from '@/app/workshops/loading'
 import WorkshopsRegisterLoading from '@/app/workshops/register/loading'
-import PsstRouteLoading from '@/app/psst/loading'
-import PssoundSystemLoading from '@/app/pssound-system/loading'
 import PssoundSystemRequestLoading from '@/app/pssound-system/request/loading'
 import PssoundSystemMembershipLoading from '@/app/pssound-system/membership/loading'
+import ContentPageSkeleton from './loading/ContentPageSkeleton'
 
 interface DynamicLayoutProps {
   children: React.ReactNode
-  dynamicSubNavItems?: Array<{label: string; href: string}>
+  dynamicSubNavItems?: Array<{label: string; href: string; skeletonLayout?: 'default' | 'columns'}>
+  contentPageLayouts?: {
+    resourcesGuidelines?: 'default' | 'columns'
+    pssoundAbout?: 'default' | 'columns'
+    pssoundManifesto?: 'default' | 'columns'
+  }
 }
 
-export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLayoutProps) {
+export default function DynamicLayout({
+  children,
+  dynamicSubNavItems,
+  contentPageLayouts,
+}: DynamicLayoutProps) {
   const pathname = usePathname()
   const {section, hasSubNav, subNavItems} = getSectionConfig(pathname, dynamicSubNavItems)
   const [pendingSubNavHref, setPendingSubNavHref] = useState<string | null>(null)
+  const psstSkeletonLayoutByHref = useMemo(() => {
+    return new Map(
+      (dynamicSubNavItems || []).map((item) => [item.href, item.skeletonLayout || 'default']),
+    )
+  }, [dynamicSubNavItems])
 
   const isRootArchive = pathname === '/archive'
 
@@ -70,12 +82,15 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
       ? finalSubNavItems.findIndex((item) => item.href === activeSubNavHref)
       : -1
 
-  const paddingClasses = isRootArchive
-    ? 'pt-0 pb-0'
+  const mobileTopPaddingClass = hasSubNav ? 'pt-[5.5rem]' : 'pt-[4.5rem]'
+  const desktopTopPaddingClass = isRootArchive
+    ? 'min-[83rem]:pt-0'
     : hasDesktopSubNav
-      ? 'pt-8 pb-0 min-[83rem]:pt-14'
-      : 'pt-16 pb-0'
+      ? 'min-[83rem]:pt-14'
+      : 'min-[83rem]:pt-16'
+  const paddingClasses = `${mobileTopPaddingClass} pb-0 ${desktopTopPaddingClass}`
   const contentOffsetClass = '-mt-0'
+  const contentTopMarginClass = hasDesktopSubNav ? 'mt-[5px]' : 'mt-0'
   const contentTopSpacerClass = hasDesktopSubNav ? 'pt-2 min-[83rem]:pt-0' : 'pt-0'
   const contentOverflowClasses = 'overflow-visible'
   const desktopSheetTopClass = hasDesktopSubNav
@@ -95,6 +110,11 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
   }
 
   const renderPendingSubNavLoading = (href: string) => {
+    if (href.startsWith('/psst')) {
+      const psstLayout = psstSkeletonLayoutByHref.get(href) || 'default'
+      return <ContentPageSkeleton layout={psstLayout} tone="panel" />
+    }
+
     switch (href) {
       case '/database':
       case '/database/guidelines':
@@ -105,7 +125,14 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
         return <DatabaseSubmitLoading />
       case '/resources':
       case '/resources/guidelines':
-        return <ResourcesGuidelinesLoading />
+        return (
+          <div className="p-6 md:px-20">
+            <ContentPageSkeleton
+              layout={contentPageLayouts?.resourcesGuidelines || 'columns'}
+              tone="section"
+            />
+          </div>
+        )
       case '/resources/browse':
         return <ResourcesBrowseLoading />
       case '/resources/submit':
@@ -114,13 +141,25 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
         return <WorkshopsBrowseLoading />
       case '/workshops/register':
         return <WorkshopsRegisterLoading />
-      case '/psst':
-      case '/psst/about':
-        return <PsstRouteLoading />
       case '/pssound-system':
-      case '/pssound-system/manifesto':
       case '/pssound-system/archive':
-        return <PssoundSystemLoading />
+        return (
+          <div className="p-6 md:px-20">
+            <ContentPageSkeleton
+              layout={contentPageLayouts?.pssoundAbout || 'default'}
+              tone="section"
+            />
+          </div>
+        )
+      case '/pssound-system/manifesto':
+        return (
+          <div className="p-6 md:px-20">
+            <ContentPageSkeleton
+              layout={contentPageLayouts?.pssoundManifesto || 'default'}
+              tone="section"
+            />
+          </div>
+        )
       case '/pssound-system/request':
         return <PssoundSystemRequestLoading />
       case '/pssound-system/membership':
@@ -130,13 +169,27 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
           case 'database':
             return <DatabaseGuidelinesLoading />
           case 'resources':
-            return <ResourcesGuidelinesLoading />
+            return (
+              <div className="p-6 md:px-20">
+                <ContentPageSkeleton
+                  layout={contentPageLayouts?.resourcesGuidelines || 'columns'}
+                  tone="section"
+                />
+              </div>
+            )
           case 'workshops':
             return <WorkshopsBrowseLoading />
           case 'psst':
-            return <PsstRouteLoading />
+            return <ContentPageSkeleton layout="default" tone="panel" />
           case 'pssound-system':
-            return <PssoundSystemLoading />
+            return (
+              <div className="p-6 md:px-20">
+                <ContentPageSkeleton
+                  layout={contentPageLayouts?.pssoundAbout || 'default'}
+                  tone="section"
+                />
+              </div>
+            )
           default:
             return <SectionLoading section={section as any} />
         }
@@ -183,7 +236,7 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
         {hasDesktopSubNav && (
           <div
             aria-hidden="true"
-            className="pointer-events-none hidden min-[83rem]:block fixed left-0 right-0 top-[var(--home-nav-h)] bottom-0 z-[8] border border-t section-bg section-border min-[83rem]:rounded-l-0 min-[83rem]:rounded-r-0"
+            className="pointer-events-none hidden min-[83rem]:block fixed left-0 right-0 top-[var(--home-nav-h)] bottom-0 z-[8] section-bg min-[83rem]:rounded-tr-3xl"
           />
         )}
 
@@ -195,13 +248,16 @@ export default function DynamicLayout({children, dynamicSubNavItems}: DynamicLay
         {/* Main content */}
         <div
           className={[
-            '-mt-[4px] relative flex-1 border-0 border-t min-[83rem]:border-t-0 z-10',
+            'relative flex-1 border-0 border-t min-[83rem]:border-t-0 z-10',
+            contentTopMarginClass,
             // contentLeftRoundingClass,
             contentOffsetClass,
             contentOverflowClasses,
             'panel-bg panel-fg panel-border',
             paddingClasses,
-            hasDesktopSubNav ? 'no-scrollbar' : '',
+            hasDesktopSubNav
+              ? 'no-scrollbar min-[83rem]:rounded-tr-3xl min-[83rem]:rounded-tl-xl'
+              : '',
             'min-[83rem]:fixed min-[83rem]:left-0 min-[83rem]:right-0 min-[83rem]:bottom-0',
             desktopSheetTopClass,
           ].join(' ')}

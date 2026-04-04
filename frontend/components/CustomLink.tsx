@@ -53,8 +53,20 @@ export default function CustomLink({
     }
   }
 
-  const armIntercalaireCommit = (el: HTMLAnchorElement) => {
-    const tabHeightPx = el.getBoundingClientRect().height
+  const armIntercalaireCommit = (
+    el: HTMLAnchorElement,
+    {
+      isolateGhost = false,
+      transitionName,
+      targetSection,
+      transitionMode,
+    }: {
+      isolateGhost?: boolean
+      transitionName?: string
+      targetSection?: string
+      transitionMode?: string
+    } = {},
+  ) => {
     const currentLiftPx = getCurrentLiftPx(el)
 
     // We just keep the current hover lift, so the active tab stays perfectly still
@@ -62,12 +74,38 @@ export default function CustomLink({
     const commitLiftPx = currentLiftPx
     const rectTopPx = el.getBoundingClientRect().top
 
+    // Clear any stale intercalaire-active-tab view-transition-names to prevent
+    // duplicate names which abort the View Transition API.
+    document.querySelectorAll('[style]').forEach((staleEl) => {
+      const htmlEl = staleEl as HTMLElement
+      if (htmlEl !== el && htmlEl.style.viewTransitionName === 'intercalaire-active-tab') {
+        htmlEl.style.removeProperty('view-transition-name')
+      }
+    })
+
     commitElRef.current = el
-    // Isolate the old tab so it doesn't leave a ghost in the view transition photograph that fights with the newly mounting one
-    el.style.viewTransitionName = 'committing-tab-ghost'
+    if (isolateGhost) {
+      // Home -> section uses the full-page snapshot, so isolate the committing tab there
+      // to avoid a duplicate tab ghost fighting with the incoming page.
+      el.style.viewTransitionName = 'committing-tab-ghost'
+    } else if (transitionName) {
+      el.style.viewTransitionName = transitionName
+    } else {
+      el.style.removeProperty('view-transition-name')
+    }
 
     el.style.setProperty('--intercalaire-commit-lift', `${commitLiftPx}px`)
     document.documentElement.style.setProperty('--intercalaire-rect-top', `${rectTopPx}px`)
+    if (targetSection) {
+      document.documentElement.dataset.intercalaireTransitionSection = targetSection
+    } else {
+      delete document.documentElement.dataset.intercalaireTransitionSection
+    }
+    if (transitionMode) {
+      document.documentElement.dataset.intercalaireTransitionMode = transitionMode
+    } else {
+      delete document.documentElement.dataset.intercalaireTransitionMode
+    }
     el.dataset.committing = 'true'
     document.documentElement.classList.add('intercalaire-committing')
   }
@@ -75,6 +113,8 @@ export default function CustomLink({
   const clearIntercalaireCommit = () => {
     document.documentElement.classList.remove('intercalaire-committing')
     document.documentElement.style.removeProperty('--intercalaire-rect-top')
+    delete document.documentElement.dataset.intercalaireTransitionSection
+    delete document.documentElement.dataset.intercalaireTransitionMode
     if (!commitElRef.current) return
     delete commitElRef.current.dataset.committing
     commitElRef.current.style.removeProperty('--intercalaire-commit-lift')
@@ -151,37 +191,6 @@ export default function CustomLink({
     return lastAnimRef.current
   }
 
-  const sectionSwitchAnimation = () => {
-    lastAnimRef.current?.cancel()
-
-    // Old section slides down (behind)
-    document.documentElement.animate(
-      [{transform: 'translateY(0)'}, {transform: 'translateY(100%)'}],
-      {
-        duration: VT_DURATION_MS,
-        easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
-        fill: 'both',
-        pseudoElement: '::view-transition-old(root)',
-      },
-    )
-
-    // New section slides up (on top)
-    lastAnimRef.current = document.documentElement.animate(
-      [
-        {transform: 'translateY(var(--intercalaire-rect-top, 100vh))'},
-        {transform: 'translateY(0)'},
-      ],
-      {
-        duration: VT_DURATION_MS,
-        easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
-        fill: 'both',
-        pseudoElement: '::view-transition-new(root)',
-      },
-    )
-
-    return lastAnimRef.current
-  }
-
   const safePush = (to: string, onTransitionReady?: (navId: number) => void) => {
     const navId = ++navIdRef.current
     let transitionStarted = false
@@ -214,14 +223,22 @@ export default function CustomLink({
     onClick?.(e)
 
     if (e.defaultPrevented) return
+    if (
+      document.documentElement.classList.contains('vt-open') ||
+      document.documentElement.classList.contains('vt-close') ||
+      document.documentElement.classList.contains('vt-close-prep') ||
+      document.documentElement.classList.contains('vt-section-switch') ||
+      document.documentElement.classList.contains('intercalaire-committing')
+    ) {
+      e.preventDefault()
+      return
+    }
+
     const isDesktop =
       typeof window !== 'undefined' && window.matchMedia('(min-width: 83rem)').matches
     const isDesktopIntercalaire = intercalaire && isDesktop
 
-    if (isDesktopIntercalaire) {
-      clearIntercalaireCommit()
-      armIntercalaireCommit(e.currentTarget)
-    }
+    if (isDesktopIntercalaire) clearIntercalaireCommit()
 
     // HOME -> SECTION (legacy full-page slide)
     if (pathname === '/' && href !== '/') {
@@ -248,7 +265,11 @@ export default function CustomLink({
       }
 
       if (isDesktopIntercalaire) {
-        armIntercalaireCommit(e.currentTarget)
+        armIntercalaireCommit(e.currentTarget, {
+          isolateGhost: true,
+          targetSection,
+          transitionMode: 'home-open',
+        })
 
         // Wait for the right tabs to slide down before taking the view transition snapshot
         setTimeout(() => {
@@ -340,49 +361,8 @@ export default function CustomLink({
       e.preventDefault()
       clearTransitionClasses()
 
-      // Mark entrance complete so it never replays
-      document.documentElement.classList.add('intercalaire-entered')
-
-      // Store active section index for right-tab stagger on new section page
-      const sectionOrder = [
-        'psst',
-        'database',
-        'resources',
-        'pssound-system',
-        'workshops',
-        'events',
-        'archive',
-      ]
-      const targetSection = href.split('/').filter(Boolean)[0] || ''
-      const activeIdx = sectionOrder.indexOf(targetSection)
-      if (activeIdx !== -1) {
-        document.documentElement.style.setProperty('--active-section-index', String(activeIdx))
-      }
-
-      // Wait for commit animation (right tabs slide down) then start transition
-      setTimeout(() => {
-        // DON'T add vt-section-switch yet — the old snapshot must be captured
-        // with opaque backgrounds. We add it inside onTransitionReady, which
-        // fires after snapshots are taken but before the first paint.
-        safePush(href, (navId) => {
-          // Now both snapshots are captured; add the class so CSS rules
-          // match the view-transition pseudo-elements from the first frame.
-          document.documentElement.classList.add('vt-section-switch')
-
-          const anim = sectionSwitchAnimation()
-
-          const cleanup = () => {
-            if (navIdRef.current !== navId) return
-            if (document.documentElement.classList.contains('vt-section-switch')) {
-              document.documentElement.classList.remove('vt-section-switch')
-            }
-            clearIntercalaireCommit()
-          }
-
-          anim?.finished?.then(cleanup).catch(cleanup)
-        })
-      }, 350)
-
+      // Simple cross-fade view transition using next-view-transitions default behavior
+      safePush(href)
       return
     }
   }

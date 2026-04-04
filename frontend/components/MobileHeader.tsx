@@ -88,20 +88,32 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
           transition={{duration: 0.7, ease: [0.76, 0, 0.24, 1]}}
         >
           {/* Top Header */}
-          <div className="flex w-full h-[29px] mb-0 bg-white">
+          <div className="flex w-full h-[29px] mb-0 bg-transparent">
             <SectionScope section="psst" variant="tab" asChild>
               <CustomLink
                 href="/psst"
-                className="px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center pb-12 text-lg w-full section-bg section-fg section-border"
+                className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center pb-1 text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
+                style={
+                  {
+                    '--intercalaire-notch': '14px',
+                    '--intercalaire-radius': '14px',
+                    borderTopRightRadius: '14px',
+                  } as React.CSSProperties
+                }
               >
-                PSST
+                <span>PSST</span>
+                <span
+                  className="intercalaire-tab-extension pointer-events-none"
+                  aria-hidden="true"
+                />
               </CustomLink>
             </SectionScope>
 
             {/* MENU button: legacy fixed colors */}
             <button
               onClick={toggleMenu}
-              className="bg-[#D2D2D2] text-[#1D53FF] border-[#1D53FF] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center -ml-px text-lg pb-16 w-full z-0"
+              className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-0 flex-1 text-center text-lg pb-16 w-full z-0 relative -ml-[14px] pl-[calc(1rem+14px)]"
+              style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
             >
               {isMenuOpen ? 'CLOSE' : 'MENU'}
             </button>
@@ -115,8 +127,8 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
                   <Link
                     href={path}
                     className={[
-                      'flex items-center justify-center text-center text-4xl flex-1 border uppercase',
-                      'section-bg section-fg section-border',
+                      'flex items-center justify-center text-center text-4xl flex-1 uppercase',
+                      'section-bg section-fg',
                       idx === 0 ? 'rounded-t-lg' : 'rounded-t-3xl',
                       idx > 0 ? '-mt-5' : '',
                     ].join(' ')}
@@ -139,20 +151,29 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
   return (
     <div className="h-[29px] bg-white fixed left-0 right-0 z-50 top-0 tracking-tighter min-[83rem]:hidden">
       {/* Top Header row */}
-      <div className="flex w-full h-full mb-0">
+      <div className="flex w-full h-[29px] mb-0 relative bg-transparent">
         <SectionScope section="psst" variant="tab" asChild>
           <CustomLink
             href="/psst"
-            className="px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center pb-12 text-lg w-full section-bg section-fg section-border"
+            className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center pb-1 text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
+            style={
+              {
+                '--intercalaire-notch': '14px',
+                '--intercalaire-radius': '14px',
+                borderTopRightRadius: '14px',
+              } as React.CSSProperties
+            }
           >
-            PSST
+            <span>PSST</span>
+            <span className="intercalaire-tab-extension pointer-events-none" aria-hidden="true" />
           </CustomLink>
         </SectionScope>
 
         {/* MENU button: legacy fixed colors */}
         <button
           onClick={toggleMenu}
-          className="bg-[#D2D2D2] text-[#1D53FF] border-[#1D53FF] px-4 pt-0 flex-1 border rounded-t-lg border-b-0 text-center -ml-px text-lg z-50 pb-8 w-full"
+          className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-0 flex-1 text-center text-lg z-0 pb-8 w-full relative -ml-[14px] pl-[calc(1rem+14px)]"
+          style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
         >
           {isMenuOpen ? 'CLOSE' : 'MENU'}
         </button>
@@ -160,7 +181,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
 
       {/* Special PSST bridge row (keep your structure) */}
       {activeSection === 'psst' && (
-        <div className="flex w-full h-full mb-0 bg-[#D2D2D2] border-r-[#1D53FF] border-r border-l border-l-[#A20018]">
+        <div className="flex w-full h-full mb-0 bg-[#D2D2D2]">
           <SectionScope section="psst" variant="tab" asChild>
             <CustomLink href="/psst" className="w-1/2 section-bg">
               &nbsp;
@@ -170,7 +191,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
           <SectionScope section="psst" variant="tab" asChild>
             <button
               onClick={toggleMenu}
-              className="flex-1 border rounded-tr-3xl border-l-0 border-b-0 text-center text-lg z-50 pb-0 w-full -mr-[1px] section-bg section-border"
+              className="flex-1 rounded-tr-3xl text-center text-lg z-50 pb-0 w-full -mr-[1px] section-bg"
             />
           </SectionScope>
         </div>
@@ -181,7 +202,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
         <SectionScope section="psst" variant="page" panelVariant="subtab" className="contents">
           <div className="fixed top-[35px] left-0 right-0 z-50 w-full overflow-visible">
             <div
-              className="flex w-full relative bg-transparent border-0 -mt-1.5 overflow-visible"
+              className="flex w-full relative bg-transparent -mt-1.5 overflow-visible"
               style={
                 {
                   // Make the connector’s top line blend into the red background
@@ -189,13 +210,24 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
                 } as React.CSSProperties
               }
             >
-              <div className="flex-1 text-lg px-4 py-0.5 text-center rounded-t-lg border border-b-0 relative subsection-vertical-border pb-[17px] panel-bg panel-fg panel-border">
+              <div
+                className="intercalaire-tab intercalaire-tab--first flex-1 text-lg px-4 py-0.5 text-center relative panel-bg panel-fg border-none outline-none z-10 flex items-center justify-center min-h-[29px]"
+                style={
+                  {
+                    '--intercalaire-notch': '14px',
+                    '--intercalaire-radius': '14px',
+                    '--section-bg': 'var(--panel-bg)',
+                    '--section-fg': 'var(--panel-fg)',
+                    borderTopRightRadius: '14px',
+                  } as React.CSSProperties
+                }
+              >
                 {currentSubsection.label.toUpperCase()}
               </div>
 
               <button
                 onClick={toggleSubMenu}
-                className="px-4 py-1 pb-2 border flex items-center justify-center w-1/2 rounded-tr-lg border-l-0 border-b-0 h-full mobile-subsection-underline mobile-subsection-underline--psst invert-panel invert-panel-border"
+                className="px-4 py-1 pb-2 flex items-center justify-center w-1/2 rounded-tr-lg h-full invert-panel border-none outline-none relative z-0 -ml-[14px] pl-[calc(1rem+14px)]"
                 aria-label="Open PSST tabs"
                 style={
                   {
@@ -214,33 +246,53 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
       {activeSection !== 'psst' && (
         <SectionScope section="psst" variant="page" asChild>
           <div className="fixed top-[36px] left-0 right-0 z-50 w-full -mt-2">
-            <div className="flex w-full rounded-t-lg section-bg">
+            <div className="flex w-full h-[29px] section-bg">
               {/* Left section label: uses ACTIVE SECTION page vars */}
               <SectionScope section={activeSection} variant="page" asChild>
-                <div className="px-4 py-0.5 pb-1 flex-1 border border-b-0 text-center rounded-t-lg text-lg w-1/2 tab-inactive section-border">
+                <div
+                  className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center pb-1 text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
+                  style={
+                    {
+                      '--intercalaire-notch': '14px',
+                      '--intercalaire-radius': '14px',
+                      borderTopRightRadius: '14px',
+                    } as React.CSSProperties
+                  }
+                >
                   {activeSection.replace(/-/g, ' ').toUpperCase()}
                 </div>
               </SectionScope>
 
-              {/* Right empty half (border connector) */}
-              <SectionScope section={activeSection} variant="page" asChild>
-                <div className="w-1/2 border-t border-r rounded-tr-lg section-border mobile-section-connector" />
-              </SectionScope>
+              {/* Right half exists to receive the notch cut, matching the top row geometry */}
+              <div
+                aria-hidden="true"
+                className="flex-1 section-bg relative z-0 -ml-[14px] pl-[calc(1rem+14px)]"
+              />
             </div>
 
             {/* Subsection Row */}
             {hasSubMenu && currentSubsection && (
               <SectionScope section={activeSection} variant="page" panelVariant="subtab" asChild>
-                <div className="flex w-full -mt-1.5 -mb-8 relative bg-transparent">
-                  {/* Left label: subtab colors (beige bg, purple fg) */}
-                  <div className="flex-1 text-lg px-4 py-0.5 text-center rounded-t-lg border border-b-0 relative subsection-vertical-border pb-[17px] panel-bg panel-fg panel-border">
+                <div className="flex w-full h-[29px] -mt-1.5 relative bg-transparent">
+                  {/* Left label: subtab colors */}
+                  <div
+                    className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center pb-1 text-lg w-full panel-bg panel-fg z-10 h-full flex items-center justify-center border-none"
+                    style={
+                      {
+                        '--intercalaire-notch': '14px',
+                        '--intercalaire-radius': '14px',
+                        '--section-bg': 'var(--panel-bg)',
+                        borderTopRightRadius: '14px',
+                      } as React.CSSProperties
+                    }
+                  >
                     {currentSubsection.label.toUpperCase()}
                   </div>
 
-                  {/* Right hamburger: inverted (purple bg, beige fg) */}
+                  {/* Right hamburger: inverted */}
                   <button
                     onClick={toggleSubMenu}
-                    className="relative px-4 py-1 pb-2 border flex items-center justify-center w-1/2 rounded-tr-lg border-l-0 border-b-0 mobile-subsection-underline h-full invert-panel invert-panel-border"
+                    className="relative px-4 pt-0 pb-1 flex-1 flex items-center justify-center h-full invert-panel border-none outline-none z-0 -ml-[14px] pl-[calc(1rem+14px)]"
                     aria-label="Open subsection menu"
                   >
                     <span className="-mt-[0.12rem]">≡</span>
@@ -279,8 +331,8 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
                   <Link
                     href={path}
                     className={[
-                      'flex items-center justify-center text-center text-4xl flex-1 border rounded-t-3xl uppercase first:rounded-t-lg',
-                      'section-bg section-fg section-border',
+                      'flex items-center justify-center text-center text-4xl flex-1 rounded-t-3xl uppercase first:rounded-t-lg',
+                      'section-bg section-fg',
                       idx > 0 ? '-mt-5' : '',
                     ].join(' ')}
                     onClick={closeMenus}
@@ -319,8 +371,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
                       <Link
                         href={subMenu.href}
                         className={[
-                          'border flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase',
-                          'section-border',
+                          'flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase',
                           isActive ? 'tab-active' : 'tab-inactive',
                           idx > 0 ? '-mt-2' : '',
                         ].join(' ')}

@@ -117,8 +117,7 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
       {showEmptyUpcoming && (
         <div className="text-center py-16">
           <p className="text-base leading-tight min-[83rem]:text-xl section-fg">
-            {`There's no upcoming workshops at the moment, keep an eye on this page and our socials
-            for future opportunities.`}
+            There are no upcoming workshops.
           </p>
         </div>
       )}

@@ -531,7 +531,13 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
             .title('Archive')
             .items([
               // 1. Browse media (all archiveMedia docs)
-              S.documentTypeListItem('archiveMedia').title('Media').icon(ListIcon),
+              orderableDocumentListDeskItem({
+                type: 'archiveMedia',
+                title: 'Media',
+                icon: ListIcon,
+                S,
+                context,
+              }),
 
               S.divider(),
               S.documentTypeListItem('archiveTag').title('Tags').icon(TagIcon),

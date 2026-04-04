@@ -148,7 +148,8 @@ export const eventBySlugQuery = `
     date,
     location,
     description,
-    coverImage,
+    image,
+    url,
     tags[] -> { _id, title, slug }
   }
 `
@@ -181,7 +182,7 @@ export const archivePageQuery = `
     title,
     description
   },
-  "archiveMedia": *[_type == "archiveMedia"] | order(_createdAt desc){
+  "archiveMedia": *[_type == "archiveMedia"] | order(defined(orderRank) desc, orderRank asc, _createdAt desc){
     _id,
     title,
     description,
@@ -208,6 +209,12 @@ export const pssoundGuidelinesQuery = `
 export const resourcesGuidelinesQuery = `
   *[_type == "guidelines" && _id == "resources-guidelines"][0]{
     content,
+    layout
+  }
+`
+
+export const resourcesGuidelinesLayoutQuery = `
+  *[_type == "guidelines" && _id == "resources-guidelines"][0]{
     layout
   }
 `
@@ -387,6 +394,8 @@ export const workshopsPageQuery = `
     title,
     slug,
     dates,
+    location,
+    url,
     tags[] -> { _id, title, slug }
   }
 }
@@ -429,6 +438,8 @@ export const workshopBySlugQuery = `
     _id,
     title,
     dates,
+    location,
+    url,
     tags[] -> { _id, title, slug },
     description,
     coverImage,
@@ -515,6 +526,14 @@ export const pssoundAboutQuery = `
 }
 `
 
+export const pssoundAboutLayoutQuery = `
+{
+  "settings": *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
+    layout
+  }
+}
+`
+
 export const pssoundManifestoQuery = `
 {
   "settings": *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
@@ -525,15 +544,33 @@ export const pssoundManifestoQuery = `
 }
 `
 
+export const pssoundManifestoLayoutQuery = `
+{
+  "settings": *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
+    layout
+  }
+}
+`
+
 export const psstSectionsQuery = `
   *[_type == "psstSection"] | order(orderRank asc){
     title,
-    "slug": slug.current
+    "slug": slug.current,
+    layout
   }
 `
 export const psstSectionBySlugQuery = `
   *[_type == "psstSection" && slug.current == $slug][0]{
     title,
+    content,
+    layout
+  }
+`
+
+export const psstFirstSectionQuery = `
+  *[_type == "psstSection"] | order(orderRank asc)[0]{
+    title,
+    "slug": slug.current,
     content,
     layout
   }

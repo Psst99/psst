@@ -110,7 +110,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const mode = ctx?.mode ?? 'brand'
   const [isMounted, setIsMounted] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
-  const [activeTab, setActiveTab] = useState<SupportTab>('donation')
+  const [activeTab, setActiveTab] = useState<SupportTab>('newsletter')
   const [donationAmount, setDonationAmount] = useState('15')
   const [donationName, setDonationName] = useState('')
   const [donationEmail, setDonationEmail] = useState('')
@@ -124,7 +124,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false)
   const [shareState, setShareState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [floatingPos, setFloatingPos] = useState<Point | null>(null)
-  const [floatingCtaTab, setFloatingCtaTab] = useState<SupportTab>('donation')
+  const [floatingCtaTab, setFloatingCtaTab] = useState<SupportTab>('newsletter')
   const floatingContainerRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<{
     dragging: boolean
@@ -456,295 +456,248 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       dragRef.current.didDrag = false
       return
     }
-    openModal(floatingCtaTab)
-  }, [floatingCtaTab, openModal])
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setFloatingCtaTab((prev) => (prev === 'donation' ? 'newsletter' : 'donation'))
-    }, FLOATING_CTA_ROTATION_MS)
-
-    return () => window.clearInterval(id)
-  }, [])
+    openModal('newsletter')
+  }, [openModal])
 
   if (!isMounted) return null
 
   return (
     <>
+      {/* Background Dimmer when open */}
       <div
-        ref={floatingContainerRef}
-        className="support-widget-fixed fixed z-[51]"
-        style={floatingPos ? {left: floatingPos.x, top: floatingPos.y} : {left: 16, bottom: 24}}
-      >
-        <button
-          type="button"
-          onClick={onFloatingClick}
-          onPointerDown={onFloatingPointerDown}
-          onPointerMove={onFloatingPointerMove}
-          onPointerUp={onFloatingPointerUp}
-          onPointerCancel={onFloatingPointerUp}
-          className={`cursor-pointer touch-none select-none w-36 h-36 min-[83rem]:w-48 min-[83rem]:h-48 rounded-full text-[18px] min-[83rem]:text-[28px] leading-[1.05] text-center px-4 font-medium transition-opacity ${
-            isOpen ? 'pointer-events-none' : ''
-          }`}
-          style={{
-            backgroundColor: floatingButtonBg,
-            color: floatingButtonFg,
-            border: mode === 'accessible' ? `1px solid ${floatingButtonFg}` : undefined,
-          }}
-        >
-          <span className="sr-only">
-            {floatingCtaTab === 'donation' ? donationTabLabel : newsletterTabLabel}
-          </span>
-          <span className="relative block h-[2.3em] overflow-hidden" aria-hidden="true">
-            <motion.span
-              className="absolute inset-0 block h-[200%]"
-              animate={{top: floatingCtaTab === 'donation' ? '0%' : '-100%'}}
-              transition={MENU_TWEEN}
-            >
-              <span className="flex h-1/2 items-center justify-center overflow-hidden">
-                <LabelLines label={donationTabLabel} />
-              </span>
-              <span className="flex h-1/2 items-center justify-center overflow-hidden">
-                <LabelLines label={newsletterTabLabel} />
-              </span>
-            </motion.span>
-          </span>
-        </button>
-      </div>
+        className={`fixed inset-0 z-40 bg-[var(--panel-fg)] transition-opacity duration-300 ${isOpen ? 'opacity-55' : 'opacity-0 pointer-events-none'}`}
+        onClick={closeModal}
+      />
 
-      {isOpen &&
-        createPortal(
+      <div
+        className={`fixed right-0 top-[15vh] xl:top-[20vh] z-[51] flex max-h-[85vh] h-auto max-w-md lg:max-w-lg w-full flex-col shadow-2xl transition-transform duration-[600ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          isOpen ? 'translate-x-0' : 'translate-x-[calc(100%)]'
+        }`}
+      >
+        {/* Tab handle centered cleanly alongside the left edge of the sliding drawer */}
+        <div className="absolute left-[-32px] min-[83rem]:left-[-48px] top-0 bottom-0 flex items-center justify-center pointer-events-none z-[52] w-[32px] min-[83rem]:w-[48px]">
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center px-4"
-            style={modalVars}
+            className="subnav-rounded-slot cursor-pointer pointer-events-auto"
+            onClick={onFloatingClick}
+            style={{
+              transformOrigin: 'center center',
+              transform: 'rotate(-90deg)',
+              height: '32px',
+              width: 'fit-content',
+            }}
           >
             <div
-              className={`absolute inset-0 transition-opacity duration-300 ${
-                isVisible ? 'opacity-55' : 'opacity-0'
-              }`}
-              style={{backgroundColor: 'var(--panel-fg)'}}
-              onClick={closeModal}
-            />
-
-            <div
-              className={`relative panel-bg panel-fg w-full max-w-3xl rounded-3xl p-6 min-[83rem]:p-8 transition-transform duration-300 ease-out ${
-                isVisible ? 'translate-y-0' : 'translate-y-[100vh]'
-              }`}
-              style={
-                showDonationResultScreen
-                  ? {
-                      backgroundColor: donationSuccess ? successTheme.bg : failedTheme.bg,
-                      color: donationSuccess ? '#111111' : failedTheme.fg,
-                    }
-                  : undefined
-              }
+              className="panel-tab-active subnav-rounded-tab subnav-rounded-tab--middle flex items-center justify-center"
+              style={{
+                height: '100%',
+                width: '100%',
+                padding: '0 14px',
+              }}
             >
-              {showDonationResultScreen ? (
-                <div className="min-h-[320px] min-[83rem]:min-h-[420px] pb-14 min-[83rem]:pb-16 flex flex-col items-center justify-center text-center px-4">
-                  <h2 className="text-4xl min-[83rem]:text-6xl tracking-tight">Thank you</h2>
-                  <p className="mt-4 text-lg min-[83rem]:text-2xl max-w-xl leading-tight">
-                    {donationSuccess
-                      ? donationSuccessMessage
-                      : 'Payment not completed. If you want, you can try again.'}
-                  </p>
-                  {donationFailed && (
-                    <button
-                      type="button"
-                      onClick={retryDonation}
-                      className="mt-8 border rounded-full px-6 py-2 text-base min-[83rem]:text-lg cursor-pointer"
-                      style={{
-                        borderColor: failedTheme.fg,
-                        color: failedTheme.fg,
-                      }}
-                    >
-                      Try again
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-start justify-between gap-4 mb-5">
-                    <div className="min-w-0">
-                      <h2 className="text-2xl min-[83rem]:text-4xl tracking-tight">{modalTitle}</h2>
-                      <div className="mt-2 space-y-2 text-[color:var(--panel-fg)]">
-                        <SupportRichText value={content?.modalSubtitle} />
-                      </div>
-                    </div>
-
-                    {/* <button
-                      type="button"
-                      onClick={onCopyShareLink}
-                      className="border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer whitespace-nowrap"
-                    >
-                      {shareState === 'copied'
-                        ? 'Link copied'
-                        : shareState === 'error'
-                          ? 'Copy failed'
-                          : shareButtonLabel}
-                    </button> */}
-                  </div>
-
-                  <div className="flex gap-2 mb-5">
-                    <button
-                      type="button"
-                      onClick={() => openModal('donation')}
-                      className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
-                        activeTab === 'donation' ? 'invert-panel' : ''
-                      }`}
-                    >
-                      {donationTabLabel}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openModal('newsletter')}
-                      className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
-                        activeTab === 'newsletter' ? 'invert-panel' : ''
-                      }`}
-                    >
-                      {newsletterTabLabel}
-                    </button>
-                  </div>
-
-                  {activeTab === 'donation' ? (
-                    <form onSubmit={onDonationSubmit} className="space-y-3 pb-14 min-[83rem]:pb-16">
-                      <div className="space-y-2 text-[color:var(--panel-fg)]">
-                        {content?.donationIntro?.length ? (
-                          <SupportRichText value={content.donationIntro} />
-                        ) : (
-                          <p className="text-sm min-[83rem]:text-lg leading-snug">
-                            Donations now. Tickets and merch later.
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="text-sm min-[83rem]:text-base">Donation amount (EUR)</div>
-                      <div className="flex flex-wrap gap-2">
-                        {[5, 10, 20, 50].map((preset) => (
-                          <button
-                            key={preset}
-                            type="button"
-                            onClick={() => setDonationAmount(String(preset))}
-                            className={`border panel-border rounded-full px-4 py-1 cursor-pointer ${
-                              donationAmount === String(preset) ? 'invert-panel' : ''
-                            }`}
-                          >
-                            {preset} EUR
-                          </button>
-                        ))}
-                      </div>
-
-                      <input
-                        type="number"
-                        min="1"
-                        step="1"
-                        value={donationAmount}
-                        onChange={(e) => setDonationAmount(e.target.value)}
-                        className="w-full border panel-border rounded-md px-3 py-2 bg-transparent"
-                        placeholder="Amount in EUR"
-                        required
-                      />
-
-                      <input
-                        type="text"
-                        value={donationName}
-                        onChange={(e) => setDonationName(e.target.value)}
-                        className="w-full border panel-border rounded-md px-3 py-2 bg-transparent"
-                        placeholder="Name (optional)"
-                      />
-
-                      <input
-                        type="email"
-                        value={donationEmail}
-                        onChange={(e) => setDonationEmail(e.target.value)}
-                        className="w-full border panel-border rounded-md px-3 py-2 bg-transparent"
-                        placeholder="Email (optional, for confirmation)"
-                      />
-
-                      <textarea
-                        value={donationMessage}
-                        onChange={(e) => setDonationMessage(e.target.value)}
-                        className="w-full border panel-border rounded-md px-3 py-2 bg-transparent min-h-24"
-                        placeholder="Message (optional)"
-                        maxLength={500}
-                      />
-
-                      {donationError && (
-                        <p className="text-red-600 text-sm min-[83rem]:text-base">
-                          {donationError}
-                        </p>
-                      )}
-
-                      <button
-                        type="submit"
-                        disabled={isDonationSubmitting}
-                        className="invert-panel w-full rounded-full px-6 py-3 text-lg cursor-pointer disabled:opacity-60"
-                      >
-                        {isDonationSubmitting ? 'Redirecting to Mollie...' : donationSubmitLabel}
-                      </button>
-                    </form>
-                  ) : (
-                    <form
-                      onSubmit={onNewsletterSubmit}
-                      className="space-y-3 pb-14 min-[83rem]:pb-16"
-                    >
-                      <div className="space-y-2 text-[color:var(--panel-fg)]">
-                        {content?.newsletterIntro?.length ? (
-                          <SupportRichText value={content.newsletterIntro} />
-                        ) : (
-                          <p className="text-sm min-[83rem]:text-lg leading-snug">
-                            Subscribe to receive updates about events, merch, and presales.
-                          </p>
-                        )}
-                      </div>
-
-                      <input
-                        type="text"
-                        value={newsletterName}
-                        onChange={(e) => setNewsletterName(e.target.value)}
-                        className="w-full border panel-border rounded-md px-3 py-2 bg-transparent"
-                        placeholder="Name (optional)"
-                      />
-
-                      <input
-                        type="email"
-                        value={newsletterEmail}
-                        onChange={(e) => setNewsletterEmail(e.target.value)}
-                        className="w-full border panel-border rounded-md px-3 py-2 bg-transparent"
-                        placeholder="Email"
-                        required
-                      />
-
-                      {newsletterState !== 'idle' && (
-                        <p
-                          className={`text-sm min-[83rem]:text-base ${
-                            newsletterState === 'success' ? 'text-green-700' : 'text-red-600'
-                          }`}
-                        >
-                          {newsletterMessage}
-                        </p>
-                      )}
-
-                      <button
-                        type="submit"
-                        disabled={isNewsletterSubmitting}
-                        className="invert-panel w-full rounded-full px-6 py-3 text-lg cursor-pointer disabled:opacity-60"
-                      >
-                        {isNewsletterSubmitting ? 'Submitting...' : newsletterSubmitLabel}
-                      </button>
-                    </form>
-                  )}
-                </>
-              )}
-
-              <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full invert-panel">
-                <button onClick={closeModal} className="text-3xl cursor-pointer" type="button">
-                  <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
-                </button>
+              <div className="font-normal text-lg min-[83rem]:text-[24px] tracking-normal mb-[2px] uppercase">
+                {newsletterTabLabel || 'Newsletter'}
               </div>
             </div>
-          </div>,
-          document.body,
-        )}
+          </div>
+        </div>
+
+        {/* Modal Content container sliding together with Tab */}
+        <div
+          className="panel-bg panel-fg w-full h-full xl:min-h-[50vh] overflow-y-auto sm:rounded-none rounded-l-3xl p-6 min-[83rem]:p-8 relative border-y border-l border-[var(--panel-fg)]"
+          style={
+            showDonationResultScreen
+              ? {
+                  backgroundColor: donationSuccess ? successTheme.bg : failedTheme.bg,
+                  color: donationSuccess ? '#111111' : failedTheme.fg,
+                }
+              : undefined
+          }
+        >
+          {showDonationResultScreen ? (
+            <div className="min-h-[320px] min-[83rem]:min-h-[420px] pb-14 min-[83rem]:pb-16 flex flex-col items-center justify-center text-center px-4">
+              <h2 className="text-4xl min-[83rem]:text-6xl tracking-tight">Thank you</h2>
+              <p className="mt-4 text-xl min-[83rem]:text-2xl font-light">
+                {donationSuccess
+                  ? 'We have received your donation.'
+                  : 'There was an issue processing your payment.'}
+              </p>
+              <button
+                onClick={closeModal}
+                className="mt-12 rounded-full border border-current px-8 py-3 text-lg hover:bg-current hover:text-[var(--panel-bg)] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-4xl min-[83rem]:text-5xl font-light tracking-tight mb-6">
+                {content?.modalTitle || 'Support psst'}
+              </h2>
+
+              <div className="flex gap-2 mb-5">
+                <button
+                  type="button"
+                  onClick={() => openModal('donation')}
+                  className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
+                    activeTab === 'donation' ? 'invert-panel' : ''
+                  }`}
+                >
+                  {donationTabLabel || 'Donation'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openModal('newsletter')}
+                  className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
+                    activeTab === 'newsletter' ? 'invert-panel' : ''
+                  }`}
+                >
+                  {newsletterTabLabel || 'Newsletter'}
+                </button>
+              </div>
+
+              <div className="mt-4 text-[color:var(--panel-fg)]">
+                {activeTab === 'donation' ? (
+                  <form
+                    onSubmit={onDonationSubmit}
+                    className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
+                  >
+                    <div className="space-y-2 mb-4">
+                      {content?.donationIntro?.length ? (
+                        <div className="space-y-2">
+                          <SupportRichText value={content.donationIntro} />
+                        </div>
+                      ) : (
+                        <p className="text-sm min-[83rem]:text-lg leading-snug">
+                          Donations now. Tickets and merch later.
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="text-sm min-[83rem]:text-base mb-2">Donation amount (EUR)</div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {[5, 10, 20, 50].map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => setDonationAmount(preset.toString())}
+                          className={`rounded-md border panel-border px-4 py-2 text-center transition-colors cursor-pointer ${
+                            donationAmount === preset.toString()
+                              ? 'invert-panel'
+                              : 'hover:bg-[var(--panel-fg)] hover:text-[var(--panel-bg)]'
+                          }`}
+                        >
+                          {preset}
+                        </button>
+                      ))}
+                    </div>
+
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={donationAmount}
+                      onChange={(e) => setDonationAmount(e.target.value)}
+                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
+                      placeholder="Amount in EUR"
+                      required
+                    />
+                    <input
+                      type="text"
+                      value={donationName}
+                      onChange={(e) => setDonationName(e.target.value)}
+                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
+                      placeholder="Name (optional)"
+                    />
+                    <input
+                      type="email"
+                      value={donationEmail}
+                      onChange={(e) => setDonationEmail(e.target.value)}
+                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
+                      placeholder="Email (optional)"
+                    />
+                    <textarea
+                      value={donationMessage}
+                      onChange={(e) => setDonationMessage(e.target.value)}
+                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent min-h-24 outline-none"
+                      placeholder="Message (optional)"
+                      maxLength={500}
+                    />
+
+                    {donationError && (
+                      <p className="text-red-600 text-sm min-[83rem]:text-base">{donationError}</p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isDonationSubmitting}
+                      className="invert-panel w-full rounded-full px-6 py-3 mt-4 text-lg cursor-pointer disabled:opacity-60"
+                    >
+                      {isDonationSubmitting
+                        ? 'Redirecting to Mollie...'
+                        : donationSubmitLabel || 'Donate'}
+                    </button>
+                  </form>
+                ) : (
+                  <form
+                    onSubmit={onNewsletterSubmit}
+                    className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
+                  >
+                    <div className="space-y-2 mb-4">
+                      {content?.newsletterIntro?.length ? (
+                        <SupportRichText value={content.newsletterIntro} />
+                      ) : (
+                        <p className="text-sm min-[83rem]:text-lg leading-snug">
+                          Subscribe to receive updates about events, merch, and presales.
+                        </p>
+                      )}
+                    </div>
+
+                    <input
+                      type="text"
+                      value={newsletterName}
+                      onChange={(e) => setNewsletterName(e.target.value)}
+                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
+                      placeholder="Name (optional)"
+                    />
+                    <input
+                      type="email"
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
+                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
+                      placeholder="Email"
+                      required
+                    />
+
+                    {newsletterState !== 'idle' && (
+                      <p
+                        className={`text-sm min-[83rem]:text-base ${newsletterState === 'success' ? 'text-green-700' : 'text-red-600'}`}
+                      >
+                        {newsletterMessage}
+                      </p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isNewsletterSubmitting}
+                      className="invert-panel w-full rounded-full px-6 py-3 mt-4 text-lg cursor-pointer disabled:opacity-60"
+                    >
+                      {isNewsletterSubmitting
+                        ? 'Submitting...'
+                        : newsletterSubmitLabel || 'Subscribe'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            </>
+          )}
+
+          <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full invert-panel">
+            <button onClick={closeModal} className="text-3xl cursor-pointer" type="button">
+              <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </div>
     </>
   )
 }

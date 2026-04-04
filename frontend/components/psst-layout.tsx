@@ -5,11 +5,11 @@ import DynamicLayout from './DynamicLayout'
 export default async function PsstLayout({children}: {children: React.ReactNode}) {
   const {data} = await sanityFetch({query: psstSectionsQuery})
 
-  const dynamicSubNavItems =
-    data?.map((section: any) => ({
-      label: section.title,
-      href: `/psst/${section.slug}`,
-    })) || []
+  const validSections = (data || []).filter((section: any) => Boolean(section?.slug))
+  const dynamicSubNavItems = validSections.map((section: any, index: number) => ({
+    label: section.title,
+    href: index === 0 ? '/psst' : `/psst/${section.slug}`,
+  }))
 
   return <DynamicLayout dynamicSubNavItems={dynamicSubNavItems}>{children}</DynamicLayout>
 }

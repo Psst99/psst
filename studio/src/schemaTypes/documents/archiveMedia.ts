@@ -1,3 +1,4 @@
+import {orderRankField} from '@sanity/orderable-document-list'
 import {defineField, defineType} from 'sanity'
 
 export default defineType({
@@ -36,6 +37,7 @@ export default defineType({
       options: {hotspot: true},
       validation: (Rule) => Rule.required(),
     }),
+    orderRankField({type: 'archiveMedia'}),
 
     // defineField({
     //   name: 'tags',

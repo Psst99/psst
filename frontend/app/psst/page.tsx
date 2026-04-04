@@ -1,11 +1,10 @@
 import CmsContent from '@/components/CmsContent'
-import PsstLoading from '@/components/loading/PsstLoading'
 import {sanityFetch} from '@/sanity/lib/live'
-import {manifestoPageQuery} from '@/sanity/lib/queries'
+import {psstFirstSectionQuery} from '@/sanity/lib/queries'
 
 export default async function PsstPage() {
   const {data} = await sanityFetch({
-    query: manifestoPageQuery,
+    query: psstFirstSectionQuery,
   })
 
   if (!data) {
@@ -25,11 +24,8 @@ export default async function PsstPage() {
 
   // Default layout
   return (
-    <>
-      {/* <PsstLoading /> */}
-      <main className="mx-4 xl:max-w-[65vw] xl:mx-auto">
-        <CmsContent value={data.content} />
-      </main>
-    </>
+    <main className="mx-4 xl:max-w-[65vw] xl:mx-auto">
+      <CmsContent value={data.content} />
+    </main>
   )
 }

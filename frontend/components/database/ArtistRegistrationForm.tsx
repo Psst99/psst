@@ -84,7 +84,11 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
 
       if (!response.ok) throw new Error('Submission failed')
 
-      setSubmitStatus({type: 'success', message: 'Thank you! Your submission was received.'})
+      setSubmitStatus({
+        type: 'success',
+        message:
+          'Thank you for your submission. Our collective approves each entry manually.\nYou’ll receive a confirmation email when it’s done.',
+      })
       // router.refresh() // optional
     } catch (error) {
       setSubmitStatus({

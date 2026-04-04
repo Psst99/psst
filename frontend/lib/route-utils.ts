@@ -29,11 +29,16 @@ export function getSectionConfig(
 
   // FOR PSST: Hardcoded two tabs
   if (section === 'psst') {
-    subNavItems = [
-      {label: 'Manifesto', href: '/psst'},
-      {label: 'About', href: '/psst/about'},
-    ]
-    hasSubNav = true
+    if (dynamicSubNavItems && dynamicSubNavItems.length > 0) {
+      subNavItems = [...dynamicSubNavItems]
+      hasSubNav = true
+    } else {
+      subNavItems = [
+        {label: 'Manifesto', href: '/psst'},
+        {label: 'About', href: '/psst/about'},
+      ]
+      hasSubNav = true
+    }
   }
   // FOR OTHER SECTIONS: Use static subnav from theme.ts
   else if (section in subNavigation) {

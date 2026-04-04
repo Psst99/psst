@@ -1,5 +1,5 @@
 export const SECTION_COLORS = {
-  home: {a: '#FFFFFF', b: '#000000'},
+  home: {a: '#000000', b: '#FFFFFF'},
   psst: {a: '#DFFF3D', b: '#A20018'},
   database: {a: '#6600FF', b: '#D3CD7F'},
   workshops: {a: '#F50806', b: '#D2D2D2'},

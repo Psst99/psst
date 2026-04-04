@@ -54,12 +54,22 @@ export default function EventsGrid({ events }: EventsGridProps) {
     router.push(`/events/${event.slug}`)
   }
 
+  const showEmptyUpcoming = activeFilters.includes('upcoming') && filteredEvents.length === 0
+
   return (
     <>
       <EventsFilter
         activeFilters={activeFilters}
         onFilterToggle={toggleFilter}
       />
+
+      {showEmptyUpcoming && (
+        <div className='text-center py-16'>
+          <p className='text-base leading-tight min-[83rem]:text-xl section-fg'>
+            There are no upcoming events.
+          </p>
+        </div>
+      )}
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto'>
         {filteredEvents.map((item) => (

@@ -8,7 +8,7 @@ export default function Loading() {
           {[...Array(7)].map((_, i) => (
             <div
               key={i}
-              className="p-1 sm:p-1 bg-[color:var(--section-accent)]/40 text-center border border-[color:var(--section-bg)] text-base leading-tight md:text-xl tracking-tight rounded-lg h-8"
+              className="p-1 sm:p-1 bg-[color:var(--section-accent)]/40 text-center text-base leading-tight md:text-xl tracking-tight rounded-lg h-8"
             />
           ))}
         </div>
@@ -20,7 +20,7 @@ export default function Loading() {
               {[...Array(7)].map((_, dayIdx) => (
                 <div
                   key={dayIdx}
-                  className="flex-1 min-h-[60px] sm:min-h-[80px] flex items-center justify-center border border-[color:var(--section-bg)] bg-white/20 rounded-lg"
+                  className="flex-1 min-h-[60px] sm:min-h-[80px] flex items-center justify-center bg-white/20 rounded-lg"
                 />
               ))}
             </div>

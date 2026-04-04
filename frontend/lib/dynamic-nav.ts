@@ -9,10 +9,11 @@ export async function fetchDynamicSubNav(section: SectionKey): Promise<SubNavIte
     case 'psst': {
       try {
         const {data} = await sanityFetch({query: psstSectionsQuery})
+        const validSections = (data || []).filter((section: any) => Boolean(section?.slug))
         return (
-          data?.map((section: any) => ({
+          validSections.map((section: any, index: number) => ({
             label: section.title,
-            href: `/psst/${section.slug}`,
+            href: index === 0 ? '/psst' : `/psst/${section.slug}`,
           })) || []
         )
       } catch (error) {

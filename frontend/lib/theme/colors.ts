@@ -1,9 +1,9 @@
 export const SECTION_COLORS = {
   home: {
-    background: '#FFFFFF',
-    foreground: '#000000',
+    background: '#000000',
+    foreground: '#FFFFFF',
     accent: '#DFFF3D',
-    border: '#000000',
+    border: '#FFFFFF',
   },
   psst: {
     background: '#DFFF3D',

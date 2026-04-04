@@ -2,7 +2,7 @@
 
 import {useContext, useEffect, useMemo, useRef, useState} from 'react'
 import {usePathname} from 'next/navigation'
-import {MdPause, MdPlayArrow, MdSkipNext, MdSkipPrevious} from 'react-icons/md'
+import {MdPause, MdPlayArrow, MdPushPin, MdSkipNext, MdSkipPrevious} from 'react-icons/md'
 import {ThemeContext} from '@/app/ThemeProvider'
 import {getTheme, type MainSectionSlug, type SectionSlug} from '@/lib/theme/sections'
 import {CgPlayList} from 'react-icons/cg'
@@ -58,10 +58,13 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
   const [loading, setLoading] = useState(true)
   const [trackInfo, setTrackInfo] = useState<TrackInfo>({})
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isDetached, setIsDetached] = useState(false)
+  const [dockEdge, setDockEdge] = useState<'left' | 'right'>('right')
   const [mobileBottom, setMobileBottom] = useState(40)
 
   // Drag state
-  const [pos, setPos] = useState<Point>({x: 0, y: 0}) // interpreted as offsets from bottom/right
+  const [pos, setPos] = useState<Point>({x: 0, y: 80}) // interpreted as actual pixel offsets from bottom/right
+  const [isDragging, setIsDragging] = useState(false)
   const dragRef = useRef<{
     dragging: boolean
     startPointer: Point
@@ -154,47 +157,144 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
   const next = () => widget && widget.next()
   const prev = () => widget && widget.prev()
 
+  const togglePinned = () => {
+    if (!containerRef.current) return
+
+    if (isDetached) {
+      const rect = containerRef.current.getBoundingClientRect()
+      const rightOffset = Math.max(0, pos.x)
+      const leftOffset = window.innerWidth - rightOffset - rect.width
+      const nextEdge = leftOffset < rightOffset ? 'left' : 'right'
+
+      setDockEdge(nextEdge)
+      setIsDetached(false)
+      setPos((prev) => ({x: nextEdge === 'left' ? window.innerWidth - rect.width : 0, y: prev.y}))
+      return
+    }
+
+    let startX = 16
+    if (dockEdge === 'left' && containerRef.current) {
+      startX = Math.max(16, window.innerWidth - containerRef.current.getBoundingClientRect().width - 16)
+    }
+
+    setIsDetached(true)
+    setPos((prev) => ({x: startX, y: prev.y}))
+  }
+
   // Pointer-based dragging: handle-only
-  const onDragStart = (e: React.PointerEvent<HTMLButtonElement>) => {
+  const onDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Prevent drag if clicking on interactive controls when un-docked
+    const target = e.target as HTMLElement
+    if (isDetached && (target.closest('button[data-interactive="true"]') || target.closest('a'))) {
+      return
+    }
+
     e.preventDefault()
     e.stopPropagation()
 
     e.currentTarget.setPointerCapture(e.pointerId)
 
+    let startingX = pos.x
+    if (!isDetached) {
+      // Calculate real starting pixel offset relative to right edge
+      if (dockEdge === 'left') {
+        startingX = window.innerWidth - (containerRef.current?.getBoundingClientRect().width || 48)
+      } else {
+        startingX = 0
+      }
+    }
+
     dragRef.current = {
       dragging: true,
       startPointer: {x: e.clientX, y: e.clientY},
-      startPos: {x: pos.x, y: pos.y},
-      bounds: {maxX: 0, maxY: 0}, // not used anymore
+      startPos: {x: startingX, y: pos.y},
+      bounds: {maxX: 0, maxY: 0},
     }
-
+    setIsDragging(true)
     document.body.style.userSelect = 'none'
   }
 
-  const onDragMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+  const onDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.dragging) return
     e.preventDefault()
 
     const dx = e.clientX - dragRef.current.startPointer.x
     const dy = e.clientY - dragRef.current.startPointer.y
 
-    // Because we are using bottom/right offsets:
-    // moving pointer right decreases "right offset" (x), moving left increases it.
-    // Allow free movement without viewport constraints
     const nextX = dragRef.current.startPos.x - dx
     const nextY = dragRef.current.startPos.y - dy
 
     setPos({x: nextX, y: nextY})
+
+    // Auto-unsnap if dragged away from edge
+    if (!isDetached) {
+      if (dockEdge === 'right' && dx < -5) {
+        // dragging left away from right edge
+        setIsDetached(true)
+      } else if (dockEdge === 'left' && dx > 5) {
+        // dragging right away from left edge
+        setIsDetached(true)
+        // The element grows in width when detached. Since we anchor via "right",
+        // the left boundary will expand off-screen. We decrease the right offset by ~200px
+        // to keep it under the cursor nicely.
+        dragRef.current.startPos.x -= 200
+        setPos({x: nextX - 200, y: nextY})
+      }
+    }
   }
 
-  const onDragEnd = (e: React.PointerEvent<HTMLButtonElement>) => {
+  const onDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.dragging) return
     dragRef.current.dragging = false
+    setIsDragging(false)
     document.body.style.userSelect = ''
     try {
       e.currentTarget.releasePointerCapture(e.pointerId)
     } catch {
       // ignore
+    }
+
+    const dx = Math.abs(e.clientX - dragRef.current.startPointer.x)
+    const dy = Math.abs(e.clientY - dragRef.current.startPointer.y)
+    const isClick = dx < 5 && dy < 5
+
+    if (containerRef.current) {
+      if (isClick && !isDetached) {
+        // Play/Pause when clicking the docked player
+        playPause()
+        return
+      }
+
+      const rect = containerRef.current.getBoundingClientRect()
+
+      const maxBottom = window.innerHeight - rect.height - 16
+      const minBottom = 80 // Keep it from going lower than 80px to avoid bottom nav
+      let nextX = pos.x
+      let nextY = clamp(pos.y, minBottom, maxBottom)
+      const distRight = nextX
+      const distLeft = window.innerWidth - nextX - rect.width
+
+      if (!isClick) {
+        if (distRight < 24) {
+          // Snap back to right margin
+          nextX = 0
+          setIsDetached(false)
+          setDockEdge('right')
+        } else if (distLeft < 24) {
+          // Snap to left margin
+          // We anchor to right, so x offset from right = windowWidth - rect.width
+          nextX = window.innerWidth - rect.width
+          setIsDetached(false)
+          setDockEdge('left')
+        } else {
+          setIsDetached(true)
+          // Ensure it doesn't go off the screen
+          const maxRight = window.innerWidth - rect.width - 16
+          nextX = clamp(nextX, 16, maxRight)
+        }
+      }
+
+      setPos({x: nextX, y: nextY})
     }
   }
 
@@ -283,60 +383,97 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       {/* Draggable desktop player */}
       <div
         ref={containerRef}
-        className="soundcloud-player-fixed hidden md:flex fixed z-50 items-center gap-3 rounded-md px-4 py-2 border shadow-sm"
+        onPointerDown={onDragStart}
+        onPointerMove={onDragMove}
+        onPointerUp={onDragEnd}
+        onPointerCancel={onDragEnd}
+        className={`soundcloud-player-fixed hidden md:flex fixed z-50 items-center justify-center cursor-grab active:cursor-grabbing ${
+          !isDragging ? 'transition-all duration-300 ease-in-out' : ''
+        } ${
+          isDetached
+            ? 'rounded-md px-4 py-2 gap-3 shadow-md min-w-[200px]'
+            : dockEdge === 'right'
+              ? 'rounded-l-md w-12 h-12 shadow-md'
+              : 'rounded-r-md w-12 h-12 shadow-md'
+        }`}
         style={{
-          right: 16 + pos.x,
-          bottom: 16 + pos.y,
+          ...(isDetached
+            ? {right: pos.x}
+            : dockEdge === 'left'
+              ? {left: 0, right: 'auto'}
+              : {right: 0, left: 'auto'}),
+          bottom: pos.y,
           backgroundColor: theme.bg,
-          borderColor: theme.fg,
           color: theme.fg,
-        }}
-      >
-        {/* Drag handle (separate from controls) */}
-        <button
-          type="button"
-          onPointerDown={onDragStart}
-          onPointerMove={onDragMove}
-          onPointerUp={onDragEnd}
-          onPointerCancel={onDragEnd}
-          className="mr-0 flex items-center justify-center w-6 h-10 rounded
-             cursor-grab active:cursor-grabbing select-none touch-none"
-          style={{color: theme.fg}}
-          aria-label="Drag player"
-          title="Drag"
-        >
-          ⠿
-        </button>
+          borderTopRightRadius: !isDetached && dockEdge === 'right' ? 0 : undefined,
+          borderBottomRightRadius: !isDetached && dockEdge === 'right' ? 0 : undefined,
+          borderRight: !isDetached && dockEdge === 'right' ? 'none' : undefined,
 
-        {loading ? (
-          <span className="animate-pulse font-bold" style={{color: theme.fg}}>
+          borderTopLeftRadius: !isDetached && dockEdge === 'left' ? 0 : undefined,
+          borderBottomLeftRadius: !isDetached && dockEdge === 'left' ? 0 : undefined,
+          borderLeft: !isDetached && dockEdge === 'left' ? 'none' : undefined,
+        }}
+        title={
+          isDetached ? 'Drag to move, or snap to edges' : 'Click to Play/Pause, drag out to expand'
+        }
+      >
+        {!isDetached ? (
+          // Docked minimal view
+          <div
+            className="flex items-center justify-center pointer-events-none w-full h-full transition-transform hover:scale-105"
+            style={{color: theme.fg}}
+          >
+            {isPlaying ? <MdPause size={28} /> : <MdPlayArrow size={28} />}
+          </div>
+        ) : loading ? (
+          <span className="animate-pulse px-2" style={{color: theme.fg}}>
             Loading...
           </span>
         ) : (
           <>
+            <div className={`flex items-center overflow-hidden gap-2`}>
+              <button
+                data-interactive="true"
+                onClick={prev}
+                className="flex items-center justify-center hover:opacity-70 transition-opacity"
+                style={{color: theme.fg}}
+                aria-label="Previous"
+              >
+                <MdSkipPrevious size={24} />
+              </button>
+            </div>
+
             <button
-              onClick={prev}
-              className="flex items-center justify-center"
-              style={{color: theme.fg}}
-              aria-label="Previous"
-            >
-              <MdSkipPrevious size={24} />
-            </button>
-            <button
+              data-interactive="true"
               onClick={playPause}
-              className="flex items-center justify-center"
+              className="flex items-center justify-center hover:scale-110 transition-transform flex-shrink-0"
               style={{color: theme.fg}}
               aria-label={isPlaying ? 'Pause' : 'Play'}
             >
-              {isPlaying ? <MdPause size={24} /> : <MdPlayArrow size={24} />}
+              {isPlaying ? <MdPause size={28} /> : <MdPlayArrow size={28} />}
             </button>
+
+            <div className={`flex items-center overflow-hidden gap-2`}>
+              <button
+                data-interactive="true"
+                onClick={next}
+                className="flex items-center justify-center hover:opacity-70 transition-opacity"
+                style={{color: theme.fg}}
+                aria-label="Next"
+              >
+                <MdSkipNext size={24} />
+              </button>
+            </div>
+
             <button
-              onClick={next}
-              className="flex items-center justify-center"
+              data-interactive="true"
+              onClick={togglePinned}
+              className="flex items-center justify-center hover:opacity-70 transition-opacity flex-shrink-0"
               style={{color: theme.fg}}
-              aria-label="Next"
+              aria-label={isDetached ? 'Pin player to edge' : 'Unpin player'}
+              title={isDetached ? 'Pin to nearest edge' : 'Unpin player'}
             >
-              <MdSkipNext size={24} />
+              <MdPushPin size={18} />
             </button>
 
             {trackInfo.artwork && trackInfo.permalink_url && (
@@ -344,18 +481,22 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
                 href={trackInfo.permalink_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center"
+                className="flex items-center flex-shrink-0 hover:opacity-80 transition-opacity ml-1"
                 title={trackInfo.title}
               >
-                <img src={trackInfo.artwork} alt="" className="w-10 h-10 rounded" />
+                <img
+                  src={trackInfo.artwork}
+                  alt=""
+                  className="rounded w-10 h-10 transition-all duration-300"
+                />
               </a>
             )}
 
-            <div className="min-w-0">
-              <div className="font-bold truncate max-w-[220px]" style={{color: theme.fg}}>
+            <div className="min-w-0 flex flex-col justify-center overflow-hidden max-w-[180px] ml-1 select-none pointer-events-none">
+              <div className="truncate text-sm font-semibold" style={{color: theme.fg}}>
                 {trackInfo.title}
               </div>
-              <div className="truncate max-w-[220px]" style={{color: theme.fg}}>
+              <div className="truncate text-xs opacity-80" style={{color: theme.fg}}>
                 {trackInfo.artist}
               </div>
             </div>
@@ -371,13 +512,13 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       >
         <div
           className={`
-            border rounded-l-md
+            rounded-l-md
             transition-transform duration-300 ease-in-out
             ${isExpanded ? 'translate-x-0' : 'translate-x-[calc(100%-40px)]'}
             flex items-center
             max-w-[calc(100vw-8px)]
           `}
-          style={{backgroundColor: theme.bg, borderColor: theme.fg, color: theme.fg}}
+          style={{backgroundColor: theme.bg, color: theme.fg}}
         >
           {/* Toggle button (always visible) */}
           <button
@@ -394,15 +535,9 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           </button>
 
           {/* Player content (slides in/out) */}
-          <div
-            className="flex items-center gap-1.5 px-2 py-1.5 border-l border-black min-w-0 max-w-[220px] overflow-hidden"
-            style={{borderColor: theme.fg}}
-          >
+          <div className="flex items-center gap-1.5 px-2 py-1.5 min-w-0 max-w-[220px] overflow-hidden">
             {loading ? (
-              <span
-                className="animate-pulse font-bold text-sm whitespace-nowrap"
-                style={{color: theme.fg}}
-              >
+              <span className="animate-pulse text-sm whitespace-nowrap" style={{color: theme.fg}}>
                 Loading...
               </span>
             ) : (

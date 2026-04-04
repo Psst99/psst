@@ -1,4 +1,5 @@
 import {getTagColors} from '@/lib/tags'
+import {BiLoaderCircle} from 'react-icons/bi'
 
 export default function Loading() {
   const seeds = ['music', 'art', 'sound', 'design', 'visual', 'performance', 'digital', 'noise']
@@ -91,9 +92,8 @@ export default function Loading() {
 
           {/* Loading indicator */}
           <div className="flex justify-center py-8">
-            <div className="flex items-center gap-2 text-[color:var(--section-accent)]">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[color:var(--section-accent)]" />
-              <span>Loading artists...</span>
+            <div className="flex items-center justify-center gap-2 text-[color:var(--panel-fg)]/75">
+              <BiLoaderCircle className="animate-spin h-6 w-6" />
             </div>
           </div>
         </div>

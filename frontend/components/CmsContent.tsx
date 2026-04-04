@@ -323,29 +323,17 @@ const getComponents = (
               <div className={tabPosClass}>
                 <div
                   className={[
-                    'relative inline-flex items-center justify-center',
-                    'px-8 py-1',
-                    'border border-b-0 rounded-t-xl',
+                    'highlighted-heading-tab',
                     'uppercase tracking-tight',
-                    // underline (same idea as nav)
-                    'after:content-[""] after:absolute after:left-0 after:right-0 after:bottom-[-1px] after:h-[1px]',
                   ].join(' ')}
                   style={
                     {
-                      backgroundColor: bgColor,
-                      color: textColor,
-                      borderColor: textColor,
-                      // underline should match the box bg, like your nav active underline
-                      '--underline-color': bgColor,
+                      '--highlight-tab-fill': bgColor,
+                      '--highlight-tab-fg': textColor,
                     } as React.CSSProperties
                   }
                 >
                   <span className="font-normal text-[24px] leading-[22px]">{heading.text}</span>
-
-                  <span
-                    className="pointer-events-none absolute left-0 right-0 bottom-[-1px] h-[1px]"
-                    style={{backgroundColor: bgColor}}
-                  />
                 </div>
               </div>
             ) : null}

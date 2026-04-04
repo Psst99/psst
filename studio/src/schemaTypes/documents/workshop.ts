@@ -30,6 +30,16 @@ export const workshop = defineType({
       validation: (Rule) => Rule.required().min(1),
     }),
     defineField({
+      name: 'location',
+      title: 'Location',
+      type: 'string',
+    }),
+    defineField({
+      name: 'url',
+      title: 'External Link (Optional)',
+      type: 'url',
+    }),
+    defineField({
       name: 'tags',
       title: 'Tags',
       type: 'array',
@@ -43,8 +53,8 @@ export const workshop = defineType({
         {
           type: 'block',
           styles: [
-            {title: 'Heading', value: 'h2'},
             {title: 'Paragraph', value: 'normal'},
+            {title: 'Heading', value: 'h2'},
           ],
           marks: {
             decorators: [

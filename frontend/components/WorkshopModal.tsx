@@ -1,6 +1,7 @@
 'use client'
 
 import {useCallback, useEffect, useState, type CSSProperties, useContext} from 'react'
+import Link from 'next/link'
 import {useRouter} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
@@ -92,7 +93,7 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
               {workshop.title}
             </h1>
 
-            {/* Dates + tags (stacked lines with matching spacing) */}
+            {/* Dates */}
             {workshop.dates?.length > 0 && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {workshop.dates.map((date: string, idx: number) => (
@@ -106,13 +107,6 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
                       year: 'numeric',
                     })}
                   </span>
-                ))}
-              </div>
-            )}
-            {workshop.tags?.length > 0 && (
-              <div className="mt-2 flex flex-wrap items-center gap-0">
-                {workshop.tags.map((tag: any) => (
-                  <Tag key={tag._id} label={tag.title} size="sm" className="block w-fit" />
                 ))}
               </div>
             )}
@@ -132,6 +126,34 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
 
         {/* Scrollable content */}
         <div className="px-8 pb-8 flex-1 min-h-0 overflow-y-auto no-scrollbar pr-2">
+          {(workshop.location || workshop.url) && (
+            <div className="mb-6 space-y-2 panel-fg text-base min-[83rem]:text-xl leading-snug">
+              {workshop.location && (
+                <p className="flex items-start gap-2">
+                  <span aria-hidden="true" className="translate-y-[0.05em]">
+                    📍
+                  </span>
+                  <span>{workshop.location}</span>
+                </p>
+              )}
+              {workshop.url && (
+                <p className="flex items-start gap-2">
+                  <span aria-hidden="true" className="translate-y-[0.05em]">
+                    🔗
+                  </span>
+                  <Link
+                    href={workshop.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 break-all"
+                  >
+                    {workshop.url}
+                  </Link>
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Cover Image */}
           {workshop.coverImage && (
             <div className="mb-6">
@@ -147,6 +169,14 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
           <div className="mb-6 panel-fg text-lg leading-snug">
             <CmsContent value={workshop.description} bulletTone="sectionBg" />
           </div>
+
+          {workshop.tags?.length > 0 && (
+            <div className="flex flex-wrap gap-0 mb-16">
+              {workshop.tags.map((tag: any) => (
+                <Tag key={tag._id} label={tag.title} size="sm" className="block w-fit" />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Close button */}

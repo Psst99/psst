@@ -45,6 +45,11 @@ export default function SectionScope({
     '--panel-fg': panelFg,
   }
 
+  if (panelVariant === 'subtab' && section === 'database') {
+    styleVars['--subnav-tab-inactive-fill'] =
+      'color-mix(in srgb, var(--panel-fg) 52%, var(--panel-bg) 48%)'
+  }
+
   if (asChild) {
     if (!React.isValidElement(children)) {
       throw new Error('SectionScope with asChild expects a single React element child.')

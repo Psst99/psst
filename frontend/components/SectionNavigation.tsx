@@ -3,11 +3,9 @@
 import CustomLink from './CustomLink'
 import type {SectionSlug} from '@/lib/theme/sections'
 import SectionScope from './SectionScope'
-import type {CSSProperties, MouseEvent as ReactMouseEvent} from 'react'
+import type {CSSProperties} from 'react'
 import {useState} from 'react'
 import {subNavigation} from '@/lib/theme'
-import {usePathname} from 'next/navigation'
-import {useTransitionRouter} from 'next-view-transitions'
 
 interface SectionNavigationProps {
   currentSection?: string
@@ -42,13 +40,10 @@ export default function SectionNavigation({
   hideCurrentSection = false,
   onlyCurrentSection = false,
 }: SectionNavigationProps) {
-  const pathname = usePathname()
-  const router = useTransitionRouter()
   const [hoveredTab, setHoveredTab] = useState<SectionSlug | null>(null)
   const enableDockHover = !onlyCurrentSection && (currentSection === 'home' || hideCurrentSection)
   const hoveredTabIndex =
     hoveredTab != null ? TABS.findIndex((item) => item.slug === hoveredTab) : -1
-
   const activeIdx =
     currentSection === 'home' || !currentSection
       ? -1

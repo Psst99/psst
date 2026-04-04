@@ -297,14 +297,20 @@
 }
 
 /* View Transitions - exactly like the working example */
+::view-transition {
+  background: transparent !important;
+}
+
 ::view-transition-group(root) {
   z-index: auto !important;
+  background: transparent !important;
 }
 
 ::view-transition-image-pair(root) {
   isolation: isolate;
   will-change: transform, opacity, scale;
   z-index: 1;
+  background: transparent !important;
 }
 
 /* defaults */
@@ -434,8 +440,7 @@
 
 /* Keep the incoming document canvas transparent while opening from home. */
 :root.vt-open,
-:root.vt-open body,
-:root.vt-open .site-bg {
+:root.vt-open body {
   background: transparent !important;
 }
 
@@ -446,64 +451,67 @@
 }
 
 /* ── Section-to-section switch ──────────────────────────────── */
-/* New section slides up on top, old section slides down behind */
+/* New section slides up from the clicked tab, covering the old section.
+   Like lifting a new file divider up from the stack — same as home→section.
+   Nav stays as a separate view-transition element so left tabs stay fixed. */
 
-/* Hold the new root at the tab position until the JS animation takes over.
-   Without this, the new page flashes at Y=0 for one frame. */
-@keyframes vt-section-switch-hold {
-  from,
-  to {
-    transform: translateY(var(--intercalaire-rect-top, 100vh));
-  }
-}
-
-/* New page (incoming section) on top — held at tab position */
-:root.vt-section-switch::view-transition-new(root) {
-  z-index: 2 !important;
-  background: transparent !important;
-  animation: vt-section-switch-hold 999s both !important;
-}
-
-/* Old page (outgoing section) behind */
+/* Suppress default cross-fade — JS drives the slide */
 :root.vt-section-switch::view-transition-old(root) {
   z-index: 1 !important;
-  background: transparent !important;
+  animation: none !important;
+  mix-blend-mode: normal !important;
 }
 
-/* Keep the view-transition layer transparent so both old & new images show.
-   Do NOT make the live DOM transparent — that would corrupt the snapshots. */
+:root.vt-section-switch::view-transition-new(root) {
+  z-index: 2 !important;
+  animation: none !important;
+  mix-blend-mode: normal !important;
+}
+
+/* Transparent container so old section shows through as new one slides up */
+:root.vt-section-switch::view-transition-new(root),
 :root.vt-section-switch::view-transition-group(root),
 :root.vt-section-switch::view-transition-image-pair(root) {
   background: transparent !important;
 }
 
-/* Bottom nav during section switch */
+/* Keep incoming document canvas transparent while sliding up over the old section */
+:root.vt-section-switch,
+:root.vt-section-switch body {
+  background: transparent !important;
+}
+
+/* Keep bottom nav fixed above root transition — left tabs stay visible (like vt-open) */
 :root.vt-section-switch::view-transition-group(section-page-nav-fixed) {
   z-index: 2100 !important;
 }
 
-/* Hide old bottom nav snapshot (has the wrong active section) */
-:root.vt-section-switch::view-transition-old(section-page-nav-fixed) {
-  opacity: 0 !important;
-}
-
-/* Show new bottom nav immediately */
 :root.vt-section-switch::view-transition-new(section-page-nav-fixed) {
   animation: none !important;
   mix-blend-mode: normal;
 }
 
-/* Right tabs on new section stay hidden during transition, then stagger in */
-:root.vt-section-switch .section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {
+/* Hide old section's bottom-nav snapshot — new section's nav takes over */
+:root.vt-section-switch::view-transition-old(section-page-nav-fixed) {
+  opacity: 0 !important;
+}
+
+/* Right-side + active tabs start hidden on the incoming page.
+   When vt-section-switch is removed they stagger up. */
+:root.vt-section-switch .section-page-nav-fixed .intercalaire-tab[data-tab-side='right'],
+:root.vt-section-switch .section-page-nav-fixed .intercalaire-tab[data-tab-side='active'] {
   transform: translateY(100%);
   transition: none !important;
 }
+/* Left tabs stay put */
+:root.vt-section-switch .section-page-nav-fixed .intercalaire-tab[data-tab-side='left'] {
+  transform: translateY(0) !important;
+  transition: none !important;
+}
 
-/* Right-side tabs stagger in when section page loads.
-   Each right tab gets a delay based on distance from active section. */
-.section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {
+/* Bottom-stack tabs slide up after the active divider lift completes. */
+.section-page-nav-fixed .intercalaire-tab {
   transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc((var(--intercalaire-index, 0) - var(--active-section-index, 0)) * 100ms);
 }
 
 /* During vt-close, keep the container stationary but push individual nav tabs down on the HOME page */
@@ -809,24 +817,173 @@
   display: block;
 }
 
-.mobile-subsection-underline::after {
+.subnav-rounded-tab {
+  --subnav-notch: 14px;
+  --subnav-radius: var(--subnav-notch);
+  --subnav-tab-fill: transparent;
+  --subnav-tab-stroke: var(--panel-fg);
+  --subnav-tab-fg: var(--panel-fg);
+  --subnav-tab-inactive-fill: color-mix(in srgb, var(--panel-fg) 22%, transparent);
+  position: relative;
+  flex: 0 0 auto;
+  width: fit-content;
+  overflow: visible;
+  height: var(--home-nav-h);
+  color: var(--subnav-tab-fg);
+  line-height: 1;
+  padding-inline: 3rem;
+  padding-block: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top-left-radius: var(--subnav-radius);
+  border-top-right-radius: var(--subnav-radius);
+  background: var(--subnav-tab-fill);
+  z-index: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.panel-tab-active.subnav-rounded-tab {
+  --subnav-tab-fill: var(--panel-fg);
+  --subnav-tab-stroke: var(--panel-fg);
+  --subnav-tab-fg: var(--panel-bg);
+}
+
+.panel-tab-inactive.subnav-rounded-tab {
+  --subnav-tab-fill: var(--subnav-tab-inactive-fill);
+  --subnav-tab-fg: var(--panel-fg);
+  border: 0;
+}
+
+.panel-tab-inactive.subnav-rounded-tab::before {
   content: '';
-  display: block;
   position: absolute;
-  right: -1px;
-  top: 28px;
-  width: calc(100% + 2px);
-  height: 20px;
+  bottom: 0;
+  left: calc(-1 * var(--subnav-notch));
+  width: var(--subnav-notch);
+  height: var(--subnav-notch);
+  z-index: 1;
+  background: radial-gradient(
+    circle at top left,
+    transparent var(--subnav-radius),
+    var(--subnav-tab-fill) var(--subnav-radius)
+  );
+  pointer-events: none;
+}
 
-  background: var(--panel-bg);
+.panel-tab-inactive.subnav-rounded-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: calc(-1 * var(--subnav-notch));
+  width: var(--subnav-notch);
+  height: var(--subnav-notch);
+  z-index: 1;
+  background: radial-gradient(
+    circle at top right,
+    transparent var(--subnav-radius),
+    var(--subnav-tab-fill) var(--subnav-radius)
+  );
+  pointer-events: none;
+}
 
-  /* key change: border-top uses a dedicated var */
-  border-top: 1px solid var(--subsection-underline-top, var(--panel-fg));
+.panel-tab-active.subnav-rounded-tab::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: calc(-1 * var(--subnav-notch));
+  width: var(--subnav-notch);
+  height: var(--subnav-notch);
+  z-index: 1;
+  background: radial-gradient(
+    circle at top left,
+    transparent var(--subnav-radius),
+    var(--panel-fg) var(--subnav-radius)
+  );
+  pointer-events: none;
+}
 
-  border-left: 1px solid var(--panel-bg);
-  z-index: 10000;
-  border-right: 1px solid var(--panel-fg);
-  border-top-right-radius: var(--rounded-lg);
+.panel-tab-active.subnav-rounded-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: calc(-1 * var(--subnav-notch));
+  width: var(--subnav-notch);
+  height: var(--subnav-notch);
+  z-index: 1;
+  background: radial-gradient(
+    circle at top right,
+    transparent var(--subnav-radius),
+    var(--panel-fg) var(--subnav-radius)
+  );
+  pointer-events: none;
+}
+
+.subnav-rounded-tab--middle {
+  margin-inline: var(--subnav-notch);
+}
+
+.subnav-rounded-row {
+  overflow: visible;
+  box-sizing: border-box;
+  padding-top: 0.3rem;
+  gap: 0;
+}
+
+.subnav-rounded-slot {
+  overflow: visible;
+}
+
+.highlighted-heading-tab {
+  --highlight-tab-notch: 14px;
+  --highlight-tab-radius: var(--highlight-tab-notch);
+  --highlight-tab-fill: var(--panel-fg);
+  --highlight-tab-fg: var(--panel-bg);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--home-nav-h);
+  margin-inline: var(--highlight-tab-notch);
+  padding-inline: 3rem;
+  padding-block: 0;
+  border-top-left-radius: var(--highlight-tab-radius);
+  border-top-right-radius: var(--highlight-tab-radius);
+  background: var(--highlight-tab-fill);
+  color: var(--highlight-tab-fg);
+}
+
+.highlighted-heading-tab::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: calc(-1 * var(--highlight-tab-notch));
+  width: var(--highlight-tab-notch);
+  height: var(--highlight-tab-notch);
+  z-index: 1;
+  background: radial-gradient(
+    circle at top left,
+    transparent var(--highlight-tab-radius),
+    var(--highlight-tab-fill) var(--highlight-tab-radius)
+  );
+  pointer-events: none;
+}
+
+.highlighted-heading-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: calc(-1 * var(--highlight-tab-notch));
+  width: var(--highlight-tab-notch);
+  height: var(--highlight-tab-notch);
+  z-index: 1;
+  background: radial-gradient(
+    circle at top right,
+    transparent var(--highlight-tab-radius),
+    var(--highlight-tab-fill) var(--highlight-tab-radius)
+  );
+  pointer-events: none;
 }
 
 .subsection-vertical-border::after {
@@ -837,13 +994,6 @@
   bottom: 0;
   width: 1px;
   z-index: 10000;
-  background: var(--panel-fg);
-}
-
-.mobile-subsection-underline--psst::after {
-  border-top: 1px solid var(--panel-bg);
-  border-left: 2px solid var(--panel-fg);
-  border-right: 2px solid var(--panel-fg);
 }
 
 .mobile-section-connector {
@@ -861,15 +1011,6 @@
   height: 6px;
 
   background: var(--panel-bg);
-
-  /* key: allow overriding the top line color like you do for psst */
-  border-top: 1px solid var(--section-underline-top, var(--panel-fg));
-
-  /* avoid seam on the left edge */
-  border-left: 1px solid var(--panel-bg);
-
-  border-right: 1px solid var(--panel-fg);
-  border-top-right-radius: var(--rounded-lg);
 
   z-index: 10000;
   pointer-events: none;

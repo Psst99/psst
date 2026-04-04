@@ -9,7 +9,14 @@ import {Toaster} from 'sonner'
 import DraftModeToast from '@/components/DraftModeToast'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
-import {settingsQuery, themeSettingsQuery} from '@/sanity/lib/queries'
+import {
+  pssoundAboutLayoutQuery,
+  pssoundManifestoLayoutQuery,
+  psstSectionsQuery,
+  resourcesGuidelinesLayoutQuery,
+  settingsQuery,
+  themeSettingsQuery,
+} from '@/sanity/lib/queries'
 import {resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from './client-utils'
 
@@ -63,9 +70,20 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   const {isEnabled: isDraftMode} = await draftMode()
   const cookieStore = await cookies()
 
-  const [{data: settings}, {data: themeSettings}] = await Promise.all([
+  const [
+    {data: settings},
+    {data: themeSettings},
+    {data: psstSections},
+    {data: resourcesGuidelinesLayoutData},
+    {data: pssoundAboutLayoutData},
+    {data: pssoundManifestoLayoutData},
+  ] = await Promise.all([
     sanityFetch({query: settingsQuery, stega: false}).catch(() => ({data: null})),
     sanityFetch({query: themeSettingsQuery, stega: false}).catch(() => ({data: null})),
+    sanityFetch({query: psstSectionsQuery, stega: false}).catch(() => ({data: []})),
+    sanityFetch({query: resourcesGuidelinesLayoutQuery, stega: false}).catch(() => ({data: null})),
+    sanityFetch({query: pssoundAboutLayoutQuery, stega: false}).catch(() => ({data: null})),
+    sanityFetch({query: pssoundManifestoLayoutQuery, stega: false}).catch(() => ({data: null})),
   ])
 
   const soundcloudPlaylistUrl = settings?.soundcloudPlaylistUrl
@@ -74,6 +92,19 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   const roundedCookie = cookieStore.get('psst-rounded-corners')?.value
   const initialMode = modeCookie === 'accessible' || modeCookie === 'brand' ? modeCookie : 'brand'
   const initialRounded = roundedCookie === 'false' ? false : true
+  const validPsstSections = (psstSections || []).filter((section: any) => Boolean(section?.slug))
+  const dynamicPsstSubNavItems = validPsstSections.map((section: any, index: number) => ({
+    label: section.title,
+    href: index === 0 ? '/psst' : `/psst/${section.slug}`,
+    skeletonLayout: section.layout === 'guidelines' ? 'columns' : 'default',
+  }))
+  const contentPageLayouts = {
+    resourcesGuidelines:
+      resourcesGuidelinesLayoutData?.layout === 'default' ? 'default' : 'columns',
+    pssoundAbout: pssoundAboutLayoutData?.settings?.layout === 'columns' ? 'columns' : 'default',
+    pssoundManifesto:
+      pssoundManifestoLayoutData?.settings?.layout === 'columns' ? 'columns' : 'default',
+  } as const
 
   const vtScript = `
 (() => {
@@ -101,11 +132,11 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             initialMode={initialMode}
             initialRounded={initialRounded}
           >
-            <RoundedToggleButton />
-            <ThemeToggleButton />
+            {/* <RoundedToggleButton /> */}
+            {/* <ThemeToggleButton /> */}
             <SupportModalWidget content={(settings as any)?.support ?? null} />
             <div className="min-[83rem]:hidden">
-              <MobileHeader />
+              <MobileHeader dynamicSubNavItems={dynamicPsstSubNavItems} />
             </div>
 
             <section>
@@ -119,7 +150,12 @@ export default async function RootLayout({children}: {children: React.ReactNode}
               <SanityLive onError={handleError} />
 
               <NavigationPendingProvider>
-                <DynamicLayout>{children}</DynamicLayout>
+                <DynamicLayout
+                  dynamicSubNavItems={dynamicPsstSubNavItems}
+                  contentPageLayouts={contentPageLayouts}
+                >
+                  {children}
+                </DynamicLayout>
               </NavigationPendingProvider>
 
               <CustomSoundcloudPlayer playlistUrl={soundcloudPlaylistUrl} />
