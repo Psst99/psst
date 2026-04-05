@@ -46,12 +46,13 @@ export const TextInput: React.FC<TextInputProps> = ({
   const resolvedOnChange = registration?.onChange ?? onChange
   const resolvedOnBlur = registration?.onBlur ?? onBlur
   const resolvedRef = registration?.ref
+  const controlledValue = value === undefined ? {} : {value}
 
   if (isTextArea) {
     return (
       <textarea
         name={resolvedName}
-        value={value}
+        {...controlledValue}
         onChange={resolvedOnChange}
         onBlur={resolvedOnBlur}
         ref={resolvedRef}
@@ -68,7 +69,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   return (
     <input
       name={resolvedName}
-      value={value}
+      {...controlledValue}
       onChange={resolvedOnChange}
       onBlur={resolvedOnBlur}
       ref={resolvedRef}

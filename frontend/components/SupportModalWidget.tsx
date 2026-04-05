@@ -5,10 +5,8 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
-  type CSSProperties,
   type FormEvent,
   type PointerEvent,
 } from 'react'
@@ -16,7 +14,6 @@ import {usePathname, useRouter, useSearchParams} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
 import {SiMinutemailer} from 'react-icons/si'
-import {motion} from 'framer-motion'
 import {useForm} from 'react-hook-form'
 import {ThemeContext} from '@/app/ThemeProvider'
 import {FormField} from '@/components/form/FormField'
@@ -24,7 +21,6 @@ import {TextInput} from '@/components/form/TextInput'
 import {getTheme} from '@/lib/theme/sections'
 import {LINK_PILL_CLASS} from '@/lib/linkStyles'
 
-type CSSVars = CSSProperties & Record<`--${string}`, string>
 type SupportTab = 'donation' | 'newsletter'
 type Point = {x: number; y: number}
 
@@ -56,13 +52,11 @@ const SUPPORT_PARAM = 'support'
 const SUPPORT_TAB_PARAM = 'supportTab'
 const DONATION_STATUS_PARAM = 'donation'
 const OPEN_VALUE = 'open'
-const FLOATING_CTA_ROTATION_MS = 5_000
-const MENU_TWEEN = {duration: 0.5, type: 'tween' as const, ease: [0.76, 0, 0.24, 1] as const}
 
 const richTextComponents: PortableTextComponents = {
   block: {
-    normal: ({children}) => <p className="text-sm min-[83rem]:text-lg leading-snug">{children}</p>,
-    h2: ({children}) => <h3 className="text-xl min-[83rem]:text-2xl leading-tight">{children}</h3>,
+    normal: ({children}) => <p className="text-sm min-[83rem]:text-xl leading-snug">{children}</p>,
+    h2: ({children}) => <h3 className="text-xl min-[83rem]:text-3xl leading-tight">{children}</h3>,
   },
   marks: {
     link: ({children, value}) => {
@@ -93,24 +87,6 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n))
 }
 
-function getFloatingOffsets() {
-  if (typeof window === 'undefined') return {left: 16, bottom: 24}
-  const isLarge = window.matchMedia('(min-width: 83rem)').matches
-  return {left: isLarge ? 32 : 16, bottom: isLarge ? 32 : 24}
-}
-
-function LabelLines({label}: {label: string}) {
-  return (
-    <>
-      {label.split('\n').map((line, index) => (
-        <span key={`${line}-${index}`} className="block">
-          {line}
-        </span>
-      ))}
-    </>
-  )
-}
-
 export default function SupportModalWidget({content = null}: SupportModalWidgetProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -129,9 +105,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const [newsletterState, setNewsletterState] = useState<'idle' | 'success' | 'error'>('idle')
   const [newsletterMessage, setNewsletterMessage] = useState('')
   const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false)
-  const [shareState, setShareState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [floatingPos, setFloatingPos] = useState<Point | null>(null)
-  const [floatingCtaTab, setFloatingCtaTab] = useState<SupportTab>('newsletter')
   const floatingContainerRef = useRef<HTMLButtonElement>(null)
   const dragRef = useRef<{
     dragging: boolean
@@ -158,14 +132,10 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     donationStatus === 'expired'
   const showDonationResultScreen = donationSuccess || donationFailed
   const modalTitle = content?.modalTitle?.trim() || 'Support PSST'
-  const shareButtonLabel = content?.shareButtonLabel?.trim() || 'Share'
   const donationTabLabel = content?.donationTabLabel?.trim() || 'Make a donation'
   const newsletterTabLabel = content?.newsletterTabLabel?.trim() || 'Newsletter'
-  const donationSubmitLabel = content?.donationSubmitLabel?.trim() || 'Continue to payment'
+  const donationSubmitLabel = content?.donationSubmitLabel?.trim() || 'Pay'
   const newsletterSubmitLabel = content?.newsletterSubmitLabel?.trim() || 'Subscribe'
-  const donationSuccessMessage =
-    content?.donationSuccessMessage?.trim() ||
-    'Donation payment completed. Thank you for supporting PSST.'
   const newsletterSuccessMessage =
     content?.newsletterSuccessMessage?.trim() || 'Thanks, you are subscribed.'
 
@@ -189,7 +159,6 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       setIsVisible(false)
       document.body.style.overflow = ''
       setDonationError(null)
-      setShareState('idle')
     }
 
     return () => {
@@ -211,7 +180,6 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const openModal = useCallback(
     (tab: SupportTab) => {
       setActiveTab(tab)
-      setFloatingCtaTab(tab)
       updateSearchParams((next) => {
         next.set(SUPPORT_PARAM, OPEN_VALUE)
         next.set(SUPPORT_TAB_PARAM, tab)
@@ -238,6 +206,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeModal()
     }
+
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [closeModal, isOpen])
@@ -245,25 +214,6 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const theme = getTheme('home', mode, ctx?.themeOverrides)
   const successTheme = getTheme('pssound-system', mode, ctx?.themeOverrides)
   const failedTheme = getTheme('workshops', mode, ctx?.themeOverrides)
-  const floatingButtonBg = theme.fg
-  const floatingButtonFg = theme.bg
-  const modalVars: CSSVars = useMemo(
-    () => ({
-      '--section-bg': theme.bg,
-      '--section-fg': theme.fg,
-      '--panel-bg': '#D2D2D2',
-      '--panel-fg': '#111111',
-    }),
-    [theme.bg, theme.fg],
-  )
-
-  const shareUrl = useMemo(() => {
-    if (typeof window === 'undefined') return ''
-    const params = new URLSearchParams()
-    params.set(SUPPORT_PARAM, OPEN_VALUE)
-    params.set(SUPPORT_TAB_PARAM, activeTab)
-    return `${window.location.origin}/?${params.toString()}`
-  }, [activeTab])
 
   const {
     register: registerNewsletter,
@@ -373,25 +323,6 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     [newsletterSuccessMessage, pathname, resetNewsletterForm],
   )
 
-  const onCopyShareLink = useCallback(async () => {
-    if (!shareUrl) return
-    try {
-      await navigator.clipboard.writeText(shareUrl)
-      setShareState('copied')
-    } catch {
-      setShareState('error')
-    }
-  }, [shareUrl])
-
-  const retryDonation = useCallback(() => {
-    setActiveTab('donation')
-    updateSearchParams((next) => {
-      next.set(SUPPORT_PARAM, OPEN_VALUE)
-      next.set(SUPPORT_TAB_PARAM, 'donation')
-      next.delete(DONATION_STATUS_PARAM)
-    })
-  }, [updateSearchParams])
-
   useEffect(() => {
     if (!isMounted) return
     const container = floatingContainerRef.current
@@ -401,16 +332,16 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       const rect = container.getBoundingClientRect()
       const maxX = Math.max(0, window.innerWidth - rect.width)
       const maxY = Math.max(0, window.innerHeight - rect.height)
-      const MARGIN = 16
+      const margin = window.matchMedia('(min-width: 83rem)').matches ? 24 : 16
 
       setFloatingPos((prev) => {
         if (!prev) {
-          // Init at bottom left on mobile.
           return {
-            x: MARGIN,
-            y: clamp(maxY - MARGIN, 0, maxY),
+            x: margin,
+            y: clamp(maxY - margin, 0, maxY),
           }
         }
+
         return {x: clamp(prev.x, 0, maxX), y: clamp(prev.y, 0, maxY)}
       })
     }
@@ -430,7 +361,6 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       const container = floatingContainerRef.current
       if (!container) return
 
-      // Disable transition while dragging but keep transform
       container.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease'
       container.style.transform = 'scale(1.05)'
       container.style.boxShadow = '0 8px 30px rgba(0,0,0,0.3)'
@@ -491,30 +421,25 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       container.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)'
 
       const {maxX, maxY} = dragRef.current.bounds
-      const MARGIN = 16
-
+      const margin = window.matchMedia('(min-width: 83rem)').matches ? 24 : 16
       const rect = container.getBoundingClientRect()
       const midX = window.innerWidth / 2
       const midY = window.innerHeight / 2
-
       const dx = e.clientX - dragRef.current.startPointer.x
       const dy = e.clientY - dragRef.current.startPointer.y
-      const FLICK_THRESHOLD = 30
+      const flickThreshold = 30
 
-      // Default target based on center of the screen
-      let targetX = rect.left + rect.width / 2 < midX ? MARGIN : maxX - MARGIN
-      let targetY = rect.top + rect.height / 2 < midY ? MARGIN : maxY - MARGIN
+      let targetX = rect.left + rect.width / 2 < midX ? margin : Math.max(margin, maxX - margin)
+      let targetY = rect.top + rect.height / 2 < midY ? margin : Math.max(margin, maxY - margin)
 
-      // Override with flick direction if moved purposefully
-      if (dx > FLICK_THRESHOLD) targetX = maxX - MARGIN
-      else if (dx < -FLICK_THRESHOLD) targetX = MARGIN
+      if (dx > flickThreshold) targetX = Math.max(margin, maxX - margin)
+      else if (dx < -flickThreshold) targetX = margin
 
-      if (dy > FLICK_THRESHOLD) targetY = maxY - MARGIN
-      else if (dy < -FLICK_THRESHOLD) targetY = MARGIN
+      if (dy > flickThreshold) targetY = Math.max(margin, maxY - margin)
+      else if (dy < -flickThreshold) targetY = margin
 
       container.style.left = `${targetX}px`
       container.style.top = `${targetY}px`
-
       setFloatingPos({x: targetX, y: targetY})
     } else if (floatingContainerRef.current) {
       const container = floatingContainerRef.current
@@ -536,20 +461,20 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
 
   return createPortal(
     <>
-      {/* Background Dimmer when open */}
       <div
-        className={`fixed inset-0 z-[10000] bg-[var(--panel-fg)] transition-opacity duration-300 ${isOpen ? 'opacity-55' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 z-[10000] bg-[var(--panel-fg)] transition-opacity duration-300 ${
+          isVisible ? 'opacity-55' : 'opacity-0 pointer-events-none'
+        }`}
         onClick={closeModal}
       />
 
-      {/* Floating anchor button for Mobile */}
       {!isOpen && (
         <button
           ref={floatingContainerRef}
-          className="min-[83rem]:hidden fixed z-[10002] flex items-center justify-center w-[40px] h-[40px] rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.15)] cursor-pointer select-none"
+          className="support-widget-fixed fixed z-[10002] flex items-center justify-center w-[40px] h-[40px] min-[83rem]:w-[56px] min-[83rem]:h-[56px] rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.15)] cursor-pointer select-none"
           style={{
-            backgroundColor: 'var(--panel-fg)',
-            color: 'var(--panel-bg)',
+            backgroundColor: theme.fg,
+            color: theme.bg,
             left: floatingPos?.x,
             top: floatingPos?.y,
             touchAction: 'none',
@@ -559,291 +484,27 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           onPointerUp={onFloatingPointerUp}
           onClick={onFloatingClick}
         >
-          <SiMinutemailer size={22} />
+          <SiMinutemailer className="h-[22px] w-[22px] min-[83rem]:h-[30px] min-[83rem]:w-[30px]" />
         </button>
       )}
 
       <div
-        className={`hidden min-[83rem]:fixed min-[83rem]:z-[10001] min-[83rem]:flex min-[83rem]:max-h-[85vh] min-[83rem]:h-auto min-[83rem]:flex-col min-[83rem]:right-0 min-[83rem]:top-[15vh] xl:min-[83rem]:top-[20vh] min-[83rem]:max-w-md lg:min-[83rem]:max-w-lg min-[83rem]:w-full min-[83rem]:shadow-2xl min-[83rem]:transition-transform min-[83rem]:duration-[600ms] min-[83rem]:ease-[cubic-bezier(0.76,0,0.24,1)] ${
-          isOpen ? 'min-[83rem]:translate-x-0' : 'min-[83rem]:translate-x-[calc(100%)]'
+        className={`fixed inset-0 z-[10001] flex items-center justify-center p-4 ${
+          isVisible ? '' : 'pointer-events-none'
         }`}
       >
-        <div className="hidden min-[83rem]:flex absolute left-[-48px] top-0 bottom-0 items-center justify-center pointer-events-none z-[52] w-[48px]">
-          <div
-            className="subnav-rounded-slot cursor-pointer pointer-events-auto h-[48px]"
-            onClick={onFloatingClick}
-            style={{
-              transformOrigin: 'center center',
-              transform: 'rotate(-90deg)',
-              width: 'fit-content',
-            }}
-          >
-            <div
-              className="panel-tab-active subnav-rounded-tab subnav-rounded-tab--middle flex items-center justify-center"
-              style={{
-                height: '100%',
-                width: '100%',
-                padding: '0 14px',
-              }}
-            >
-              <div className="font-normal text-[24px] tracking-normal mb-[2px] uppercase">
-                {newsletterTabLabel || 'Newsletter'}
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div
-          className="panel-bg panel-fg relative w-full h-full xl:min-h-[50vh] overflow-y-auto min-[83rem]:rounded-l-3xl min-[83rem]:rounded-r-none p-8 pt-14 border-none"
-          style={
-            showDonationResultScreen
-              ? {
-                  backgroundColor: donationSuccess ? successTheme.bg : failedTheme.bg,
-                  color: donationSuccess ? '#111111' : failedTheme.fg,
-                }
-              : undefined
-          }
-        >
-          <button
-            onClick={closeModal}
-            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full invert-panel cursor-pointer"
-            type="button"
-            aria-label="Close support modal"
-          >
-            <IoMdClose className="h-7 w-7" aria-hidden="true" />
-          </button>
-
-          {showDonationResultScreen ? (
-            <div className="min-h-[320px] min-[83rem]:min-h-[420px] pb-14 min-[83rem]:pb-16 flex flex-col items-center justify-center text-center px-4">
-              <h2 className="text-4xl min-[83rem]:text-6xl tracking-tight">Thank you</h2>
-              <p className="mt-4 text-xl min-[83rem]:text-2xl font-light">
-                {donationSuccess
-                  ? 'We have received your donation.'
-                  : 'There was an issue processing your payment.'}
-              </p>
-              <button
-                onClick={closeModal}
-                className="mt-12 rounded-full border border-current px-8 py-3 text-lg hover:bg-current hover:text-[var(--panel-bg)] transition-colors cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          ) : (
-            <>
-              <h2 className="text-4xl min-[83rem]:text-5xl font-light tracking-tight mb-6">
-                {content?.modalTitle || 'Support psst'}
-              </h2>
-
-              <div className="flex gap-2 mb-5">
-                <button
-                  type="button"
-                  onClick={() => openModal('donation')}
-                  className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
-                    activeTab === 'donation' ? 'invert-panel' : ''
-                  }`}
-                >
-                  {donationTabLabel || 'Donation'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openModal('newsletter')}
-                  className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
-                    activeTab === 'newsletter' ? 'invert-panel' : ''
-                  }`}
-                >
-                  {newsletterTabLabel || 'Newsletter'}
-                </button>
-              </div>
-
-              <div className="mt-4 text-[color:var(--panel-fg)]">
-                {activeTab === 'donation' ? (
-                  <form
-                    onSubmit={onDonationSubmit}
-                    className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
-                  >
-                    {content?.donationIntro?.length ? (
-                      <div className="space-y-2 mb-4">
-                        <SupportRichText value={content.donationIntro} />
-                      </div>
-                    ) : null}
-
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {[5, 10, 20, 50].map((preset) => (
-                        <button
-                          key={preset}
-                          type="button"
-                          onClick={() => setDonationAmount(preset.toString())}
-                          className={`flex items-center justify-center w-12 h-12 min-[83rem]:w-14 min-[83rem]:h-14 text-lg min-[83rem]:text-xl rounded-full text-center transition-colors cursor-pointer ${
-                            donationAmount === preset.toString()
-                              ? 'invert-panel'
-                              : 'bg-[#ECECEC] text-[var(--panel-fg)] hover:bg-[#d2d2d2]'
-                          }`}
-                        >
-                          €{preset}
-                        </button>
-                      ))}
-                    </div>
-
-                    <FormField
-                      label="Amount"
-                      required
-                      bgClassName="invert-panel"
-                      fgClassName="text-white"
-                      containerClassName="border-0 section-border"
-                      contentClassName="bg-[#ECECEC]"
-                    >
-                      <TextInput
-                        type="number"
-                        min="1"
-                        step="1"
-                        value={donationAmount}
-                        onChange={(e) => setDonationAmount(e.target.value)}
-                        placeholder="Amount in EUR"
-                        className="bg-transparent"
-                      />
-                    </FormField>
-
-                    <FormField
-                      label="Name"
-                      bgClassName="invert-panel"
-                      fgClassName="text-white"
-                      containerClassName="border-0 section-border"
-                      contentClassName="bg-[#ECECEC]"
-                    >
-                      <TextInput
-                        type="text"
-                        value={donationName}
-                        onChange={(e) => setDonationName(e.target.value)}
-                        placeholder="Name (optional)"
-                        className="bg-transparent"
-                      />
-                    </FormField>
-
-                    <FormField
-                      label="E-mail"
-                      bgClassName="invert-panel"
-                      fgClassName="text-white"
-                      containerClassName="border-0 section-border"
-                      contentClassName="bg-[#ECECEC]"
-                    >
-                      <TextInput
-                        type="email"
-                        value={donationEmail}
-                        onChange={(e) => setDonationEmail(e.target.value)}
-                        placeholder="Email (optional)"
-                        className="bg-transparent"
-                      />
-                    </FormField>
-
-                    <FormField
-                      label="Message"
-                      bgClassName="invert-panel"
-                      fgClassName="text-white"
-                      containerClassName="border-0 section-border"
-                      contentClassName="bg-[#ECECEC]"
-                    >
-                      <TextInput
-                        isTextArea
-                        value={donationMessage}
-                        onChange={(e) => setDonationMessage(e.target.value)}
-                        placeholder="Message (optional)"
-                        maxLength={500}
-                        className="bg-transparent h-24"
-                      />
-                    </FormField>
-
-                    {donationError && (
-                      <p className="text-red-600 text-sm min-[83rem]:text-base">{donationError}</p>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={isDonationSubmitting}
-                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
-                    >
-                      {isDonationSubmitting ? 'Redirecting...' : 'Pay'}
-                    </button>
-                  </form>
-                ) : (
-                  <form
-                    onSubmit={handleNewsletterSubmit(onNewsletterSubmit)}
-                    className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
-                  >
-                    <div className="space-y-2 mb-4">
-                      {content?.newsletterIntro?.length ? (
-                        <SupportRichText value={content.newsletterIntro} />
-                      ) : (
-                        <p className="text-sm min-[83rem]:text-lg leading-snug">
-                          Subscribe to receive updates about events, merch, and presales.
-                        </p>
-                      )}
-                    </div>
-
-                    <FormField
-                      label="Name"
-                      error={newsletterFormErrors.newsletterName}
-                      showError={!!newsletterTouchedFields.newsletterName || isNewsletterSubmitted}
-                      bgClassName="invert-panel"
-                      fgClassName="text-white"
-                      containerClassName="border-0 section-border"
-                      contentClassName="bg-[#ECECEC]"
-                    >
-                      <TextInput
-                        registration={registerNewsletter('newsletterName')}
-                        placeholder="Name (optional)"
-                        className="bg-transparent"
-                      />
-                    </FormField>
-                    <FormField
-                      label="E-mail"
-                      required
-                      error={newsletterFormErrors.newsletterEmail}
-                      showError={!!newsletterTouchedFields.newsletterEmail || isNewsletterSubmitted}
-                      bgClassName="invert-panel"
-                      fgClassName="text-white"
-                      containerClassName="border-0 section-border"
-                      contentClassName="bg-[#ECECEC]"
-                    >
-                      <TextInput
-                        registration={registerNewsletter('newsletterEmail', {
-                          required: 'E-mail is required',
-                        })}
-                        type="email"
-                        placeholder="Email"
-                        className="bg-transparent"
-                      />
-                    </FormField>
-
-                    {newsletterState !== 'idle' && (
-                      <p
-                        className={`text-sm min-[83rem]:text-base ${newsletterState === 'success' ? 'text-green-700' : 'text-red-600'}`}
-                      >
-                        {newsletterMessage}
-                      </p>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={isNewsletterSubmitting}
-                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
-                    >
-                      {isNewsletterSubmitting
-                        ? 'Submitting...'
-                        : newsletterSubmitLabel || 'Subscribe'}
-                    </button>
-                  </form>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="fixed inset-0 z-[10001] flex items-center justify-center px-4 pointer-events-none min-[83rem]:hidden">
-        <div
-          className={`panel-bg panel-fg pointer-events-auto relative w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-[32px] shadow-2xl p-6 pt-14 transition-transform duration-[600ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
-            isOpen ? 'translate-y-0' : 'translate-y-[100vh]'
+          className={`absolute inset-0 transition-opacity duration-300 ${
+            isVisible ? 'opacity-50' : 'opacity-0 pointer-events-none'
           }`}
+          style={{backgroundColor: 'var(--panel-fg)'}}
+          onClick={closeModal}
+        />
+
+        <div
+          className={`relative panel-bg panel-fg w-full max-w-3xl rounded-3xl p-6 pt-14 min-[83rem]:p-8 min-[83rem]:pt-8 max-h-[85vh] overflow-y-auto no-scrollbar transition-transform duration-300 ease-out ${
+            isVisible ? 'translate-y-0' : 'translate-y-[100vh]'
+          } ${isOpen ? '' : 'pointer-events-none'}`}
           style={
             showDonationResultScreen
               ? {
@@ -863,9 +524,9 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           </button>
 
           {showDonationResultScreen ? (
-            <div className="min-h-[320px] min-[83rem]:min-h-[420px] pb-14 min-[83rem]:pb-16 flex flex-col items-center justify-center text-center px-4">
-              <h2 className="text-4xl min-[83rem]:text-6xl tracking-tight">Thank you</h2>
-              <p className="mt-4 text-xl min-[83rem]:text-2xl font-light">
+            <div className="min-h-[320px] pb-16 flex flex-col items-center justify-center text-center px-4">
+              <h2 className="text-4xl tracking-tight">Thank you</h2>
+              <p className="mt-4 text-xl font-light">
                 {donationSuccess
                   ? 'We have received your donation.'
                   : 'There was an issue processing your payment.'}
@@ -879,34 +540,33 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
             </div>
           ) : (
             <>
-              <h2 className="text-4xl min-[83rem]:text-5xl font-light tracking-tight mb-6">
-                {content?.modalTitle || 'Support psst'}
-              </h2>
+              <h2 className="text-4xl mb-6">{modalTitle}</h2>
 
               <div className="flex gap-2 mb-5">
                 <button
                   type="button"
                   onClick={() => openModal('donation')}
-                  className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
+                  className={`border panel-border rounded-md w-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
                     activeTab === 'donation' ? 'invert-panel' : ''
                   }`}
                 >
-                  {donationTabLabel || 'Donation'}
+                  {donationTabLabel}
                 </button>
                 <button
                   type="button"
                   onClick={() => openModal('newsletter')}
-                  className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
+                  className={`border panel-border rounded-md w-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
                     activeTab === 'newsletter' ? 'invert-panel' : ''
                   }`}
                 >
-                  {newsletterTabLabel || 'Newsletter'}
+                  {newsletterTabLabel}
                 </button>
               </div>
 
               <div className="mt-4 text-[color:var(--panel-fg)]">
                 {activeTab === 'donation' ? (
                   <form
+                    key="donation-form"
                     onSubmit={onDonationSubmit}
                     className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
                   >
@@ -922,7 +582,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                           key={preset}
                           type="button"
                           onClick={() => setDonationAmount(preset.toString())}
-                          className={`flex items-center justify-center w-12 h-12 min-[83rem]:w-14 min-[83rem]:h-14 text-lg min-[83rem]:text-xl rounded-full text-center transition-colors cursor-pointer ${
+                          className={`flex items-center justify-center w-12 h-12 text-lg min-[83rem]:w-12 min-[83rem]:h-12 min-[83rem]:text-lg rounded-full text-center transition-colors cursor-pointer ${
                             donationAmount === preset.toString()
                               ? 'invert-panel'
                               : 'bg-[#ECECEC] text-[var(--panel-fg)] hover:bg-[#d2d2d2]'
@@ -1001,32 +661,27 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                       />
                     </FormField>
 
-                    {donationError && (
-                      <p className="text-red-600 text-sm min-[83rem]:text-base">{donationError}</p>
-                    )}
+                    {donationError && <p className="text-red-600 text-sm">{donationError}</p>}
 
                     <button
                       type="submit"
                       disabled={isDonationSubmitting}
                       className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
                     >
-                      {isDonationSubmitting ? 'Redirecting...' : 'Pay'}
+                      {isDonationSubmitting ? 'Redirecting...' : donationSubmitLabel}
                     </button>
                   </form>
                 ) : (
                   <form
+                    key="newsletter-form"
                     onSubmit={handleNewsletterSubmit(onNewsletterSubmit)}
                     className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
                   >
-                    <div className="space-y-2 mb-4">
-                      {content?.newsletterIntro?.length ? (
+                    {content?.newsletterIntro?.length ? (
+                      <div className="space-y-2 mb-4">
                         <SupportRichText value={content.newsletterIntro} />
-                      ) : (
-                        <p className="text-sm min-[83rem]:text-lg leading-snug">
-                          Subscribe to receive updates about events, merch, and presales.
-                        </p>
-                      )}
-                    </div>
+                      </div>
+                    ) : null}
 
                     <FormField
                       label="Name"
@@ -1043,6 +698,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                         className="bg-transparent"
                       />
                     </FormField>
+
                     <FormField
                       label="E-mail"
                       required
@@ -1065,7 +721,9 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
 
                     {newsletterState !== 'idle' && (
                       <p
-                        className={`text-sm min-[83rem]:text-base ${newsletterState === 'success' ? 'text-green-700' : 'text-red-600'}`}
+                        className={`text-sm ${
+                          newsletterState === 'success' ? 'text-green-700' : 'text-red-600'
+                        }`}
                       >
                         {newsletterMessage}
                       </p>
@@ -1076,9 +734,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                       disabled={isNewsletterSubmitting}
                       className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
                     >
-                      {isNewsletterSubmitting
-                        ? 'Submitting...'
-                        : newsletterSubmitLabel || 'Subscribe'}
+                      {isNewsletterSubmitting ? 'Submitting...' : newsletterSubmitLabel}
                     </button>
                   </form>
                 )}
