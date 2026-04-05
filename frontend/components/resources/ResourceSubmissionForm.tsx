@@ -131,7 +131,7 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
     })) ?? []
 
   return (
-    <div className="p-4 h-full w-full md:max-w-[65vw] mx-auto">
+    <div className="p-6 h-full w-full md:max-w-[65vw] mx-auto md:p-4">
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         <FormField
           label="Title"

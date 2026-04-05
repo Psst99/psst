@@ -177,16 +177,16 @@ export default function PssoundCombinedForm({
   }
 
   return (
-    <div className="p-4 h-full w-full md:max-w-[65vw] mx-auto">
+    <div className="h-full w-full md:max-w-[65vw] mx-auto md:p-4">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Membership selection */}
         <div className="p-6 section-bg rounded-xl">
-          <div className="mb-4 flex items-baseline justify-between">
+          <div className="mb-4 flex flex-col gap-4 min-[83rem]:flex-row min-[83rem]:items-baseline min-[83rem]:justify-between">
             <p className="tracking-tight text-2xl mb-4 section-fg">
               Are you already a Pssound Community member?
             </p>
 
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-wrap gap-4 justify-start min-[83rem]:justify-center">
               <button
                 type="button"
                 onClick={() => {

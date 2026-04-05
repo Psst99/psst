@@ -6,5 +6,11 @@ export default async function Loading() {
   const {data} = await sanityFetch({query: psstFirstSectionQuery})
   const layout = data?.layout === 'guidelines' ? 'columns' : 'default'
 
-  return <ContentPageSkeleton layout={layout} tone="panel" />
+  const wrapperClass = layout === 'columns' ? 'p-6 md:px-20' : 'px-6'
+
+  return (
+    <div className={wrapperClass}>
+      <ContentPageSkeleton layout={layout} tone="panel" />
+    </div>
+  )
 }

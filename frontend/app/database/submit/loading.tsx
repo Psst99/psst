@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="p-4 h-full w-full md:max-w-[65vw] mx-auto animate-pulse">
+    <div className="px-6 h-full w-full md:max-w-[65vw] mx-auto md:p-4 animate-pulse">
       <div className="space-y-4">
         {/* Name */}
         <div className="w-full h-full rounded-xl mb-4 md:flex bg-[color:var(--section-accent)]">

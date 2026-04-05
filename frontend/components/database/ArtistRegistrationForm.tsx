@@ -115,7 +115,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
     })) ?? []
 
   return (
-    <div className="p-4 h-full w-full min-[83rem]:max-w-[65vw] mx-auto">
+    <div className="p-6 h-full w-full min-[83rem]:max-w-[65vw] mx-auto min-[83rem]:p-4">
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         <FormField
           label="Name"

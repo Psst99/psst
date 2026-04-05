@@ -31,7 +31,7 @@ export default async function PssoundArchiveContentAsync() {
 
   return (
     <div className="p-6 text-[color:var(--section-accent)] md:mx-16">
-      <div className="mx-4 xl:max-w-[65vw] xl:mx-auto">
+      <div className="w-full xl:max-w-[65vw] xl:mx-auto">
         <CmsContent value={settings?.description} />
       </div>
 

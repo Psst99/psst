@@ -117,7 +117,12 @@ export default function DynamicLayout({
     const dynamicLayout = dynamicSkeletonLayoutByHref.get(href)
     if (dynamicLayout && (section === 'psst' || section === 'pssound-system')) {
       const tone = section === 'psst' ? 'panel' : 'section'
-      const wrapperClass = section === 'psst' ? '' : 'p-6 md:px-20'
+      const wrapperClass =
+        section === 'psst'
+          ? dynamicLayout === 'columns'
+            ? 'p-6 md:px-20'
+            : 'px-6'
+          : 'p-6 md:px-20'
       const skeleton = <ContentPageSkeleton layout={dynamicLayout} tone={tone} />
 
       return wrapperClass ? <div className={wrapperClass}>{skeleton}</div> : skeleton
@@ -173,7 +178,11 @@ export default function DynamicLayout({
           case 'workshops':
             return <WorkshopsBrowseLoading />
           case 'psst':
-            return <ContentPageSkeleton layout="default" tone="panel" />
+            return (
+              <div className="px-6">
+                <ContentPageSkeleton layout="default" tone="panel" />
+              </div>
+            )
           case 'pssound-system':
             return <SectionLoading section={section as any} />
           default:

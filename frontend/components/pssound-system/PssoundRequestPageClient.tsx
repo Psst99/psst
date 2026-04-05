@@ -30,7 +30,7 @@ export default function PssoundRequestPageClient({
         selectedEndDate={selectedEndDate}
       />
 
-      <div className="p-4 mt-16">
+      <div className="p-6 mt-16">
         <PssoundCombinedForm
           bookedDates={bookedDates}
           collectives={collectives}

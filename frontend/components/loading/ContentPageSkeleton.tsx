@@ -32,7 +32,7 @@ export default function ContentPageSkeleton({layout, tone = 'section'}: ContentP
   }
 
   return (
-    <div className="animate-pulse mx-4 xl:max-w-[65vw] xl:mx-auto">
+    <div className="animate-pulse xl:max-w-[65vw] xl:mx-auto">
       <div className={`p-4 rounded-3xl mb-8 h-80 ${block}`} />
       <div className={`h-28 rounded-3xl mb-8 ${block}`} />
       <div className={`p-4 rounded-3xl mb-8 h-16 ${block}`} />

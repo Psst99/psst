@@ -194,7 +194,7 @@ export default function Calendar({
   return (
     <div
       // style={{backgroundColor: theme.bg}}
-      className="pt-0 p-2 sm:p-4 rounded-lg h-[80svh] w-full md:max-w-[85vw] mx-auto flex flex-col"
+      className="pt-0 p-6 rounded-lg h-[80svh] w-full md:max-w-[85vw] mx-auto flex flex-col"
     >
       <div className="grid grid-cols-7 gap-2 mb-2 shrink-0">
         {days.map((day, index) => (
@@ -233,7 +233,7 @@ export default function Calendar({
         <button
           onClick={prevMonth}
           style={{backgroundColor: theme.bg, color: theme.fg}}
-          className="px-2 sm:px-4 py-1 rounded-md flex items-center h-full"
+          className="px-4 py-1 rounded-md flex items-center h-full"
         >
           ←
         </button>
@@ -246,7 +246,7 @@ export default function Calendar({
         <button
           onClick={nextMonth}
           style={{backgroundColor: theme.bg, color: theme.fg}}
-          className="px-2 sm:px-4 py-1 rounded-md flex items-center h-full"
+          className="px-4 py-1 rounded-md flex items-center h-full"
         >
           →
         </button>

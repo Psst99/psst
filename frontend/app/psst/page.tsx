@@ -24,7 +24,7 @@ export default async function PsstPage() {
 
   // Default layout
   return (
-    <main className="mx-4 xl:max-w-[65vw] xl:mx-auto">
+    <main className="px-6 xl:max-w-[65vw] xl:mx-auto xl:px-0">
       <CmsContent value={data.content} />
     </main>
   )
