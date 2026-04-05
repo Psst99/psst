@@ -15,8 +15,12 @@ import {
 import {usePathname, useRouter, useSearchParams} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
+import {SiMinutemailer} from 'react-icons/si'
 import {motion} from 'framer-motion'
+import {useForm} from 'react-hook-form'
 import {ThemeContext} from '@/app/ThemeProvider'
+import {FormField} from '@/components/form/FormField'
+import {TextInput} from '@/components/form/TextInput'
 import {getTheme} from '@/lib/theme/sections'
 import {LINK_PILL_CLASS} from '@/lib/linkStyles'
 
@@ -41,6 +45,11 @@ type SupportContent = {
 
 interface SupportModalWidgetProps {
   content?: SupportContent
+}
+
+type NewsletterFormValues = {
+  newsletterName: string
+  newsletterEmail: string
 }
 
 const SUPPORT_PARAM = 'support'
@@ -117,15 +126,13 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const [donationMessage, setDonationMessage] = useState('')
   const [donationError, setDonationError] = useState<string | null>(null)
   const [isDonationSubmitting, setIsDonationSubmitting] = useState(false)
-  const [newsletterName, setNewsletterName] = useState('')
-  const [newsletterEmail, setNewsletterEmail] = useState('')
   const [newsletterState, setNewsletterState] = useState<'idle' | 'success' | 'error'>('idle')
   const [newsletterMessage, setNewsletterMessage] = useState('')
   const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false)
   const [shareState, setShareState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [floatingPos, setFloatingPos] = useState<Point | null>(null)
   const [floatingCtaTab, setFloatingCtaTab] = useState<SupportTab>('newsletter')
-  const floatingContainerRef = useRef<HTMLDivElement>(null)
+  const floatingContainerRef = useRef<HTMLButtonElement>(null)
   const dragRef = useRef<{
     dragging: boolean
     didDrag: boolean
@@ -244,7 +251,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     () => ({
       '--section-bg': theme.bg,
       '--section-fg': theme.fg,
-      '--panel-bg': '#FFFFFF',
+      '--panel-bg': '#D2D2D2',
       '--panel-fg': '#111111',
     }),
     [theme.bg, theme.fg],
@@ -257,6 +264,24 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     params.set(SUPPORT_TAB_PARAM, activeTab)
     return `${window.location.origin}/?${params.toString()}`
   }, [activeTab])
+
+  const {
+    register: registerNewsletter,
+    handleSubmit: handleNewsletterSubmit,
+    reset: resetNewsletterForm,
+    formState: {
+      errors: newsletterFormErrors,
+      touchedFields: newsletterTouchedFields,
+      isSubmitted: isNewsletterSubmitted,
+    },
+  } = useForm<NewsletterFormValues>({
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      newsletterName: '',
+      newsletterEmail: '',
+    },
+  })
 
   const onDonationSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -310,8 +335,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   )
 
   const onNewsletterSubmit = useCallback(
-    async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
+    async ({newsletterName, newsletterEmail}: NewsletterFormValues) => {
       setNewsletterState('idle')
       setNewsletterMessage('')
       setIsNewsletterSubmitting(true)
@@ -336,8 +360,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
 
         setNewsletterState('success')
         setNewsletterMessage(newsletterSuccessMessage)
-        setNewsletterEmail('')
-        setNewsletterName('')
+        resetNewsletterForm()
       } catch (error) {
         setNewsletterState('error')
         setNewsletterMessage(
@@ -347,7 +370,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         setIsNewsletterSubmitting(false)
       }
     },
-    [newsletterEmail, newsletterName, newsletterSuccessMessage, pathname],
+    [newsletterSuccessMessage, pathname, resetNewsletterForm],
   )
 
   const onCopyShareLink = useCallback(async () => {
@@ -378,13 +401,14 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       const rect = container.getBoundingClientRect()
       const maxX = Math.max(0, window.innerWidth - rect.width)
       const maxY = Math.max(0, window.innerHeight - rect.height)
+      const MARGIN = 16
 
       setFloatingPos((prev) => {
         if (!prev) {
-          const {left, bottom} = getFloatingOffsets()
+          // Init at bottom left on mobile.
           return {
-            x: clamp(left, 0, maxX),
-            y: clamp(window.innerHeight - bottom - rect.height, 0, maxY),
+            x: MARGIN,
+            y: clamp(maxY - MARGIN, 0, maxY),
           }
         }
         return {x: clamp(prev.x, 0, maxX), y: clamp(prev.y, 0, maxY)}
@@ -405,6 +429,12 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
 
       const container = floatingContainerRef.current
       if (!container) return
+
+      // Disable transition while dragging but keep transform
+      container.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease'
+      container.style.transform = 'scale(1.05)'
+      container.style.boxShadow = '0 8px 30px rgba(0,0,0,0.3)'
+
       const rect = container.getBoundingClientRect()
       const maxX = Math.max(0, window.innerWidth - rect.width)
       const maxY = Math.max(0, window.innerHeight - rect.height)
@@ -436,7 +466,10 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     const nextX = clamp(dragRef.current.startPos.x + dx, 0, dragRef.current.bounds.maxX)
     const nextY = clamp(dragRef.current.startPos.y + dy, 0, dragRef.current.bounds.maxY)
 
-    setFloatingPos({x: nextX, y: nextY})
+    if (floatingContainerRef.current) {
+      floatingContainerRef.current.style.left = `${nextX}px`
+      floatingContainerRef.current.style.top = `${nextY}px`
+    }
   }, [])
 
   const onFloatingPointerUp = useCallback((e: PointerEvent<HTMLButtonElement>) => {
@@ -448,6 +481,46 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       e.currentTarget.releasePointerCapture(e.pointerId)
     } catch {
       // ignore
+    }
+
+    if (dragRef.current.didDrag && floatingContainerRef.current) {
+      const container = floatingContainerRef.current
+      container.style.transition =
+        'left 0.3s ease, top 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease'
+      container.style.transform = 'scale(1)'
+      container.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)'
+
+      const {maxX, maxY} = dragRef.current.bounds
+      const MARGIN = 16
+
+      const rect = container.getBoundingClientRect()
+      const midX = window.innerWidth / 2
+      const midY = window.innerHeight / 2
+
+      const dx = e.clientX - dragRef.current.startPointer.x
+      const dy = e.clientY - dragRef.current.startPointer.y
+      const FLICK_THRESHOLD = 30
+
+      // Default target based on center of the screen
+      let targetX = rect.left + rect.width / 2 < midX ? MARGIN : maxX - MARGIN
+      let targetY = rect.top + rect.height / 2 < midY ? MARGIN : maxY - MARGIN
+
+      // Override with flick direction if moved purposefully
+      if (dx > FLICK_THRESHOLD) targetX = maxX - MARGIN
+      else if (dx < -FLICK_THRESHOLD) targetX = MARGIN
+
+      if (dy > FLICK_THRESHOLD) targetY = maxY - MARGIN
+      else if (dy < -FLICK_THRESHOLD) targetY = MARGIN
+
+      container.style.left = `${targetX}px`
+      container.style.top = `${targetY}px`
+
+      setFloatingPos({x: targetX, y: targetY})
+    } else if (floatingContainerRef.current) {
+      const container = floatingContainerRef.current
+      container.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease'
+      container.style.transform = 'scale(1)'
+      container.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)'
     }
   }, [])
 
@@ -461,23 +534,43 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
 
   if (!isMounted) return null
 
-  return (
+  return createPortal(
     <>
       {/* Background Dimmer when open */}
       <div
-        className={`fixed inset-0 z-40 bg-[var(--panel-fg)] transition-opacity duration-300 ${isOpen ? 'opacity-55' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 z-[10000] bg-[var(--panel-fg)] transition-opacity duration-300 ${isOpen ? 'opacity-55' : 'opacity-0 pointer-events-none'}`}
         onClick={closeModal}
       />
 
+      {/* Floating anchor button for Mobile */}
+      {!isOpen && (
+        <button
+          ref={floatingContainerRef}
+          className="min-[83rem]:hidden fixed z-[10002] flex items-center justify-center w-[40px] h-[40px] rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.15)] cursor-pointer select-none"
+          style={{
+            backgroundColor: 'var(--panel-fg)',
+            color: 'var(--panel-bg)',
+            left: floatingPos?.x,
+            top: floatingPos?.y,
+            touchAction: 'none',
+          }}
+          onPointerDown={onFloatingPointerDown}
+          onPointerMove={onFloatingPointerMove}
+          onPointerUp={onFloatingPointerUp}
+          onClick={onFloatingClick}
+        >
+          <SiMinutemailer size={22} />
+        </button>
+      )}
+
       <div
-        className={`fixed right-0 top-[15vh] xl:top-[20vh] z-[51] flex max-h-[85vh] h-auto max-w-md lg:max-w-lg w-full flex-col shadow-2xl transition-transform duration-[600ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
-          isOpen ? 'translate-x-0' : 'translate-x-[calc(100%)]'
+        className={`hidden min-[83rem]:fixed min-[83rem]:z-[10001] min-[83rem]:flex min-[83rem]:max-h-[85vh] min-[83rem]:h-auto min-[83rem]:flex-col min-[83rem]:right-0 min-[83rem]:top-[15vh] xl:min-[83rem]:top-[20vh] min-[83rem]:max-w-md lg:min-[83rem]:max-w-lg min-[83rem]:w-full min-[83rem]:shadow-2xl min-[83rem]:transition-transform min-[83rem]:duration-[600ms] min-[83rem]:ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          isOpen ? 'min-[83rem]:translate-x-0' : 'min-[83rem]:translate-x-[calc(100%)]'
         }`}
       >
-        {/* Tab handle centered cleanly alongside the left edge of the sliding drawer */}
-        <div className="absolute left-[-32px] min-[83rem]:left-[-48px] top-0 bottom-0 flex items-center justify-center pointer-events-none z-[52] w-[32px] min-[83rem]:w-[48px]">
+        <div className="hidden min-[83rem]:flex absolute left-[-48px] top-0 bottom-0 items-center justify-center pointer-events-none z-[52] w-[48px]">
           <div
-            className="subnav-rounded-slot cursor-pointer pointer-events-auto h-[32px] min-[83rem]:h-[48px]"
+            className="subnav-rounded-slot cursor-pointer pointer-events-auto h-[48px]"
             onClick={onFloatingClick}
             style={{
               transformOrigin: 'center center',
@@ -493,16 +586,15 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                 padding: '0 14px',
               }}
             >
-              <div className="font-normal text-lg min-[83rem]:text-[24px] tracking-normal mb-[2px] uppercase">
+              <div className="font-normal text-[24px] tracking-normal mb-[2px] uppercase">
                 {newsletterTabLabel || 'Newsletter'}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Modal Content container sliding together with Tab */}
         <div
-          className="panel-bg panel-fg w-full h-full xl:min-h-[50vh] overflow-y-auto sm:rounded-none rounded-l-3xl p-6 min-[83rem]:p-8 relative border-y border-l border-[var(--panel-fg)]"
+          className="panel-bg panel-fg relative w-full h-full xl:min-h-[50vh] overflow-y-auto min-[83rem]:rounded-l-3xl min-[83rem]:rounded-r-none p-8 pt-14 border-none"
           style={
             showDonationResultScreen
               ? {
@@ -512,6 +604,15 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
               : undefined
           }
         >
+          <button
+            onClick={closeModal}
+            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full invert-panel cursor-pointer"
+            type="button"
+            aria-label="Close support modal"
+          >
+            <IoMdClose className="h-7 w-7" aria-hidden="true" />
+          </button>
+
           {showDonationResultScreen ? (
             <div className="min-h-[320px] min-[83rem]:min-h-[420px] pb-14 min-[83rem]:pb-16 flex flex-col items-center justify-center text-center px-4">
               <h2 className="text-4xl min-[83rem]:text-6xl tracking-tight">Thank you</h2>
@@ -560,67 +661,96 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                     onSubmit={onDonationSubmit}
                     className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
                   >
-                    <div className="space-y-2 mb-4">
-                      {content?.donationIntro?.length ? (
-                        <div className="space-y-2">
-                          <SupportRichText value={content.donationIntro} />
-                        </div>
-                      ) : (
-                        <p className="text-sm min-[83rem]:text-lg leading-snug">
-                          Donations now. Tickets and merch later.
-                        </p>
-                      )}
-                    </div>
+                    {content?.donationIntro?.length ? (
+                      <div className="space-y-2 mb-4">
+                        <SupportRichText value={content.donationIntro} />
+                      </div>
+                    ) : null}
 
-                    <div className="text-sm min-[83rem]:text-base mb-2">Donation amount (EUR)</div>
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-2 mb-6">
                       {[5, 10, 20, 50].map((preset) => (
                         <button
                           key={preset}
                           type="button"
                           onClick={() => setDonationAmount(preset.toString())}
-                          className={`rounded-md border panel-border px-4 py-2 text-center transition-colors cursor-pointer ${
+                          className={`flex items-center justify-center w-12 h-12 min-[83rem]:w-14 min-[83rem]:h-14 text-lg min-[83rem]:text-xl rounded-full text-center transition-colors cursor-pointer ${
                             donationAmount === preset.toString()
                               ? 'invert-panel'
-                              : 'hover:bg-[var(--panel-fg)] hover:text-[var(--panel-bg)]'
+                              : 'bg-[#ECECEC] text-[var(--panel-fg)] hover:bg-[#d2d2d2]'
                           }`}
                         >
-                          {preset}
+                          €{preset}
                         </button>
                       ))}
                     </div>
 
-                    <input
-                      type="number"
-                      min="1"
-                      step="1"
-                      value={donationAmount}
-                      onChange={(e) => setDonationAmount(e.target.value)}
-                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
-                      placeholder="Amount in EUR"
+                    <FormField
+                      label="Amount"
                       required
-                    />
-                    <input
-                      type="text"
-                      value={donationName}
-                      onChange={(e) => setDonationName(e.target.value)}
-                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
-                      placeholder="Name (optional)"
-                    />
-                    <input
-                      type="email"
-                      value={donationEmail}
-                      onChange={(e) => setDonationEmail(e.target.value)}
-                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
-                      placeholder="Email (optional)"
-                    />
-                    <textarea
-                      value={donationMessage}
-                      onChange={(e) => setDonationMessage(e.target.value)}
-                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent min-h-24 outline-none"
-                      placeholder="Message (optional)"
-                      maxLength={500}
-                    />
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={donationAmount}
+                        onChange={(e) => setDonationAmount(e.target.value)}
+                        placeholder="Amount in EUR"
+                        className="bg-transparent"
+                      />
+                    </FormField>
+
+                    <FormField
+                      label="Name"
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        type="text"
+                        value={donationName}
+                        onChange={(e) => setDonationName(e.target.value)}
+                        placeholder="Name (optional)"
+                        className="bg-transparent"
+                      />
+                    </FormField>
+
+                    <FormField
+                      label="E-mail"
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        type="email"
+                        value={donationEmail}
+                        onChange={(e) => setDonationEmail(e.target.value)}
+                        placeholder="Email (optional)"
+                        className="bg-transparent"
+                      />
+                    </FormField>
+
+                    <FormField
+                      label="Message"
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        isTextArea
+                        value={donationMessage}
+                        onChange={(e) => setDonationMessage(e.target.value)}
+                        placeholder="Message (optional)"
+                        maxLength={500}
+                        className="bg-transparent h-24"
+                      />
+                    </FormField>
 
                     {donationError && (
                       <p className="text-red-600 text-sm min-[83rem]:text-base">{donationError}</p>
@@ -629,16 +759,14 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                     <button
                       type="submit"
                       disabled={isDonationSubmitting}
-                      className="invert-panel w-full rounded-full px-6 py-3 mt-4 text-lg cursor-pointer disabled:opacity-60"
+                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
                     >
-                      {isDonationSubmitting
-                        ? 'Redirecting to Mollie...'
-                        : donationSubmitLabel || 'Donate'}
+                      {isDonationSubmitting ? 'Redirecting...' : 'Pay'}
                     </button>
                   </form>
                 ) : (
                   <form
-                    onSubmit={onNewsletterSubmit}
+                    onSubmit={handleNewsletterSubmit(onNewsletterSubmit)}
                     className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
                   >
                     <div className="space-y-2 mb-4">
@@ -651,21 +779,40 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                       )}
                     </div>
 
-                    <input
-                      type="text"
-                      value={newsletterName}
-                      onChange={(e) => setNewsletterName(e.target.value)}
-                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
-                      placeholder="Name (optional)"
-                    />
-                    <input
-                      type="email"
-                      value={newsletterEmail}
-                      onChange={(e) => setNewsletterEmail(e.target.value)}
-                      className="w-full border panel-border rounded-md px-3 py-2 bg-transparent outline-none"
-                      placeholder="Email"
+                    <FormField
+                      label="Name"
+                      error={newsletterFormErrors.newsletterName}
+                      showError={!!newsletterTouchedFields.newsletterName || isNewsletterSubmitted}
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        registration={registerNewsletter('newsletterName')}
+                        placeholder="Name (optional)"
+                        className="bg-transparent"
+                      />
+                    </FormField>
+                    <FormField
+                      label="E-mail"
                       required
-                    />
+                      error={newsletterFormErrors.newsletterEmail}
+                      showError={!!newsletterTouchedFields.newsletterEmail || isNewsletterSubmitted}
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        registration={registerNewsletter('newsletterEmail', {
+                          required: 'E-mail is required',
+                        })}
+                        type="email"
+                        placeholder="Email"
+                        className="bg-transparent"
+                      />
+                    </FormField>
 
                     {newsletterState !== 'idle' && (
                       <p
@@ -678,7 +825,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                     <button
                       type="submit"
                       disabled={isNewsletterSubmitting}
-                      className="invert-panel w-full rounded-full px-6 py-3 mt-4 text-lg cursor-pointer disabled:opacity-60"
+                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
                     >
                       {isNewsletterSubmitting
                         ? 'Submitting...'
@@ -689,14 +836,258 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
               </div>
             </>
           )}
-
-          <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full invert-panel">
-            <button onClick={closeModal} className="text-3xl cursor-pointer" type="button">
-              <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
-            </button>
-          </div>
         </div>
       </div>
-    </>
+
+      <div className="fixed inset-0 z-[10001] flex items-center justify-center px-4 pointer-events-none min-[83rem]:hidden">
+        <div
+          className={`panel-bg panel-fg pointer-events-auto relative w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-[32px] shadow-2xl p-6 pt-14 transition-transform duration-[600ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+            isOpen ? 'translate-y-0' : 'translate-y-[100vh]'
+          }`}
+          style={
+            showDonationResultScreen
+              ? {
+                  backgroundColor: donationSuccess ? successTheme.bg : failedTheme.bg,
+                  color: donationSuccess ? '#111111' : failedTheme.fg,
+                }
+              : undefined
+          }
+        >
+          <button
+            onClick={closeModal}
+            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full invert-panel cursor-pointer"
+            type="button"
+            aria-label="Close support modal"
+          >
+            <IoMdClose className="h-7 w-7" aria-hidden="true" />
+          </button>
+
+          {showDonationResultScreen ? (
+            <div className="min-h-[320px] min-[83rem]:min-h-[420px] pb-14 min-[83rem]:pb-16 flex flex-col items-center justify-center text-center px-4">
+              <h2 className="text-4xl min-[83rem]:text-6xl tracking-tight">Thank you</h2>
+              <p className="mt-4 text-xl min-[83rem]:text-2xl font-light">
+                {donationSuccess
+                  ? 'We have received your donation.'
+                  : 'There was an issue processing your payment.'}
+              </p>
+              <button
+                onClick={closeModal}
+                className="mt-12 rounded-full border border-current px-8 py-3 text-lg hover:bg-current hover:text-[var(--panel-bg)] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-4xl min-[83rem]:text-5xl font-light tracking-tight mb-6">
+                {content?.modalTitle || 'Support psst'}
+              </h2>
+
+              <div className="flex gap-2 mb-5">
+                <button
+                  type="button"
+                  onClick={() => openModal('donation')}
+                  className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
+                    activeTab === 'donation' ? 'invert-panel' : ''
+                  }`}
+                >
+                  {donationTabLabel || 'Donation'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openModal('newsletter')}
+                  className={`border panel-border rounded-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
+                    activeTab === 'newsletter' ? 'invert-panel' : ''
+                  }`}
+                >
+                  {newsletterTabLabel || 'Newsletter'}
+                </button>
+              </div>
+
+              <div className="mt-4 text-[color:var(--panel-fg)]">
+                {activeTab === 'donation' ? (
+                  <form
+                    onSubmit={onDonationSubmit}
+                    className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
+                  >
+                    {content?.donationIntro?.length ? (
+                      <div className="space-y-2 mb-4">
+                        <SupportRichText value={content.donationIntro} />
+                      </div>
+                    ) : null}
+
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {[5, 10, 20, 50].map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => setDonationAmount(preset.toString())}
+                          className={`flex items-center justify-center w-12 h-12 min-[83rem]:w-14 min-[83rem]:h-14 text-lg min-[83rem]:text-xl rounded-full text-center transition-colors cursor-pointer ${
+                            donationAmount === preset.toString()
+                              ? 'invert-panel'
+                              : 'bg-[#ECECEC] text-[var(--panel-fg)] hover:bg-[#d2d2d2]'
+                          }`}
+                        >
+                          €{preset}
+                        </button>
+                      ))}
+                    </div>
+
+                    <FormField
+                      label="Amount"
+                      required
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={donationAmount}
+                        onChange={(e) => setDonationAmount(e.target.value)}
+                        placeholder="Amount in EUR"
+                        className="bg-transparent"
+                      />
+                    </FormField>
+
+                    <FormField
+                      label="Name"
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        type="text"
+                        value={donationName}
+                        onChange={(e) => setDonationName(e.target.value)}
+                        placeholder="Name (optional)"
+                        className="bg-transparent"
+                      />
+                    </FormField>
+
+                    <FormField
+                      label="E-mail"
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        type="email"
+                        value={donationEmail}
+                        onChange={(e) => setDonationEmail(e.target.value)}
+                        placeholder="Email (optional)"
+                        className="bg-transparent"
+                      />
+                    </FormField>
+
+                    <FormField
+                      label="Message"
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        isTextArea
+                        value={donationMessage}
+                        onChange={(e) => setDonationMessage(e.target.value)}
+                        placeholder="Message (optional)"
+                        maxLength={500}
+                        className="bg-transparent h-24"
+                      />
+                    </FormField>
+
+                    {donationError && (
+                      <p className="text-red-600 text-sm min-[83rem]:text-base">{donationError}</p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isDonationSubmitting}
+                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
+                    >
+                      {isDonationSubmitting ? 'Redirecting...' : 'Pay'}
+                    </button>
+                  </form>
+                ) : (
+                  <form
+                    onSubmit={handleNewsletterSubmit(onNewsletterSubmit)}
+                    className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
+                  >
+                    <div className="space-y-2 mb-4">
+                      {content?.newsletterIntro?.length ? (
+                        <SupportRichText value={content.newsletterIntro} />
+                      ) : (
+                        <p className="text-sm min-[83rem]:text-lg leading-snug">
+                          Subscribe to receive updates about events, merch, and presales.
+                        </p>
+                      )}
+                    </div>
+
+                    <FormField
+                      label="Name"
+                      error={newsletterFormErrors.newsletterName}
+                      showError={!!newsletterTouchedFields.newsletterName || isNewsletterSubmitted}
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        registration={registerNewsletter('newsletterName')}
+                        placeholder="Name (optional)"
+                        className="bg-transparent"
+                      />
+                    </FormField>
+                    <FormField
+                      label="E-mail"
+                      required
+                      error={newsletterFormErrors.newsletterEmail}
+                      showError={!!newsletterTouchedFields.newsletterEmail || isNewsletterSubmitted}
+                      bgClassName="invert-panel"
+                      fgClassName="text-white"
+                      containerClassName="border-0 section-border"
+                      contentClassName="bg-[#ECECEC]"
+                    >
+                      <TextInput
+                        registration={registerNewsletter('newsletterEmail', {
+                          required: 'E-mail is required',
+                        })}
+                        type="email"
+                        placeholder="Email"
+                        className="bg-transparent"
+                      />
+                    </FormField>
+
+                    {newsletterState !== 'idle' && (
+                      <p
+                        className={`text-sm min-[83rem]:text-base ${newsletterState === 'success' ? 'text-green-700' : 'text-red-600'}`}
+                      >
+                        {newsletterMessage}
+                      </p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isNewsletterSubmitting}
+                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
+                    >
+                      {isNewsletterSubmitting
+                        ? 'Submitting...'
+                        : newsletterSubmitLabel || 'Subscribe'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </>,
+    document.body,
   )
 }

@@ -24,7 +24,7 @@ export default async function ResourcesGuidelinesContentAsync() {
 
   // Default single-column layout
   return (
-    <div className="w-full max-w-[65vw] mx-auto">
+    <div className="w-full min-[83rem]:max-w-[65vw] mx-auto">
       <CmsContent value={guidelines.content} />
     </div>
   )

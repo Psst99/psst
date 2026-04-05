@@ -21,7 +21,7 @@ export default async function PssoundSystemSectionPage({
 
   if (data.layout === 'guidelines') {
     return (
-      <div className="w-full p-6 md:px-20 text-[color:var(--section-accent)]">
+      <div className="w-full p-6 min-[83rem]:px-20 text-[color:var(--section-accent)]">
         <div className="columns-1 xl:columns-2 gap-20 text-base leading-tight md:text-xl">
           <CmsContent value={data.content} />
         </div>
@@ -30,8 +30,8 @@ export default async function PssoundSystemSectionPage({
   }
 
   return (
-    <div className="p-6 md:px-20 text-[color:var(--section-accent)]">
-      <div className="w-full max-w-[65vw] mx-auto">
+    <div className="p-6 min-[83rem]:px-20 text-[color:var(--section-accent)]">
+      <div className="w-full min-[83rem]:max-w-[65vw] mx-auto">
         <CmsContent value={data.content} />
       </div>
     </div>

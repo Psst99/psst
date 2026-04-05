@@ -8,6 +8,9 @@ interface FormFieldProps {
   required?: boolean
   showError?: boolean
   bgClassName?: string
+  fgClassName?: string
+  containerClassName?: string
+  contentClassName?: string
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -17,17 +20,26 @@ export const FormField: React.FC<FormFieldProps> = ({
   required,
   showError = false,
   bgClassName = 'section-bg',
+  fgClassName = 'section-fg',
+  containerClassName = '',
+  contentClassName = 'bg-white',
 }) => {
   return (
     <>
-      <div className="w-full rounded-xl mb-4 flex items-stretch overflow-hidden border section-border">
+      <div
+        className={`w-full rounded-xl mb-4 flex flex-col min-[83rem]:flex-row items-stretch overflow-hidden border section-border ${containerClassName}`.trim()}
+      >
         <label
-          className={`${bgClassName} section-fg font-mono text-center uppercase tracking-tighter text-[24px] leading-[22px] flex items-center justify-center px-8 py-4 flex-shrink-0 w-[250px]`}
+          className={`${bgClassName} ${fgClassName} font-mono text-center uppercase tracking-tighter text-lg min-[83rem]:text-[24px] leading-[1.05] min-[83rem]:leading-[22px] flex items-center justify-center px-6 min-[83rem]:px-8 py-0.5 min-[83rem]:py-4 flex-shrink-0 w-full min-[83rem]:w-[250px]`}
         >
           <span>{label}</span>
-          {required && <span className="text-base -mt-3 text-red-500 ml-2">*</span>}
+          {required && (
+            <span className="text-base -mt-1 min-[83rem]:-mt-3 text-red-500 min-[83rem]:ml-2">
+              *
+            </span>
+          )}
         </label>
-        <div className="flex-1 bg-white">{children}</div>
+        <div className={`flex-1 ${contentClassName}`.trim()}>{children}</div>
       </div>
 
       {showError && error && (

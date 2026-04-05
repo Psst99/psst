@@ -115,7 +115,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
     })) ?? []
 
   return (
-    <div className="p-4 h-full w-full md:max-w-[65vw] mx-auto">
+    <div className="p-4 h-full w-full min-[83rem]:max-w-[65vw] mx-auto">
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         <FormField
           label="Name"
@@ -134,7 +134,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
         >
           <select
             {...register('pronouns')}
-            className="w-full rounded-t-none rounded-b-lg text-[color:var(--section-bg)] px-4 py-2 text-2xl md:text-3xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-full"
+            className="w-full rounded-t-none rounded-b-lg min-[83rem]:rounded-b-none text-[color:var(--section-bg)] px-4 py-2 text-xl min-[83rem]:text-3xl border-0 outline-0 min-[83rem]:rounded-l-none min-[83rem]:rounded-tr-lg min-[83rem]:rounded-br-lg bg-white h-full"
           >
             {PRONOUN_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -218,7 +218,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-16 bg-[#6600ff] text-white text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50"
+          className="mt-16 section-bg section-fg text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50"
         >
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>

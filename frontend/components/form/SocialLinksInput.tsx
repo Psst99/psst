@@ -134,7 +134,7 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
                   {value.map((url: string, index: number) => (
                     <span
                       key={index}
-                      className="px-1 py-0 border-[var(--section-bg)] border text-[color:var(--section-bg)] rounded-md font-mono text-2xl tracking-tighter leading-tight inline-flex items-center gap-x-2"
+                      className="px-1 py-0 border-[var(--section-bg)] border text-[color:var(--section-bg)] rounded-md font-mono text-xl min-[83rem]:text-2xl tracking-tighter leading-tight inline-flex items-center gap-x-2"
                     >
                       {detectPlatform(url)}
                       <button
@@ -187,7 +187,7 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
                       }}
                       className="w-full text-left bg-transparent py-2 cursor-pointer"
                     >
-                      <span className="font-normal text-2xl md:text-3xl text-[color:var(--section-bg)] opacity-60">
+                      <span className="font-normal text-xl min-[83rem]:text-3xl text-[color:var(--section-bg)] opacity-60">
                         Paste your link(s)
                       </span>
                     </div>
@@ -218,7 +218,7 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
                       }
                     }}
                     placeholder="Paste your link(s)"
-                    className="w-full bg-transparent outline-none text-[color:var(--section-bg)] font-normal text-2xl md:text-3xl placeholder:opacity-60 border-0 border-b border-b-[color:var(--section-bg)] py-2"
+                    className="w-full bg-transparent outline-none text-[color:var(--section-bg)] font-normal text-xl min-[83rem]:text-3xl placeholder:opacity-60 border-0 border-b border-b-[color:var(--section-bg)] py-2"
                   />
                 )}
               </div>

@@ -32,6 +32,10 @@ type Props = {
 }
 
 export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
+  const mobileHeaderRowHeight = 30
+  const mobileHeaderTopOffset = `${mobileHeaderRowHeight}px`
+  const mobileHeaderStackWithSubmenu = `${mobileHeaderRowHeight * 3}px`
+  const mobileHeaderStackWithoutSubmenu = `${mobileHeaderRowHeight * 2}px`
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false)
 
@@ -83,16 +87,16 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
       <div className="min-[83rem]:hidden">
         <motion.div
           className="fixed left-0 right-0 z-50 bottom-0 w-full h-svh"
-          initial={{y: isMenuOpen ? 0 : 'calc(100% - 29px)'}}
-          animate={{y: isMenuOpen ? 0 : 'calc(100% - 29px)'}}
+          initial={{y: isMenuOpen ? 0 : `calc(100% - ${mobileHeaderRowHeight}px)`}}
+          animate={{y: isMenuOpen ? 0 : `calc(100% - ${mobileHeaderRowHeight}px)`}}
           transition={{duration: 0.7, ease: [0.76, 0, 0.24, 1]}}
         >
           {/* Top Header */}
-          <div className="flex w-full h-[29px] mb-0 bg-transparent">
+          <div className="flex w-full mb-0 bg-transparent" style={{height: mobileHeaderRowHeight}}>
             <SectionScope section="psst" variant="tab" asChild>
               <CustomLink
                 href="/psst"
-                className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center pb-1 text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
+                className="intercalaire-tab intercalaire-tab--first relative px-4 pt-1 flex-1 text-center pb-1 text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
                 style={
                   {
                     '--intercalaire-notch': '14px',
@@ -112,7 +116,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
             {/* MENU button: legacy fixed colors */}
             <button
               onClick={toggleMenu}
-              className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-0 flex-1 text-center text-lg pb-16 w-full z-0 relative -ml-[14px] pl-[calc(1rem+14px)]"
+              className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-1 flex-1 text-center text-lg pb-1 w-full z-0 relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center"
               style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
             >
               {isMenuOpen ? 'CLOSE' : 'MENU'}
@@ -142,20 +146,26 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
           </div>
         </motion.div>
 
-        <div className="h-[41px]" />
+        <div style={{height: mobileHeaderRowHeight + 12}} />
       </div>
     )
   }
 
   // NON-HOME: fixed top header
   return (
-    <div className="h-[29px] bg-white fixed left-0 right-0 z-50 top-0 tracking-tighter min-[83rem]:hidden">
+    <div
+      className="bg-white fixed left-0 right-0 z-50 top-0 tracking-tighter min-[83rem]:hidden"
+      style={{height: mobileHeaderRowHeight}}
+    >
       {/* Top Header row */}
-      <div className="flex w-full h-[29px] mb-0 relative bg-transparent">
+      <div
+        className="flex w-full mb-0 relative bg-transparent"
+        style={{height: mobileHeaderRowHeight}}
+      >
         <SectionScope section="psst" variant="tab" asChild>
           <CustomLink
             href="/psst"
-            className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
+            className="intercalaire-tab intercalaire-tab--first relative px-4 pt-1 flex-1 text-center pb-1 text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
             style={
               {
                 '--intercalaire-notch': '14px',
@@ -172,7 +182,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
         {/* MENU button: legacy fixed colors */}
         <button
           onClick={toggleMenu}
-          className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-0 flex-1 text-center text-lg z-0 pb-8 w-full relative -ml-[14px] pl-[calc(1rem+14px)]"
+          className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-1 flex-1 text-center text-lg z-0 pb-1 w-full relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center"
           style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
         >
           {isMenuOpen ? 'CLOSE' : 'MENU'}
@@ -200,9 +210,12 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
       {/* PSST subsection header row */}
       {activeSection === 'psst' && hasSubMenu && currentSubsection && (
         <SectionScope section="psst" variant="page" panelVariant="subtab" className="contents">
-          <div className="fixed top-[35px] left-0 right-0 z-50 w-full overflow-visible">
+          <div
+            className="fixed left-0 right-0 z-50 w-full overflow-visible"
+            style={{top: mobileHeaderTopOffset}}
+          >
             <div
-              className="flex w-full relative bg-transparent -mt-1.5 overflow-visible"
+              className="flex w-full relative bg-transparent overflow-visible"
               style={
                 {
                   // Make the connector’s top line blend into the red background
@@ -211,7 +224,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
               }
             >
               <div
-                className="intercalaire-tab intercalaire-tab--first flex-1 text-lg px-4 py-0.5 text-center relative panel-bg panel-fg border-none outline-none z-10 flex items-center justify-center min-h-[29px]"
+                className="intercalaire-tab intercalaire-tab--first flex-1 text-lg px-4 py-0.5 text-center relative panel-bg panel-fg border-none outline-none z-10 flex items-center justify-center"
                 style={
                   {
                     '--intercalaire-notch': '14px',
@@ -219,6 +232,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
                     '--section-bg': 'var(--panel-bg)',
                     '--section-fg': 'var(--panel-fg)',
                     borderTopRightRadius: '14px',
+                    minHeight: mobileHeaderRowHeight,
                   } as React.CSSProperties
                 }
               >
@@ -245,12 +259,12 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
       {/* Section Header for non-home + non-psst pages */}
       {activeSection !== 'psst' && (
         <SectionScope section="psst" variant="page" asChild>
-          <div className="fixed top-[36px] left-0 right-0 z-50 w-full -mt-2">
-            <div className="flex w-full h-[36px] section-bg">
+          <div className="fixed left-0 right-0 z-50 w-full" style={{top: mobileHeaderTopOffset}}>
+            <div className="flex w-full section-bg" style={{height: mobileHeaderRowHeight}}>
               {/* Left section label: uses ACTIVE SECTION page vars */}
               <SectionScope section={activeSection} variant="page" asChild>
                 <div
-                  className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center pb-1 text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
+                  className="intercalaire-tab intercalaire-tab--first relative px-4 pt-1 flex-1 text-center pb-1 text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
                   style={
                     {
                       '--intercalaire-notch': '14px',
@@ -273,7 +287,10 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
             {/* Subsection Row */}
             {hasSubMenu && currentSubsection && (
               <SectionScope section={activeSection} variant="page" panelVariant="subtab" asChild>
-                <div className="flex w-full h-[29px] -mt-1.5 relative bg-transparent">
+                <div
+                  className="flex w-full relative bg-transparent"
+                  style={{height: mobileHeaderRowHeight}}
+                >
                   {/* Left label: subtab colors */}
                   <div
                     className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center text-lg w-full panel-bg panel-fg z-10 h-full flex items-center justify-center border-none"
@@ -307,9 +324,13 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
       {/* Submenu Overlay Click Handler */}
       {isSubMenuOpen && (
         <div
-          className="fixed top-[36px] left-0 right-0 z-61 w-full h-[39px] cursor-pointer"
+          className="fixed left-0 right-0 z-61 w-full cursor-pointer"
           onClick={handleOverlayClick}
-          style={{background: 'transparent'}}
+          style={{
+            background: 'transparent',
+            top: mobileHeaderTopOffset,
+            height: mobileHeaderStackWithoutSubmenu,
+          }}
         />
       )}
 
@@ -322,7 +343,8 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
             animate={{y: 0}}
             exit={{y: '100%'}}
             transition={{duration: 0.7, ease: [0.76, 0, 0.24, 1]}}
-            className="fixed inset-0 z-50 bg-transparent pt-[28px]"
+            className="fixed inset-0 z-50 bg-transparent"
+            style={{paddingTop: mobileHeaderTopOffset}}
             onClick={closeMenus}
           >
             <div className="flex flex-col h-full" onClick={(e) => e.stopPropagation()}>
@@ -351,7 +373,8 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
         {isSubMenuOpen && hasSubMenu && (
           <div
             key="submenu-overlay"
-            className="fixed left-0 right-0 bottom-0 top-[86px] z-60"
+            className="fixed left-0 right-0 bottom-0 z-60"
+            style={{top: mobileHeaderStackWithSubmenu}}
             onClick={handleOverlayClick}
           >
             <motion.div
@@ -360,7 +383,8 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
               animate={{y: 0}}
               exit={{y: '100%'}}
               transition={{duration: 0.7, ease: [0.76, 0, 0.24, 1]}}
-              className="fixed left-0 right-0 bottom-0 top-[86px] z-70"
+              className="fixed left-0 right-0 bottom-0 z-70"
+              style={{top: mobileHeaderStackWithSubmenu}}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col h-full">
@@ -371,7 +395,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
                       <Link
                         href={subMenu.href}
                         className={[
-                          'flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase border-t',
+                          'flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase border-t border-[color:var(--section-fg)]',
                           isActive ? 'tab-active' : 'tab-inactive',
                           idx > 0 ? '-mt-2' : '',
                         ].join(' ')}
@@ -389,7 +413,11 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
       </AnimatePresence>
 
       {/* Spacer */}
-      <div className={hasSubMenu ? 'h-[75px]' : 'h-[63px]'} />
+      <div
+        style={{
+          height: hasSubMenu ? mobileHeaderStackWithSubmenu : mobileHeaderStackWithoutSubmenu,
+        }}
+      />
     </div>
   )
 }

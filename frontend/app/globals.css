@@ -738,6 +738,15 @@
   transform: translateY(100%);
 }
 
+:root.intercalaire-committing
+  .section-nav-fixed
+  .intercalaire-row
+  div:has([data-committing])
+  ~ div
+  .intercalaire-tab {
+  transform: translateY(100%);
+}
+
 /* First tab - square top-left corner */
 .intercalaire-tab--first {
   border-top-left-radius: 0 !important;

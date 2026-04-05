@@ -35,9 +35,9 @@ export default async function WorkshopsContentAsync() {
     }) || []
 
   return (
-    <div className="p-6 text-[#f50806] md:mx-16">
+    <div className="p-6 text-[#f50806] min-[83rem]:mx-16">
       {/* <h1 className="text-3xl md:text-4xl mb-6 text-center">{settings?.title || 'Workshops'}</h1> */}
-      <div className="mx-4 xl:max-w-[65vw] xl:mx-auto">
+      <div className="min-[83rem]:max-w-[65vw] min-[83rem]:mx-auto">
         <CmsContent value={settings?.description} />
       </div>
 

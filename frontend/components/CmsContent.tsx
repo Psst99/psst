@@ -314,7 +314,11 @@ const getComponents = (
           : 'absolute left-6 first:min-[83rem]:left-32 min-[83rem]:left-16 -top-[31px]'
 
       return (
-        <Reveal className="my-12 min-[83rem]:my-16 break-inside-avoid" y={18} durationMs={560}>
+        <Reveal
+          className="mt-12 first:mt-0 mb-12 min-[83rem]:mt-16 first:min-[83rem]:mt-0 min-[83rem]:mb-16 break-inside-avoid"
+          y={18}
+          durationMs={560}
+        >
           <div
             className="relative p-6 min-[83rem]:p-8 rounded-3xl min-[83rem]:text-xl"
             style={{backgroundColor: bgColor, color: textColor}}
@@ -333,7 +337,9 @@ const getComponents = (
                     } as React.CSSProperties
                   }
                 >
-                  <span className="font-normal text-[24px] leading-[22px]">{heading.text}</span>
+                  <span className="font-normal text-lg min-[83rem]:text-[24px] leading-[1.05] min-[83rem]:leading-[22px]">
+                    {heading.text}
+                  </span>
                 </div>
               </div>
             ) : null}
