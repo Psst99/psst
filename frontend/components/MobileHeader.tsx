@@ -7,7 +7,7 @@ import {motion, AnimatePresence} from 'framer-motion'
 
 import CustomLink from './CustomLink'
 import SectionScope from './SectionScope'
-import {getSectionConfig} from '@/lib/route-utils'
+import {getSectionConfig, type DynamicSubNavItemsBySection} from '@/lib/route-utils'
 import type {SectionSlug, MainSectionSlug} from '@/lib/theme/sections'
 
 const MAIN_MENU_ITEMS: ReadonlyArray<{path: string; section: MainSectionSlug}> = [
@@ -28,10 +28,10 @@ function getActiveSectionSlug(pathname: string): SectionSlug {
 }
 
 type Props = {
-  dynamicSubNavItems?: Array<{label: string; href: string}>
+  dynamicSubNavItemsBySection?: DynamicSubNavItemsBySection
 }
 
-export default function MobileHeader({dynamicSubNavItems}: Props) {
+export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false)
 
@@ -39,7 +39,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
   const activeSection: SectionSlug = getActiveSectionSlug(pathname)
   const isHome = activeSection === 'home'
 
-  const {subNavItems} = getSectionConfig(pathname, dynamicSubNavItems)
+  const {subNavItems} = getSectionConfig(pathname, dynamicSubNavItemsBySection)
   const hasSubMenu = Array.isArray(subNavItems) && subNavItems.length > 0
 
   const currentSubsection = (() => {
@@ -155,7 +155,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
         <SectionScope section="psst" variant="tab" asChild>
           <CustomLink
             href="/psst"
-            className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center pb-1 text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
+            className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center text-lg w-full section-bg section-fg z-10 h-full flex items-center justify-center border-none"
             style={
               {
                 '--intercalaire-notch': '14px',
@@ -246,7 +246,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
       {activeSection !== 'psst' && (
         <SectionScope section="psst" variant="page" asChild>
           <div className="fixed top-[36px] left-0 right-0 z-50 w-full -mt-2">
-            <div className="flex w-full h-[29px] section-bg">
+            <div className="flex w-full h-[36px] section-bg">
               {/* Left section label: uses ACTIVE SECTION page vars */}
               <SectionScope section={activeSection} variant="page" asChild>
                 <div
@@ -276,7 +276,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
                 <div className="flex w-full h-[29px] -mt-1.5 relative bg-transparent">
                   {/* Left label: subtab colors */}
                   <div
-                    className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center pb-1 text-lg w-full panel-bg panel-fg z-10 h-full flex items-center justify-center border-none"
+                    className="intercalaire-tab intercalaire-tab--first relative px-4 pt-0 flex-1 text-center text-lg w-full panel-bg panel-fg z-10 h-full flex items-center justify-center border-none"
                     style={
                       {
                         '--intercalaire-notch': '14px',
@@ -292,7 +292,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
                   {/* Right hamburger: inverted */}
                   <button
                     onClick={toggleSubMenu}
-                    className="relative px-4 pt-0 pb-1 flex-1 flex items-center justify-center h-full invert-panel border-none outline-none z-0 -ml-[14px] pl-[calc(1rem+14px)]"
+                    className="relative px-4 pt-0 flex-1 flex items-center justify-center h-full invert-panel border-none outline-none z-0 -ml-[14px] pl-[calc(1rem+14px)]"
                     aria-label="Open subsection menu"
                   >
                     <span className="-mt-[0.12rem]">≡</span>
@@ -371,7 +371,7 @@ export default function MobileHeader({dynamicSubNavItems}: Props) {
                       <Link
                         href={subMenu.href}
                         className={[
-                          'flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase',
+                          'flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase border-t',
                           isActive ? 'tab-active' : 'tab-inactive',
                           idx > 0 ? '-mt-2' : '',
                         ].join(' ')}

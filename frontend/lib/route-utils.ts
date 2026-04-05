@@ -11,6 +11,10 @@ export interface SectionConfig {
   subNavItems?: Array<{label: string; href: string}>
 }
 
+export type DynamicSubNavItemsBySection = Partial<
+  Record<SectionKey, Array<{label: string; href: string}>>
+>
+
 export function getSectionFromPath(pathname: string): SectionKey {
   if (pathname === '/') return 'home'
   const segment = pathname.split('/')[1]
@@ -19,26 +23,26 @@ export function getSectionFromPath(pathname: string): SectionKey {
 
 export function getSectionConfig(
   pathname: string,
-  dynamicSubNavItems?: Array<{label: string; href: string}>,
+  dynamicSubNavItemsBySection?: DynamicSubNavItemsBySection,
 ): SectionConfig {
   const section = getSectionFromPath(pathname)
   const theme = sectionThemes[section]
+  const dynamicSubNavItems = dynamicSubNavItemsBySection?.[section]
 
   let subNavItems: Array<{label: string; href: string}> | undefined
   let hasSubNav = false
 
+  if (dynamicSubNavItems && dynamicSubNavItems.length > 0) {
+    subNavItems = [...dynamicSubNavItems]
+    hasSubNav = true
+  }
   // FOR PSST: Hardcoded two tabs
-  if (section === 'psst') {
-    if (dynamicSubNavItems && dynamicSubNavItems.length > 0) {
-      subNavItems = [...dynamicSubNavItems]
-      hasSubNav = true
-    } else {
-      subNavItems = [
-        {label: 'Manifesto', href: '/psst'},
-        {label: 'About', href: '/psst/about'},
-      ]
-      hasSubNav = true
-    }
+  else if (section === 'psst') {
+    subNavItems = [
+      {label: 'Manifesto', href: '/psst'},
+      {label: 'About', href: '/psst/about'},
+    ]
+    hasSubNav = true
   }
   // FOR OTHER SECTIONS: Use static subnav from theme.ts
   else if (section in subNavigation) {

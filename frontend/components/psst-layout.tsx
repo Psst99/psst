@@ -11,5 +11,5 @@ export default async function PsstLayout({children}: {children: React.ReactNode}
     href: index === 0 ? '/psst' : `/psst/${section.slug}`,
   }))
 
-  return <DynamicLayout dynamicSubNavItems={dynamicSubNavItems}>{children}</DynamicLayout>
+  return <DynamicLayout dynamicSubNavItemsBySection={{psst: dynamicSubNavItems}}>{children}</DynamicLayout>
 }

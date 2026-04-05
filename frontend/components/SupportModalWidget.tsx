@@ -477,12 +477,11 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         {/* Tab handle centered cleanly alongside the left edge of the sliding drawer */}
         <div className="absolute left-[-32px] min-[83rem]:left-[-48px] top-0 bottom-0 flex items-center justify-center pointer-events-none z-[52] w-[32px] min-[83rem]:w-[48px]">
           <div
-            className="subnav-rounded-slot cursor-pointer pointer-events-auto"
+            className="subnav-rounded-slot cursor-pointer pointer-events-auto h-[32px] min-[83rem]:h-[48px]"
             onClick={onFloatingClick}
             style={{
               transformOrigin: 'center center',
               transform: 'rotate(-90deg)',
-              height: '32px',
               width: 'fit-content',
             }}
           >

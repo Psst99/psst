@@ -10,8 +10,7 @@ import DraftModeToast from '@/components/DraftModeToast'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
 import {
-  pssoundAboutLayoutQuery,
-  pssoundManifestoLayoutQuery,
+  pssoundSectionsQuery,
   psstSectionsQuery,
   resourcesGuidelinesLayoutQuery,
   settingsQuery,
@@ -74,16 +73,14 @@ export default async function RootLayout({children}: {children: React.ReactNode}
     {data: settings},
     {data: themeSettings},
     {data: psstSections},
+    {data: pssoundSections},
     {data: resourcesGuidelinesLayoutData},
-    {data: pssoundAboutLayoutData},
-    {data: pssoundManifestoLayoutData},
   ] = await Promise.all([
     sanityFetch({query: settingsQuery, stega: false}).catch(() => ({data: null})),
     sanityFetch({query: themeSettingsQuery, stega: false}).catch(() => ({data: null})),
     sanityFetch({query: psstSectionsQuery, stega: false}).catch(() => ({data: []})),
+    sanityFetch({query: pssoundSectionsQuery, stega: false}).catch(() => ({data: []})),
     sanityFetch({query: resourcesGuidelinesLayoutQuery, stega: false}).catch(() => ({data: null})),
-    sanityFetch({query: pssoundAboutLayoutQuery, stega: false}).catch(() => ({data: null})),
-    sanityFetch({query: pssoundManifestoLayoutQuery, stega: false}).catch(() => ({data: null})),
   ])
 
   const soundcloudPlaylistUrl = settings?.soundcloudPlaylistUrl
@@ -98,12 +95,24 @@ export default async function RootLayout({children}: {children: React.ReactNode}
     href: index === 0 ? '/psst' : `/psst/${section.slug}`,
     skeletonLayout: section.layout === 'guidelines' ? 'columns' : 'default',
   }))
+  const validPssoundSections = (pssoundSections || []).filter((section: any) => Boolean(section?.slug))
+  const dynamicPssoundPageItems = validPssoundSections.map((section: any, index: number) => ({
+    label: section.title,
+    href: index === 0 ? '/pssound-system' : `/pssound-system/${section.slug}`,
+    skeletonLayout: section.layout === 'guidelines' ? 'columns' : 'default',
+  }))
+  const dynamicPssoundSubNavItems = [
+    ...dynamicPssoundPageItems,
+    {label: 'Request', href: '/pssound-system/request'},
+    {label: 'Archive', href: '/pssound-system/archive'},
+  ]
+  const dynamicSubNavItemsBySection = {
+    psst: dynamicPsstSubNavItems,
+    'pssound-system': dynamicPssoundSubNavItems,
+  } as const
   const contentPageLayouts = {
     resourcesGuidelines:
       resourcesGuidelinesLayoutData?.layout === 'default' ? 'default' : 'columns',
-    pssoundAbout: pssoundAboutLayoutData?.settings?.layout === 'columns' ? 'columns' : 'default',
-    pssoundManifesto:
-      pssoundManifestoLayoutData?.settings?.layout === 'columns' ? 'columns' : 'default',
   } as const
 
   const vtScript = `
@@ -136,7 +145,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             {/* <ThemeToggleButton /> */}
             <SupportModalWidget content={(settings as any)?.support ?? null} />
             <div className="min-[83rem]:hidden">
-              <MobileHeader dynamicSubNavItems={dynamicPsstSubNavItems} />
+              <MobileHeader dynamicSubNavItemsBySection={dynamicSubNavItemsBySection} />
             </div>
 
             <section>
@@ -151,7 +160,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
               <NavigationPendingProvider>
                 <DynamicLayout
-                  dynamicSubNavItems={dynamicPsstSubNavItems}
+                  dynamicSubNavItemsBySection={dynamicSubNavItemsBySection}
                   contentPageLayouts={contentPageLayouts}
                 >
                   {children}

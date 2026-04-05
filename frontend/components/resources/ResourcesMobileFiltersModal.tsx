@@ -7,6 +7,7 @@ import {RiSearchLine} from 'react-icons/ri'
 import ResourcesOptimisticFilters from './ResourcesOptimisticFilters'
 import type {ResourcesSearchParams} from './ResourcesBrowseContentAsync'
 import {slugifyTag} from '@/lib/tags'
+import SectionScope from '@/components/SectionScope'
 
 interface ResourcesMobileFiltersModalProps {
   categories: Array<{
@@ -53,25 +54,30 @@ export default function ResourcesMobileFiltersModal({
 
       {open &&
         createPortal(
-          <div className="fixed inset-0 bg-[color:var(--panel-fg)]/75 z-[9999] overflow-y-auto md:hidden">
-            <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-white">
-              <button
-                onClick={() => setOpen(false)}
-                className="text-[var(--panel-fg)] text-3xl"
-                type="button"
-              >
-                <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
-              </button>
+          <SectionScope section="resources">
+            <div
+              className="fixed inset-0 z-[9999] overflow-y-auto md:hidden"
+              style={{backgroundColor: 'color-mix(in srgb, var(--panel-fg) 75%, transparent)'}}
+            >
+              <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-white">
+                <button
+                  onClick={() => setOpen(false)}
+                  className="text-[var(--panel-fg)] text-3xl"
+                  type="button"
+                >
+                  <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
+                </button>
+              </div>
+              <div className="px-4 py-8">
+                <ResourcesOptimisticFilters
+                  categories={categoriesWithSlug as any}
+                  tags={tagsWithSlug as any}
+                  initialParams={initialParams}
+                  totalCount={totalCount}
+                />
+              </div>
             </div>
-            <div className="px-4 py-8">
-              <ResourcesOptimisticFilters
-                categories={categoriesWithSlug as any}
-                tags={tagsWithSlug as any}
-                initialParams={initialParams}
-                totalCount={totalCount}
-              />
-            </div>
-          </div>,
+          </SectionScope>,
           document.body,
         )}
     </>

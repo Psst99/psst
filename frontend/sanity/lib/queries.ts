@@ -516,40 +516,84 @@ export const pssoundArchiveItemQuery = `
   }
 `
 
-export const pssoundAboutQuery = `
-{
-  "settings": *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
-    title,
-    description,
-    layout
-  }
-}
+export const pssoundSectionsQuery = `
+  select(
+    count(*[_type == "pssoundSection"]) > 0 => *[_type == "pssoundSection"] | order(defined(orderRank) desc, orderRank asc, _createdAt asc){
+      title,
+      "slug": slug.current,
+      layout
+    },
+    [
+      select(
+        count(coalesce(*[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0].description, [])) > 0 =>
+          *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
+            title,
+            "slug": "manifesto",
+            "layout": select(layout == "columns" => "guidelines", "default")
+          }
+      ),
+      select(
+        count(coalesce(*[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0].description, [])) > 0 =>
+          *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
+            title,
+            "slug": "about",
+            "layout": select(layout == "columns" => "guidelines", "default")
+          }
+      )
+    ][defined(title)]
+  )
 `
 
-export const pssoundAboutLayoutQuery = `
-{
-  "settings": *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
-    layout
-  }
-}
+export const pssoundSectionBySlugQuery = `
+  coalesce(
+    *[_type == "pssoundSection" && slug.current == $slug][0]{
+      title,
+      content,
+      layout
+    },
+    select(
+      $slug == "manifesto" =>
+        *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
+          title,
+          "content": description,
+          "layout": select(layout == "columns" => "guidelines", "default")
+        },
+      $slug == "about" =>
+        *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
+          title,
+          "content": description,
+          "layout": select(layout == "columns" => "guidelines", "default")
+        }
+    )
+  )
 `
 
-export const pssoundManifestoQuery = `
-{
-  "settings": *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
-    title,
-    description,
-    layout
-  }
-}
-`
-
-export const pssoundManifestoLayoutQuery = `
-{
-  "settings": *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
-    layout
-  }
-}
+export const pssoundFirstSectionQuery = `
+  select(
+    count(*[_type == "pssoundSection"]) > 0 =>
+      *[_type == "pssoundSection"] | order(defined(orderRank) desc, orderRank asc, _createdAt asc)[0]{
+        title,
+        "slug": slug.current,
+        content,
+        layout
+      },
+    select(
+      count(coalesce(*[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0].description, [])) > 0 =>
+        *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
+          title,
+          "slug": "manifesto",
+          "content": description,
+          "layout": select(layout == "columns" => "guidelines", "default")
+        },
+      count(coalesce(*[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0].description, [])) > 0 =>
+        *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
+          title,
+          "slug": "about",
+          "content": description,
+          "layout": select(layout == "columns" => "guidelines", "default")
+        }
+    )
+  )
 `
 
 export const psstSectionsQuery = `

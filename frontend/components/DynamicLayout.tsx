@@ -2,7 +2,8 @@
 
 import {usePathname} from 'next/navigation'
 import {useEffect, useMemo, useState} from 'react'
-import {getSectionConfig} from '@/lib/route-utils'
+import {getSectionConfig, type DynamicSubNavItemsBySection} from '@/lib/route-utils'
+import type {SectionKey} from '@/lib/theme'
 
 import SectionNavigation from './SectionNavigation'
 import SubNavigation, {resolveActiveSubNavHref} from './SubNavigation'
@@ -21,27 +22,30 @@ import ContentPageSkeleton from './loading/ContentPageSkeleton'
 
 interface DynamicLayoutProps {
   children: React.ReactNode
-  dynamicSubNavItems?: Array<{label: string; href: string; skeletonLayout?: 'default' | 'columns'}>
+  dynamicSubNavItemsBySection?: Partial<
+    Record<SectionKey, Array<{label: string; href: string; skeletonLayout?: 'default' | 'columns'}>>
+  >
   contentPageLayouts?: {
     resourcesGuidelines?: 'default' | 'columns'
-    pssoundAbout?: 'default' | 'columns'
-    pssoundManifesto?: 'default' | 'columns'
   }
 }
 
 export default function DynamicLayout({
   children,
-  dynamicSubNavItems,
+  dynamicSubNavItemsBySection,
   contentPageLayouts,
 }: DynamicLayoutProps) {
   const pathname = usePathname()
-  const {section, hasSubNav, subNavItems} = getSectionConfig(pathname, dynamicSubNavItems)
+  const {section, hasSubNav, subNavItems} = getSectionConfig(pathname, dynamicSubNavItemsBySection)
   const [pendingSubNavHref, setPendingSubNavHref] = useState<string | null>(null)
-  const psstSkeletonLayoutByHref = useMemo(() => {
+  const dynamicSkeletonLayoutByHref = useMemo(() => {
     return new Map(
-      (dynamicSubNavItems || []).map((item) => [item.href, item.skeletonLayout || 'default']),
+      Object.values(dynamicSubNavItemsBySection || {})
+        .flat()
+        .filter((item) => Boolean(item?.href && item?.skeletonLayout))
+        .map((item) => [item.href, item.skeletonLayout]),
     )
-  }, [dynamicSubNavItems])
+  }, [dynamicSubNavItemsBySection])
 
   const isRootArchive = pathname === '/archive'
 
@@ -110,9 +114,13 @@ export default function DynamicLayout({
   }
 
   const renderPendingSubNavLoading = (href: string) => {
-    if (href.startsWith('/psst')) {
-      const psstLayout = psstSkeletonLayoutByHref.get(href) || 'default'
-      return <ContentPageSkeleton layout={psstLayout} tone="panel" />
+    const dynamicLayout = dynamicSkeletonLayoutByHref.get(href)
+    if (dynamicLayout && (section === 'psst' || section === 'pssound-system')) {
+      const tone = section === 'psst' ? 'panel' : 'section'
+      const wrapperClass = section === 'psst' ? '' : 'p-6 md:px-20'
+      const skeleton = <ContentPageSkeleton layout={dynamicLayout} tone={tone} />
+
+      return wrapperClass ? <div className={wrapperClass}>{skeleton}</div> : skeleton
     }
 
     switch (href) {
@@ -142,24 +150,9 @@ export default function DynamicLayout({
       case '/workshops/register':
         return <WorkshopsRegisterLoading />
       case '/pssound-system':
+        return <SectionLoading section="pssound-system" />
       case '/pssound-system/archive':
-        return (
-          <div className="p-6 md:px-20">
-            <ContentPageSkeleton
-              layout={contentPageLayouts?.pssoundAbout || 'default'}
-              tone="section"
-            />
-          </div>
-        )
-      case '/pssound-system/manifesto':
-        return (
-          <div className="p-6 md:px-20">
-            <ContentPageSkeleton
-              layout={contentPageLayouts?.pssoundManifesto || 'default'}
-              tone="section"
-            />
-          </div>
-        )
+        return <SectionLoading section="pssound-system" />
       case '/pssound-system/request':
         return <PssoundSystemRequestLoading />
       case '/pssound-system/membership':
@@ -182,14 +175,7 @@ export default function DynamicLayout({
           case 'psst':
             return <ContentPageSkeleton layout="default" tone="panel" />
           case 'pssound-system':
-            return (
-              <div className="p-6 md:px-20">
-                <ContentPageSkeleton
-                  layout={contentPageLayouts?.pssoundAbout || 'default'}
-                  tone="section"
-                />
-              </div>
-            )
+            return <SectionLoading section={section as any} />
           default:
             return <SectionLoading section={section as any} />
         }

@@ -32,6 +32,7 @@ import {themeSettings} from './singletons/themeSettings'
 import {pssoundArchive} from './documents/pssoundArchive'
 import {resourceTag} from './documents/resourceTag'
 import psstSection from './documents/psstSection'
+import pssoundSection from './documents/pssoundSection'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -46,6 +47,7 @@ export const schemaTypes = [
   // Documents
   psstPage,
   psstSection,
+  pssoundSection,
   category,
   page,
   post,

@@ -3,12 +3,10 @@ import {
   ClockIcon,
   CalendarIcon,
   CogIcon,
-  InfoOutlineIcon,
   ListIcon,
   TagIcon,
   UserIcon,
   EnvelopeIcon,
-  EditIcon,
   ArchiveIcon,
   HomeIcon,
   CheckmarkIcon,
@@ -25,7 +23,7 @@ import {LuLibrary, LuLightbulb} from 'react-icons/lu'
 import {CgUnavailable} from 'react-icons/cg'
 import {CiBoxList} from 'react-icons/ci'
 
-import {orderableDocumentListDeskItem, orderRankField} from '@sanity/orderable-document-list'
+import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import pluralize from 'pluralize-esm'
 import ThemePreviewTool from '../components/ThemePreviewTool'
 
@@ -197,31 +195,14 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
             .title('PSƧOUND System')
             .items([
               // Content Pages Group
-              S.listItem()
-                .title('Pages')
-                .icon(BookIcon)
-                .child(
-                  S.list()
-                    .title('Pages')
-                    .items([
-                      S.listItem()
-                        .title('About')
-                        .icon(InfoOutlineIcon)
-                        .child(
-                          S.document()
-                            .schemaType('pageSettings')
-                            .documentId('pssound-about-pageSettings'),
-                        ),
-                      S.listItem()
-                        .title('Manifesto')
-                        .icon(EditIcon)
-                        .child(
-                          S.document()
-                            .schemaType('pageSettings')
-                            .documentId('pssound-manifesto-pageSettings'),
-                        ),
-                    ]),
-                ),
+              orderableDocumentListDeskItem({
+                type: 'pssoundSection',
+                title: 'Pages',
+                icon: BookIcon,
+                createIntent: true,
+                S,
+                context,
+              }),
 
               // Request System Group
               S.listItem()

@@ -141,7 +141,10 @@ export default function OptimisticFilters({
   }
 
   return (
-    <div className="w-full md:w-80 space-y-3" data-pending={isPending ? '' : undefined}>
+    <div
+      className="w-full md:w-80 space-y-2 md:space-y-3"
+      data-pending={isPending ? '' : undefined}
+    >
       {/* Search */}
       <div className="bg-white py-1 px-6 rounded-md border-2 border-transparent focus-within:border-[var(--section-bg)] transition-colors">
         <input
@@ -215,7 +218,7 @@ export default function OptimisticFilters({
       </div>
 
       {/* Tags with Shuffle */}
-      <div className="bg-white py-1 pb-3 px-6 rounded-md max-h-[30vh] xl:max-h-[40vh] overflow-y-auto no-scrollbar">
+      <div className="bg-white py-1 pb-3 px-6 rounded-md max-h-[25vh] xl:max-h-[40vh] overflow-y-auto no-scrollbar">
         <div
           className={`text-center uppercase tracking-tight text-xl mb-2 flex items-center justify-center gap-1 ${headingClass}`}
         >

@@ -30,12 +30,10 @@ export default async function PssoundArchiveContentAsync() {
     }) || []
 
   return (
-    <div className="p-6 md:mx-16">
-      <h1 className="text-3xl md:text-4xl mb-6 text-center">
-        {settings?.title || 'PSSoundArchive'}
-      </h1>
-
-      {settings?.description && <CmsContent value={settings.description} />}
+    <div className="p-6 text-[color:var(--section-accent)] md:mx-16">
+      <div className="mx-4 xl:max-w-[65vw] xl:mx-auto">
+        <CmsContent value={settings?.description} />
+      </div>
 
       <PssoundArchiveGrid items={items} />
     </div>

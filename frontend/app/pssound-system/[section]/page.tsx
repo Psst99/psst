@@ -1,15 +1,18 @@
 import CmsContent from '@/components/CmsContent'
 import {sanityFetch} from '@/sanity/lib/live'
-import {pssoundFirstSectionQuery} from '@/sanity/lib/queries'
+import {pssoundSectionBySlugQuery} from '@/sanity/lib/queries'
 import {notFound} from 'next/navigation'
 
-export default function PssoundSystemPage() {
-  return <PssoundSystemPageAsync />
-}
+export default async function PssoundSystemSectionPage({
+  params,
+}: {
+  params: Promise<{section: string}>
+}) {
+  const {section} = await params
 
-async function PssoundSystemPageAsync() {
   const {data} = await sanityFetch({
-    query: pssoundFirstSectionQuery,
+    query: pssoundSectionBySlugQuery,
+    params: {slug: section},
   })
 
   if (!data) {
