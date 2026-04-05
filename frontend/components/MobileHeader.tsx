@@ -123,6 +123,15 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
             </button>
           </div>
 
+          {isMenuOpen && (
+            <div className="flex w-full -mb-[14px] relative z-[1]" style={{height: 14}}>
+              <SectionScope section="psst" variant="tab" asChild>
+                <div className="w-1/2 section-bg" />
+              </SectionScope>
+              <div className="flex-1 bg-[#D2D2D2]" />
+            </div>
+          )}
+
           {/* Main Menu */}
           <div className="bg-transparent h-full relative z-50">
             <div className="flex flex-col h-full" onClick={(e) => e.stopPropagation()}>

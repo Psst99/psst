@@ -118,7 +118,7 @@ export default async function ResourcesBrowseContentAsync({
   }
 
   return (
-    <div className="p-4 lg:px-16 pt-0 w-full mx-auto group">
+    <div className="p-6 lg:px-16 pt-0 w-full mx-auto group">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Desktop sidebar */}
         <div className="hidden md:block">

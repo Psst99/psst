@@ -5,7 +5,7 @@ export default function Loading() {
   const seeds = ['music', 'art', 'sound', 'design', 'visual', 'performance', 'digital', 'noise']
 
   return (
-    <div className="p-4 lg:px-16 pt-0 w-full mx-auto group">
+    <div className="p-6 lg:px-16 pt-0 w-full mx-auto group">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Desktop sidebar skeleton - properly hidden on mobile */}
         <div className="hidden md:block w-80 space-y-3 animate-pulse">
