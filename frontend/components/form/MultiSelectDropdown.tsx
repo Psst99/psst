@@ -196,7 +196,7 @@ export const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               className={['w-full text-left bg-transparent', 'py-2', 'cursor-pointer'].join(' ')}
             >
               {value.length === 0 ? (
-                <span className="font-normal text-xl min-[83rem]:text-3xl text-[color:var(--section-bg)] opacity-60">
+                <span className="font-normal text-xl min-[69.375rem]:text-3xl text-[color:var(--section-bg)] opacity-60">
                   {placeholder}
                 </span>
               ) : (
@@ -223,7 +223,7 @@ export const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                       return (
                         <span
                           key={displayOption.id}
-                          className="px-1 py-0 bg-[var(--section-bg)] text-[color:var(--section-fg)] font-mono text-xl min-[83rem]:text-3xl uppercase font-light leading-tight inline-flex items-center gap-x-2"
+                          className="px-1 py-0 bg-[var(--section-bg)] text-[color:var(--section-fg)] font-mono text-xl min-[69.375rem]:text-3xl uppercase font-light leading-tight inline-flex items-center gap-x-2"
                         >
                           {displayOption.label}
                           <button type="button" onClick={handleRemove} className="text-current">
@@ -293,7 +293,7 @@ export const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               }}
               className={[
                 'w-full bg-transparent outline-none',
-                'text-[color:var(--section-bg)] font-mono text-base min-[83rem]:text-lg',
+                'text-[color:var(--section-bg)] font-mono text-base min-[69.375rem]:text-lg',
                 'border-0 border-b border-b-current',
                 'py-2',
               ].join(' ')}
@@ -386,7 +386,7 @@ export const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                           requestAnimationFrame(() => inputRef.current?.focus())
                         }}
                         className={[
-                          'px-1 py-0 font-mono text-xl min-[83rem]:text-3xl uppercase font-light leading-tight inline-flex items-center gap-2',
+                          'px-1 py-0 font-mono text-xl min-[69.375rem]:text-3xl uppercase font-light leading-tight inline-flex items-center gap-2',
                           isSelected
                             ? 'bg-[var(--section-bg)] text-[color:var(--section-fg)]'
                             : 'bg-[var(--section-fg)] text-[color:var(--section-bg)]',

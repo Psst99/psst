@@ -55,8 +55,8 @@ const OPEN_VALUE = 'open'
 
 const richTextComponents: PortableTextComponents = {
   block: {
-    normal: ({children}) => <p className="text-sm min-[83rem]:text-xl leading-snug">{children}</p>,
-    h2: ({children}) => <h3 className="text-xl min-[83rem]:text-3xl leading-tight">{children}</h3>,
+    normal: ({children}) => <p className="text-sm min-[69.375rem]:text-xl leading-snug">{children}</p>,
+    h2: ({children}) => <h3 className="text-xl min-[69.375rem]:text-3xl leading-tight">{children}</h3>,
   },
   marks: {
     link: ({children, value}) => {
@@ -332,7 +332,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       const rect = container.getBoundingClientRect()
       const maxX = Math.max(0, window.innerWidth - rect.width)
       const maxY = Math.max(0, window.innerHeight - rect.height)
-      const margin = window.matchMedia('(min-width: 83rem)').matches ? 24 : 16
+      const margin = window.matchMedia('(min-width: 69.375rem)').matches ? 24 : 16
 
       setFloatingPos((prev) => {
         if (!prev) {
@@ -421,7 +421,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       container.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)'
 
       const {maxX, maxY} = dragRef.current.bounds
-      const margin = window.matchMedia('(min-width: 83rem)').matches ? 24 : 16
+      const margin = window.matchMedia('(min-width: 69.375rem)').matches ? 24 : 16
       const rect = container.getBoundingClientRect()
       const midX = window.innerWidth / 2
       const midY = window.innerHeight / 2
@@ -471,7 +471,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       {!isOpen && (
         <button
           ref={floatingContainerRef}
-          className="support-widget-fixed fixed z-[10002] flex items-center justify-center w-[40px] h-[40px] min-[83rem]:w-[56px] min-[83rem]:h-[56px] rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.15)] cursor-pointer select-none"
+          className="support-widget-fixed fixed z-[10002] flex items-center justify-center w-[40px] h-[40px] min-[69.375rem]:w-[56px] min-[69.375rem]:h-[56px] rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.15)] cursor-pointer select-none"
           style={{
             backgroundColor: theme.fg,
             color: theme.bg,
@@ -484,7 +484,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           onPointerUp={onFloatingPointerUp}
           onClick={onFloatingClick}
         >
-          <SiMinutemailer className="h-[22px] w-[22px] min-[83rem]:h-[30px] min-[83rem]:w-[30px]" />
+          <SiMinutemailer className="h-[22px] w-[22px] min-[69.375rem]:h-[30px] min-[69.375rem]:w-[30px]" />
         </button>
       )}
 
@@ -502,7 +502,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         />
 
         <div
-          className={`relative panel-bg panel-fg w-full max-w-3xl rounded-3xl p-6 pt-14 min-[83rem]:p-8 min-[83rem]:pt-8 max-h-[85vh] overflow-y-auto no-scrollbar transition-transform duration-300 ease-out ${
+          className={`relative panel-bg panel-fg w-full max-w-3xl rounded-3xl p-6 pt-14 min-[69.375rem]:p-8 min-[69.375rem]:pt-8 max-h-[85vh] overflow-y-auto no-scrollbar transition-transform duration-300 ease-out ${
             isVisible ? 'translate-y-0' : 'translate-y-[100vh]'
           } ${isOpen ? '' : 'pointer-events-none'}`}
           style={
@@ -546,7 +546,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                 <button
                   type="button"
                   onClick={() => openModal('donation')}
-                  className={`border panel-border rounded-md w-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
+                  className={`border panel-border rounded-md w-full px-4 py-1 text-sm min-[69.375rem]:text-base cursor-pointer ${
                     activeTab === 'donation' ? 'invert-panel' : ''
                   }`}
                 >
@@ -555,7 +555,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                 <button
                   type="button"
                   onClick={() => openModal('newsletter')}
-                  className={`border panel-border rounded-md w-full px-4 py-1 text-sm min-[83rem]:text-base cursor-pointer ${
+                  className={`border panel-border rounded-md w-full px-4 py-1 text-sm min-[69.375rem]:text-base cursor-pointer ${
                     activeTab === 'newsletter' ? 'invert-panel' : ''
                   }`}
                 >
@@ -568,7 +568,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                   <form
                     key="donation-form"
                     onSubmit={onDonationSubmit}
-                    className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
+                    className="space-y-4 pb-14 min-[69.375rem]:pb-16 flex flex-col"
                   >
                     {content?.donationIntro?.length ? (
                       <div className="space-y-2 mb-4">
@@ -582,7 +582,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                           key={preset}
                           type="button"
                           onClick={() => setDonationAmount(preset.toString())}
-                          className={`flex items-center justify-center w-12 h-12 text-lg min-[83rem]:w-12 min-[83rem]:h-12 min-[83rem]:text-lg rounded-full text-center transition-colors cursor-pointer ${
+                          className={`flex items-center justify-center w-12 h-12 text-lg min-[69.375rem]:w-12 min-[69.375rem]:h-12 min-[69.375rem]:text-lg rounded-full text-center transition-colors cursor-pointer ${
                             donationAmount === preset.toString()
                               ? 'invert-panel'
                               : 'bg-[#ECECEC] text-[var(--panel-fg)] hover:bg-[#d2d2d2]'
@@ -666,7 +666,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                     <button
                       type="submit"
                       disabled={isDonationSubmitting}
-                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
+                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[69.375rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[69.375rem]:w-64 min-[69.375rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
                     >
                       {isDonationSubmitting ? 'Redirecting...' : donationSubmitLabel}
                     </button>
@@ -675,7 +675,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                   <form
                     key="newsletter-form"
                     onSubmit={handleNewsletterSubmit(onNewsletterSubmit)}
-                    className="space-y-4 pb-14 min-[83rem]:pb-16 flex flex-col"
+                    className="space-y-4 pb-14 min-[69.375rem]:pb-16 flex flex-col"
                   >
                     {content?.newsletterIntro?.length ? (
                       <div className="space-y-2 mb-4">
@@ -732,7 +732,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                     <button
                       type="submit"
                       disabled={isNewsletterSubmitting}
-                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[83rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[83rem]:w-64 min-[83rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
+                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[69.375rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[69.375rem]:w-64 min-[69.375rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
                     >
                       {isNewsletterSubmitting ? 'Submitting...' : newsletterSubmitLabel}
                     </button>

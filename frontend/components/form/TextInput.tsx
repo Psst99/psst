@@ -39,7 +39,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   fieldClassName = '',
 }) => {
   const baseClasses =
-    'w-full text-[color:var(--section-fg)] px-4 py-3 text-xl min-[83rem]:text-3xl border-0 outline-0'
+    'w-full text-[color:var(--section-fg)] px-4 py-3 text-xl min-[69.375rem]:text-3xl border-0 outline-0'
   const finalClassName = className.includes('bg-') ? className : `bg-white ${className}`
   const mergedClassName = `${baseClasses} ${finalClassName} ${inputClassName}`.trim()
   const resolvedName = registration?.name ?? name

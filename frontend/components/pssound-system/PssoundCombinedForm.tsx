@@ -181,12 +181,12 @@ export default function PssoundCombinedForm({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Membership selection */}
         <div className="p-6 section-bg rounded-xl">
-          <div className="mb-4 flex flex-col gap-4 min-[83rem]:flex-row min-[83rem]:items-baseline min-[83rem]:justify-between">
+          <div className="mb-4 flex flex-col gap-4 min-[69.375rem]:flex-row min-[69.375rem]:items-baseline min-[69.375rem]:justify-between">
             <p className="tracking-tight text-2xl mb-4 section-fg">
               Are you already a Pssound Community member?
             </p>
 
-            <div className="flex flex-wrap gap-4 justify-start min-[83rem]:justify-center">
+            <div className="flex flex-wrap gap-4 justify-start min-[69.375rem]:justify-center">
               <button
                 type="button"
                 onClick={() => {

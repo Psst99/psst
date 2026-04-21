@@ -144,7 +144,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             {/* <RoundedToggleButton /> */}
             {/* <ThemeToggleButton /> */}
             <SupportModalWidget content={(settings as any)?.support ?? null} />
-            <div className="min-[83rem]:hidden">
+            <div className="min-[69.375rem]:hidden">
               <MobileHeader dynamicSubNavItemsBySection={dynamicSubNavItemsBySection} />
             </div>
 

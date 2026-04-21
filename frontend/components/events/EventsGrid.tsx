@@ -65,7 +65,7 @@ export default function EventsGrid({ events }: EventsGridProps) {
 
       {showEmptyUpcoming && (
         <div className='text-center py-16'>
-          <p className='text-base leading-tight min-[83rem]:text-xl section-fg'>
+          <p className='text-base leading-tight min-[69.375rem]:text-xl section-fg'>
             There are no upcoming events.
           </p>
         </div>

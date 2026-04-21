@@ -115,7 +115,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
     })) ?? []
 
   return (
-    <div className="p-6 h-full w-full min-[83rem]:max-w-[65vw] mx-auto min-[83rem]:p-4">
+    <div className="p-6 h-full w-full min-[69.375rem]:max-w-[65vw] mx-auto min-[69.375rem]:p-4">
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         <FormField
           label="Name"
@@ -134,7 +134,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
         >
           <select
             {...register('pronouns')}
-            className="w-full rounded-t-none rounded-b-lg min-[83rem]:rounded-b-none text-[color:var(--section-bg)] px-4 py-2 text-xl min-[83rem]:text-3xl border-0 outline-0 min-[83rem]:rounded-l-none min-[83rem]:rounded-tr-lg min-[83rem]:rounded-br-lg bg-white h-full"
+            className="w-full rounded-t-none rounded-b-lg min-[69.375rem]:rounded-b-none text-[color:var(--section-bg)] px-4 py-2 text-xl min-[69.375rem]:text-3xl border-0 outline-0 min-[69.375rem]:rounded-l-none min-[69.375rem]:rounded-tr-lg min-[69.375rem]:rounded-br-lg bg-white h-full"
           >
             {PRONOUN_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>

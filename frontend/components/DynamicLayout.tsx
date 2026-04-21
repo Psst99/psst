@@ -88,24 +88,24 @@ export default function DynamicLayout({
 
   const mobileTopPaddingClass = hasSubNav ? 'pt-[5.5rem]' : 'pt-[4.5rem]'
   const desktopTopPaddingClass = isRootArchive
-    ? 'min-[83rem]:pt-0'
+    ? 'min-[69.375rem]:pt-0'
     : hasDesktopSubNav
-      ? 'min-[83rem]:pt-14'
-      : 'min-[83rem]:pt-16'
+      ? 'min-[69.375rem]:pt-14'
+      : 'min-[69.375rem]:pt-16'
   const paddingClasses = `${mobileTopPaddingClass} pb-0 ${desktopTopPaddingClass}`
   const contentOffsetClass = '-mt-0'
   const contentTopMarginClass = hasDesktopSubNav ? 'mt-[5px]' : 'mt-0'
-  const contentTopSpacerClass = hasDesktopSubNav ? 'pt-2 min-[83rem]:pt-0' : 'pt-0'
+  const contentTopSpacerClass = hasDesktopSubNav ? 'pt-2 min-[69.375rem]:pt-0' : 'pt-0'
   const contentOverflowClasses = 'overflow-visible'
   const desktopSheetTopClass = hasDesktopSubNav
-    ? 'min-[83rem]:top-[calc(var(--home-nav-h)*2)]'
-    : 'min-[83rem]:top-[var(--home-nav-h)]'
+    ? 'min-[69.375rem]:top-[calc(var(--home-nav-h)*2)]'
+    : 'min-[69.375rem]:top-[var(--home-nav-h)]'
 
   // When first tab is active, content shouldn't have top-left rounded corner (intercalaire effect)
   const isFirstTabActive = activeSubNavIndex === 0
   const contentLeftRoundingClass = isFirstTabActive
-    ? 'min-[83rem]:rounded-bl-2xl' // Only round bottom-left
-    : 'min-[83rem]:rounded-l-2xl' // Round both left corners
+    ? 'min-[69.375rem]:rounded-bl-2xl' // Only round bottom-left
+    : 'min-[69.375rem]:rounded-l-2xl' // Round both left corners
 
   const handleSubNavItemClick = (href: string) => {
     if (href === pathname) return
@@ -201,14 +201,14 @@ export default function DynamicLayout({
       section={section as any}
       variant="page"
       panelVariant={hasSubNav ? 'subtab' : 'section'}
-      className="min-h-screen site-bg min-[83rem]:pb-[var(--home-nav-h)]"
+      className="min-h-screen site-bg min-[69.375rem]:pb-[var(--home-nav-h)]"
     >
       {/* Mobile background layer */}
-      <div className="fixed top-0 inset-0 -z-10 min-[83rem]:hidden section-bg section-border border" />
+      <div className="fixed top-0 inset-0 -z-10 min-[69.375rem]:hidden section-bg section-border border" />
 
-      <div className="min-h-screen flex flex-col overflow-hidden min-[83rem]:h-screen">
+      <div className="min-h-screen flex flex-col overflow-hidden min-[69.375rem]:h-screen">
         {/* Desktop top active intercalaire + optional subnav */}
-        <div className="hidden min-[83rem]:block fixed top-0 left-0 right-0 z-[26]">
+        <div className="hidden min-[69.375rem]:block fixed top-0 left-0 right-0 z-[26]">
           <SectionScope section={section as any} variant="page" className="contents">
             <div className="relative">
               <SectionNavigation currentSection={section} onlyCurrentSection />
@@ -231,19 +231,19 @@ export default function DynamicLayout({
         {hasDesktopSubNav && (
           <div
             aria-hidden="true"
-            className="pointer-events-none hidden min-[83rem]:block fixed left-0 right-0 top-[var(--home-nav-h)] bottom-0 z-[8] section-bg min-[83rem]:rounded-tr-3xl"
+            className="pointer-events-none hidden min-[69.375rem]:block fixed left-0 right-0 top-[var(--home-nav-h)] bottom-0 z-[8] section-bg min-[69.375rem]:rounded-tr-3xl"
           />
         )}
 
         {/* Desktop bottom stack of remaining intercalaires */}
-        <div className="shrink-0 hidden min-[83rem]:block fixed bottom-0 left-0 right-0 z-20 section-nav-fixed section-page-nav-fixed">
+        <div className="shrink-0 hidden min-[69.375rem]:block fixed bottom-0 left-0 right-0 z-20 section-nav-fixed section-page-nav-fixed">
           <SectionNavigation currentSection={section} hideCurrentSection />
         </div>
 
         {/* Main content */}
         <div
           className={[
-            'relative flex-1 border-0 border-t min-[83rem]:border-t-0 z-10',
+            'relative flex-1 border-0 border-t min-[69.375rem]:border-t-0 z-10',
             contentTopMarginClass,
             // contentLeftRoundingClass,
             contentOffsetClass,
@@ -251,9 +251,9 @@ export default function DynamicLayout({
             'panel-bg panel-fg panel-border',
             paddingClasses,
             hasDesktopSubNav
-              ? 'no-scrollbar min-[83rem]:rounded-tr-3xl min-[83rem]:rounded-tl-xl'
+              ? 'no-scrollbar min-[69.375rem]:rounded-tr-3xl min-[69.375rem]:rounded-tl-xl'
               : '',
-            'min-[83rem]:fixed min-[83rem]:left-0 min-[83rem]:right-0 min-[83rem]:bottom-0',
+            'min-[69.375rem]:fixed min-[69.375rem]:left-0 min-[69.375rem]:right-0 min-[69.375rem]:bottom-0',
             desktopSheetTopClass,
           ].join(' ')}
         >

@@ -19,7 +19,7 @@ export default async function WorkshopRegisterPage({
           <h1 className="text-3xl md:text-4xl mb-6 text-center tracking-tight">
             Workshop Registration
           </h1>
-          <p className="text-base leading-tight min-[83rem]:text-xl">
+          <p className="text-base leading-tight min-[69.375rem]:text-xl">
             {`There's no upcoming workshops at the moment, keep an eye on this page and our socials
             for future opportunities.`}
           </p>
@@ -43,7 +43,7 @@ export default async function WorkshopRegisterPage({
           <h1 className="text-3xl md:text-4xl mb-6 text-center tracking-tight">
             Workshop Registration
           </h1>
-          <p className="text-base leading-tight min-[83rem]:text-xl">
+          <p className="text-base leading-tight min-[69.375rem]:text-xl">
             All upcoming workshops are currently full. Please check back later for new workshop
             announcements.
           </p>

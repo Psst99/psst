@@ -89,7 +89,7 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
         {/* Header */}
         <div className="p-8 sm:p-8 flex items-start justify-between gap-6">
           <div className="min-w-0">
-            <h1 className="panel-fg text-2xl min-[83rem]:text-3xl tracking-tight">
+            <h1 className="panel-fg text-2xl min-[69.375rem]:text-3xl tracking-tight">
               {workshop.title}
             </h1>
 
@@ -99,7 +99,7 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
                 {workshop.dates.map((date: string, idx: number) => (
                   <span
                     key={idx}
-                    className="invert-panel py-0 font-mono font-normal px-2 text-sm min-[83rem]:text-lg"
+                    className="invert-panel py-0 font-mono font-normal px-2 text-sm min-[69.375rem]:text-lg"
                   >
                     {new Date(date).toLocaleDateString('en-US', {
                       month: 'numeric',
@@ -127,7 +127,7 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
         {/* Scrollable content */}
         <div className="px-8 pb-8 flex-1 min-h-0 overflow-y-auto no-scrollbar pr-2">
           {(workshop.location || workshop.url) && (
-            <div className="mb-6 space-y-2 panel-fg text-base min-[83rem]:text-xl leading-snug">
+            <div className="mb-6 space-y-2 panel-fg text-base min-[69.375rem]:text-xl leading-snug">
               {workshop.location && (
                 <p className="flex items-start gap-2">
                   <span aria-hidden="true" className="translate-y-[0.05em]">

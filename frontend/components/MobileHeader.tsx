@@ -84,7 +84,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
   // HOME: bottom sheet
   if (isHome) {
     return (
-      <div className="min-[83rem]:hidden">
+      <div className="min-[69.375rem]:hidden">
         <motion.div
           className="fixed left-0 right-0 z-50 bottom-0 w-full h-svh"
           initial={{y: isMenuOpen ? 0 : `calc(100% - ${mobileHeaderRowHeight}px)`}}
@@ -163,7 +163,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
   // NON-HOME: fixed top header
   return (
     <div
-      className="bg-white fixed left-0 right-0 z-50 top-0 tracking-tighter min-[83rem]:hidden"
+      className="bg-white fixed left-0 right-0 z-50 top-0 tracking-tighter min-[69.375rem]:hidden"
       style={{height: mobileHeaderRowHeight}}
     >
       {/* Top Header row */}

@@ -20,19 +20,19 @@ const TABS: Array<{
   zBase: number
   widthWeight: number
 }> = [
-  {href: '/psst', label: 'PSƧT', slug: 'psst', zBase: 19, widthWeight: 0.95},
-  {href: '/database', label: 'DATABASE', slug: 'database', zBase: 18, widthWeight: 1.1},
-  {href: '/resources', label: 'RESOURCES', slug: 'resources', zBase: 14, widthWeight: 1.1},
+  {href: '/psst', label: 'PSƧT', slug: 'psst', zBase: 19, widthWeight: 0.68},
+  {href: '/database', label: 'DATABASE', slug: 'database', zBase: 18, widthWeight: 1.05},
+  {href: '/resources', label: 'RESOURCES', slug: 'resources', zBase: 14, widthWeight: 1.12},
   {
     href: '/pssound-system',
-    label: 'PSƧOUND SYSTEM',
+    label: 'PSƧOUND',
     slug: 'pssound-system',
     zBase: 15,
-    widthWeight: 1.55,
+    widthWeight: 0.92,
   },
-  {href: '/workshops', label: 'WORKSHOPS', slug: 'workshops', zBase: 17, widthWeight: 1.1},
-  {href: '/events', label: 'EVENTS', slug: 'events', zBase: 16, widthWeight: 1},
-  {href: '/archive', label: 'ARCHIVE', slug: 'archive', zBase: 13, widthWeight: 1.1},
+  {href: '/workshops', label: 'WORKSHOPS', slug: 'workshops', zBase: 17, widthWeight: 1.18},
+  {href: '/events', label: 'EVENTS', slug: 'events', zBase: 16, widthWeight: 0.82},
+  {href: '/archive', label: 'ARCHIVE', slug: 'archive', zBase: 13, widthWeight: 0.9},
 ]
 
 export default function SectionNavigation({

@@ -235,7 +235,7 @@ export default function CustomLink({
     }
 
     const isDesktop =
-      typeof window !== 'undefined' && window.matchMedia('(min-width: 83rem)').matches
+      typeof window !== 'undefined' && window.matchMedia('(min-width: 69.375rem)').matches
     const isDesktopIntercalaire = intercalaire && isDesktop
 
     if (isDesktopIntercalaire) clearIntercalaireCommit()

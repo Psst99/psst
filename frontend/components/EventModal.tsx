@@ -63,14 +63,14 @@ export default function EventModal({event}: EventModalProps) {
       >
         <div className="p-8 sm:p-8">
           <div className="min-w-0">
-            <h1 className="text-2xl min-[83rem]:text-3xl tracking-tight">{event.title}</h1>
+            <h1 className="text-2xl min-[69.375rem]:text-3xl tracking-tight">{event.title}</h1>
 
             {eventDates.length > 0 && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {eventDates.map((date: string, idx: number) => (
                   <span
                     key={idx}
-                    className="bg-[#00ffdd] text-white py-0 font-mono font-normal px-2 text-sm min-[83rem]:text-lg"
+                    className="bg-[#00ffdd] text-white py-0 font-mono font-normal px-2 text-sm min-[69.375rem]:text-lg"
                   >
                     {new Date(date).toLocaleDateString('en-US', {
                       month: 'numeric',
@@ -86,7 +86,7 @@ export default function EventModal({event}: EventModalProps) {
 
         <div className="px-8 pb-8 flex-1 min-h-0 overflow-y-auto no-scrollbar pr-2">
           {(event.location || event.url) && (
-            <div className="mb-6 space-y-2 text-base min-[83rem]:text-xl leading-snug">
+            <div className="mb-6 space-y-2 text-base min-[69.375rem]:text-xl leading-snug">
               {event.location && (
                 <p className="flex items-start gap-2">
                   <span aria-hidden="true" className="translate-y-[0.05em]">

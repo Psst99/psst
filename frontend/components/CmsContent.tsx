@@ -140,10 +140,10 @@ function resolvePortableTextLink(value: PortableTextLinkValue | null | undefined
 const getHighlightedBlockComponents = (): PortableTextComponents => ({
   block: {
     normal: ({children}) => (
-      <p className="last:mb-0 text-base min-[83rem]:text-2xl leading-snug">{children}</p>
+      <p className="last:mb-0 text-base min-[69.375rem]:text-2xl leading-snug">{children}</p>
     ),
     h2: ({children}) => (
-      <h2 className="text-3xl min-[83rem]:text-3xl mb-6 text-center tracking-tight">{children}</h2>
+      <h2 className="text-3xl min-[69.375rem]:text-3xl mb-6 text-center tracking-tight">{children}</h2>
     ),
   },
   marks: {
@@ -189,7 +189,7 @@ const getComponents = (
     normal: ({children}) => (
       <Reveal y={12} durationMs={480}>
         {hasRenderableText(children) ? (
-          <p className="panel-fg text-base leading-tight min-[83rem]:text-2xl w-full min-[83rem]:max-w-[65vw] mx-auto break-inside-avoid">
+          <p className="panel-fg text-base leading-tight min-[69.375rem]:text-2xl w-full min-[69.375rem]:max-w-[65vw] mx-auto break-inside-avoid">
             {children}
           </p>
         ) : null}
@@ -197,21 +197,21 @@ const getComponents = (
     ),
     h2: ({children}) => (
       <Reveal y={12} durationMs={480}>
-        <h2 className="panel-fg text-3xl min-[83rem]:text-3xl mb-6 text-center tracking-tight break-after-avoid break-inside-avoid">
+        <h2 className="panel-fg text-3xl min-[69.375rem]:text-3xl mb-6 text-center tracking-tight break-after-avoid break-inside-avoid">
           {children}
         </h2>
       </Reveal>
     ),
     largeParagraph: ({children}) => (
       <Reveal y={14} durationMs={500}>
-        <p className="panel-fg text-2xl min-[83rem]:text-3xl mb-16 text-left tracking-tight leading-[1.75rem] xl:leading-[2.25rem] break-inside-avoid">
+        <p className="panel-fg text-2xl min-[69.375rem]:text-3xl mb-16 text-left tracking-tight leading-[1.75rem] xl:leading-[2.25rem] break-inside-avoid">
           {children}
         </p>
       </Reveal>
     ),
     largeQuestion: ({children}) => (
       <Reveal y={14} durationMs={500}>
-        <p className="panel-fg text-2xl min-[83rem]:text-3xl text-left tracking-tight mt-16 break-inside-avoid">
+        <p className="panel-fg text-2xl min-[69.375rem]:text-3xl text-left tracking-tight mt-16 break-inside-avoid">
           {children}
         </p>
       </Reveal>
@@ -220,12 +220,12 @@ const getComponents = (
 
   list: ({children}) => (
     <Reveal y={12} durationMs={480}>
-      <ul className="list-none p-0 my-0 -mt-2 min-[83rem]:-mt-3 space-y-0.5">{children}</ul>
+      <ul className="list-none p-0 my-0 -mt-2 min-[69.375rem]:-mt-3 space-y-0.5">{children}</ul>
     </Reveal>
   ),
 
   listItem: ({children}) => (
-    <li className="panel-fg text-base leading-tight mb-0 min-[83rem]:text-2xl">
+    <li className="panel-fg text-base leading-tight mb-0 min-[69.375rem]:text-2xl">
       <span className="inline-flex items-start gap-1.5">
         <span
           className="inline-flex shrink-0 translate-y-[0.32em] mr-1"
@@ -311,16 +311,16 @@ const getComponents = (
       const tabPosClass =
         tabPos === 'right'
           ? 'absolute right-16 -top-[31px]'
-          : 'absolute left-6 first:min-[83rem]:left-32 min-[83rem]:left-16 -top-[31px]'
+          : 'absolute left-6 first:min-[69.375rem]:left-32 min-[69.375rem]:left-16 -top-[31px]'
 
       return (
         <Reveal
-          className="mt-12 first:mt-0 mb-12 min-[83rem]:mt-16 first:min-[83rem]:mt-0 min-[83rem]:mb-16 break-inside-avoid"
+          className="mt-12 first:mt-0 mb-12 min-[69.375rem]:mt-16 first:min-[69.375rem]:mt-0 min-[69.375rem]:mb-16 break-inside-avoid"
           y={18}
           durationMs={560}
         >
           <div
-            className="relative p-6 min-[83rem]:p-8 rounded-3xl min-[83rem]:text-xl"
+            className="relative p-6 min-[69.375rem]:p-8 rounded-3xl min-[69.375rem]:text-xl"
             style={{backgroundColor: bgColor, color: textColor}}
           >
             {showTab && heading?.text ? (
@@ -337,7 +337,7 @@ const getComponents = (
                     } as React.CSSProperties
                   }
                 >
-                  <span className="font-normal text-lg min-[83rem]:text-[24px] leading-[1.05] min-[83rem]:leading-[22px]">
+                  <span className="font-normal text-lg min-[69.375rem]:text-[24px] leading-[1.05] min-[69.375rem]:leading-[22px]">
                     {heading.text}
                   </span>
                 </div>
@@ -366,7 +366,7 @@ export default function CmsContent({value, className, bulletTone = 'panel'}: Cms
 
   return (
     <div className={className} style={style}>
-      <RevealStack className="space-y-6 min-[83rem]:space-y-10" staggerMs={120}>
+      <RevealStack className="space-y-6 min-[69.375rem]:space-y-10" staggerMs={120}>
         <PortableText value={value} components={getComponents(bulletTone)} />
       </RevealStack>
     </div>
