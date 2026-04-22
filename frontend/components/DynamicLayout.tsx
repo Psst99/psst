@@ -122,7 +122,7 @@ export default function DynamicLayout({
           ? dynamicLayout === 'columns'
             ? 'p-6 md:px-20'
             : 'px-6'
-          : 'p-6 md:px-20'
+          : 'p-6 md:px-20 min-[69.375rem]:pb-[calc(var(--home-nav-h)+4rem)]'
       const skeleton = <ContentPageSkeleton layout={dynamicLayout} tone={tone} />
 
       return wrapperClass ? <div className={wrapperClass}>{skeleton}</div> : skeleton

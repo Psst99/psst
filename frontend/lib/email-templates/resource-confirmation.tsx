@@ -1,7 +1,8 @@
 import {render} from '@react-email/components'
 import * as React from 'react'
-import {ResourceConfirmationEmail} from '../../emails/resource-confirmation'
-import {getTagColors} from '@/lib/tags'
+import {PsstFormEmail} from '../../emails/psst-form-email'
+import {buildEmailContentFromDefaults} from '../email/preview'
+import {getResolvedEmailTheme} from '../email/theme.server'
 
 interface ResourceConfirmationEmailProps {
   title: string
@@ -14,20 +15,16 @@ interface ResourceConfirmationEmailProps {
 }
 
 export const generateResourceConfirmationEmail = async (data: ResourceConfirmationEmailProps) => {
-  const tagsWithColors = data.tags.map((tag) => {
-    const colors = getTagColors(tag.title.toLowerCase())
-    return {
-      title: tag.title,
-      bg: colors.bg,
-      fg: colors.fg,
-      bd: colors.bd,
-    }
+  const content = buildEmailContentFromDefaults('resourceReceived', {
+    title: data.title,
+    email: data.email,
   })
+  const theme = await getResolvedEmailTheme('resourceReceived')
 
   const html = await render(
-    React.createElement(ResourceConfirmationEmail, {
-      ...data,
-      tags: tagsWithColors,
+    React.createElement(PsstFormEmail, {
+      content,
+      theme,
     }),
   )
 

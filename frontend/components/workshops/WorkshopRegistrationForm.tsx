@@ -7,7 +7,6 @@ import {zodResolver} from '@hookform/resolvers/zod'
 import {workshopRegistrationSchema, WorkshopRegistrationData} from '@/lib/schemas/workshop'
 import {FormField} from '@/components/form/FormField'
 import {TextInput} from '@/components/form/TextInput'
-import {urlForImage} from '@/sanity/lib/utils'
 
 const EXPERIENCE_OPTIONS = [
   {value: '', label: 'Select...'},
@@ -238,23 +237,6 @@ export const WorkshopRegistrationForm: React.FC<WorkshopRegistrationFormProps> =
 
   return (
     <div className="h-full w-full md:max-w-[65vw] mx-auto mt-4">
-      {/* Poster */}
-      {selectedWorkshop.coverImage?.asset?._ref && (
-        <div className="relative w-full h-64 md:h-[28rem] mb-8">
-          <img
-            src={
-              urlForImage(selectedWorkshop.coverImage)
-                ?.height(1200)
-                .width(1200)
-                .auto('format')
-                .url() ?? ''
-            }
-            alt={selectedWorkshop.title}
-            className="w-full h-full object-cover rounded-3xl"
-          />
-        </div>
-      )}
-
       {/* Availability */}
       {/* <div className="mb-6 text-center text-lg">
         <p>
@@ -274,7 +256,7 @@ export const WorkshopRegistrationForm: React.FC<WorkshopRegistrationFormProps> =
           </p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 form-scroll-bottom-space">
           <FormField label="Workshop" required>
             <div className="relative">
               <select

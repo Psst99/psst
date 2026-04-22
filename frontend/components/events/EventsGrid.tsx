@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import {useState, useMemo} from 'react'
+import {useRouter} from 'next/navigation'
 import EventsFilter from './EventsFilter'
 import Tag from '../Tag'
 
@@ -19,7 +19,7 @@ interface EventsGridProps {
   events: Event[]
 }
 
-export default function EventsGrid({ events }: EventsGridProps) {
+export default function EventsGrid({events}: EventsGridProps) {
   const router = useRouter()
   const [activeFilters, setActiveFilters] = useState<string[]>([])
 
@@ -58,20 +58,17 @@ export default function EventsGrid({ events }: EventsGridProps) {
 
   return (
     <>
-      <EventsFilter
-        activeFilters={activeFilters}
-        onFilterToggle={toggleFilter}
-      />
+      <EventsFilter activeFilters={activeFilters} onFilterToggle={toggleFilter} />
 
       {showEmptyUpcoming && (
-        <div className='text-center py-16'>
-          <p className='text-base leading-tight min-[69.375rem]:text-xl section-fg'>
+        <div className="text-center py-16">
+          <p className="text-base leading-tight min-[69.375rem]:text-xl section-fg">
             There are no upcoming events.
           </p>
         </div>
       )}
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto'>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto pb-6 min-[69.375rem]:pb-[calc(var(--home-nav-h)+1.5rem)]">
         {filteredEvents.map((item) => (
           <div
             key={item._id}
@@ -83,18 +80,16 @@ export default function EventsGrid({ events }: EventsGridProps) {
                   : 'bg-white hover:shadow-md'
               }`}
           >
-            <h2 className='text-4xl md:text-3xl mb-2 text-[#4E4E4E] capitalize'>
-              {item.title}
-            </h2>
+            <h2 className="text-4xl md:text-3xl mb-2 text-[#4E4E4E] capitalize">{item.title}</h2>
 
             {item.date && (
-              <span className='mt-1 bg-[#4E4E4E] text-white px-1 py-0 text-sm font-mono block w-fit'>
+              <span className="mt-1 bg-[#4E4E4E] text-white px-1 py-0 text-sm font-mono block w-fit">
                 {item.date}
               </span>
             )}
 
             {item.tags && item.tags.length > 0 && (
-              <div className='flex flex-wrap gap-0 mt-3'>
+              <div className="flex flex-wrap gap-0 mt-3">
                 {item.tags.map(
                   (tag: any, tagIdx: number) =>
                     tag &&
@@ -102,10 +97,10 @@ export default function EventsGrid({ events }: EventsGridProps) {
                       <Tag
                         key={tag._id || tagIdx}
                         label={tag.title}
-                        size='sm'
-                        className='block w-fit'
+                        size="sm"
+                        className="block w-fit"
                       />
-                    )
+                    ),
                 )}
               </div>
             )}

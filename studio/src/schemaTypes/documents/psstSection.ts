@@ -19,7 +19,7 @@ export default defineType({
       options: {
         list: [
           {title: 'Default', value: 'default'},
-          {title: 'Guidelines (Columns)', value: 'guidelines'},
+          {title: 'Columns (2-column layout)', value: 'guidelines'},
         ],
         layout: 'radio',
       },

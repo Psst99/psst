@@ -2,6 +2,7 @@ import React, {useState, useRef, useEffect} from 'react'
 import {Control, Controller} from 'react-hook-form'
 import {IoMdClose} from 'react-icons/io'
 import {motion} from 'framer-motion'
+import {isValidUrl, normalizeUrlInput} from '@/lib/url'
 
 interface SocialLinksInputProps {
   name: string
@@ -34,27 +35,27 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
     if (cleanUrl.includes('facebook.com')) return 'Facebook'
 
     try {
-      const domain = new URL(url).hostname.replace('www.', '')
+      const domain = new URL(normalizeUrlInput(url)).hostname.replace('www.', '')
       return domain.charAt(0).toUpperCase() + domain.slice(1)
     } catch {
       return 'Website'
     }
   }
 
-  const validateUrl = (url: string): boolean => {
+  const validateUrl = (url: string): string | null => {
     if (!url.trim()) {
       setUrlError('')
-      return false
+      return null
     }
 
-    try {
-      new URL(url)
+    const normalizedUrl = normalizeUrlInput(url)
+    if (isValidUrl(normalizedUrl)) {
       setUrlError('')
-      return true
-    } catch {
-      setUrlError('Please enter a valid URL')
-      return false
+      return normalizedUrl
     }
+
+    setUrlError('Please enter a valid URL')
+    return null
   }
 
   const close = () => {
@@ -67,7 +68,7 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
   useEffect(() => {
     if (!isOpen) return
 
-    const onPointerDown = (e: PointerEvent) => {
+    const onClick = (e: MouseEvent) => {
       const root = rootRef.current
       if (!root) return
       if (!root.contains(e.target as Node)) close()
@@ -77,10 +78,10 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
       if (e.key === 'Escape') close()
     }
 
-    window.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('click', onClick)
     window.addEventListener('keydown', onKeyDown)
     return () => {
-      window.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('click', onClick)
       window.removeEventListener('keydown', onKeyDown)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,15 +97,48 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
     <Controller
       name={name}
       control={control}
-      render={({field: {value, onChange}}) => {
-        const addLink = () => {
-          if (!newLinkUrl.trim()) return
+      render={({field: {value, onChange, onBlur}}) => {
+        const addLinksFromText = (text: string) => {
+          const rawLinks = text
+            .split(/[\s,]+/)
+            .map((link) => link.trim())
+            .filter(Boolean)
 
-          if (validateUrl(newLinkUrl)) {
-            onChange([...(value || []), newLinkUrl])
-            setNewLinkUrl('')
-            setUrlError('')
+          if (!rawLinks.length) return false
+
+          const nextLinks = [...(value || [])]
+          const invalidLinks: string[] = []
+
+          rawLinks.forEach((rawLink) => {
+            const normalizedUrl = validateUrl(rawLink)
+            if (!normalizedUrl) {
+              invalidLinks.push(rawLink)
+              return
+            }
+
+            if (!nextLinks.includes(normalizedUrl)) {
+              nextLinks.push(normalizedUrl)
+            }
+          })
+
+          if (nextLinks.length !== (value?.length ?? 0)) {
+            onChange(nextLinks)
           }
+
+          if (invalidLinks.length > 0) {
+            setNewLinkUrl(invalidLinks.join(' '))
+            setUrlError('Please enter a valid URL')
+            return false
+          }
+
+          setNewLinkUrl('')
+          setUrlError('')
+          return true
+        }
+
+        const addLink = () => {
+          if (!newLinkUrl.trim()) return false
+          return addLinksFromText(newLinkUrl)
         }
 
         const removeLink = (index: number) => {
@@ -119,12 +153,19 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
         }
 
         const handlePrimaryClick = () => {
+          if (newLinkUrl.trim()) {
+            addLink()
+            return
+          }
+
           if (!isOpen) {
             openInput()
             return
           }
           addLink()
         }
+
+        const shouldShowInput = isOpen || !hasLinks
 
         return (
           <div ref={rootRef} className="bg-white p-4">
@@ -173,30 +214,12 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
 
             <div className="flex items-center gap-3">
               <div className="flex-1">
-                {!isOpen ? (
-                  !hasLinks ? (
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      onClick={openInput}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          openInput()
-                        }
-                      }}
-                      className="w-full text-left bg-transparent py-2 cursor-pointer"
-                    >
-                      <span className="font-normal text-xl min-[69.375rem]:text-3xl text-[color:var(--section-bg)] opacity-60">
-                        Paste your link(s)
-                      </span>
-                    </div>
-                  ) : null
-                ) : (
+                {shouldShowInput ? (
                   <input
                     ref={inputRef}
                     type="text"
                     value={newLinkUrl}
+                    onFocus={() => setIsOpen(true)}
                     onChange={(e) => {
                       setNewLinkUrl(e.target.value)
                       if (urlError) setUrlError('')
@@ -212,15 +235,23 @@ export const SocialLinksInput: React.FC<SocialLinksInputProps> = ({name, control
                         addLink()
                       }
                     }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData('text')
+                      if (!pastedText.trim()) return
+
+                      e.preventDefault()
+                      addLinksFromText(pastedText)
+                    }}
                     onBlur={() => {
                       if (newLinkUrl.trim()) {
-                        validateUrl(newLinkUrl)
+                        addLink()
                       }
+                      onBlur()
                     }}
                     placeholder="Paste your link(s)"
                     className="w-full bg-transparent outline-none text-[color:var(--section-bg)] font-normal text-xl min-[69.375rem]:text-3xl placeholder:opacity-60 border-0 border-b border-b-[color:var(--section-bg)] py-2"
                   />
-                )}
+                ) : null}
               </div>
 
               {!hasLinks ? (

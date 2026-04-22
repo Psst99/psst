@@ -2,7 +2,6 @@ import SectionNavigation from '@/components/SectionNavigation'
 import CmsContent from '@/components/CmsContent'
 import {homepageQuery} from '@/sanity/lib/queries'
 import {sanityFetch} from '@/sanity/lib/live'
-import ThemeToggleButton from '@/components/ThemeToggleButton'
 
 export default async function Page() {
   const {data: homepage} = await sanityFetch({query: homepageQuery})

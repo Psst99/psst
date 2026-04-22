@@ -63,14 +63,14 @@ export const linkAnnotation = {
       type: 'string',
       title: 'Internal Page',
       description: 'e.g., /database, /workshops, /psst/about',
-      hidden: ({parent}) => parent?.linkType !== 'internal',
+      hidden: ({parent}: {parent?: {linkType?: string}}) => parent?.linkType !== 'internal',
     },
     {
       name: 'href',
       type: 'url',
       title: 'External URL',
-      hidden: ({parent}) => parent?.linkType !== 'external',
-      validation: (Rule) =>
+      hidden: ({parent}: {parent?: {linkType?: string}}) => parent?.linkType !== 'external',
+      validation: (Rule: any) =>
         Rule.uri({
           scheme: ['http', 'https', 'mailto', 'tel'],
         }),

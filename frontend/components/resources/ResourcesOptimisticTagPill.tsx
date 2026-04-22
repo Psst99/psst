@@ -1,6 +1,6 @@
 'use client'
 
-import { slugifyTag } from '@/lib/tags'
+import {slugifyTag} from '@/lib/tags'
 import Tag from '@/components/Tag'
 
 type OptimisticTagPillProps = {
@@ -24,7 +24,7 @@ export default function ResourcesOptimisticTagPill({
       onClick={() => onToggle(label)}
       interactive={true}
       showCloseIcon={isActive}
-      size='sm'
+      size="sm"
     />
   )
 }

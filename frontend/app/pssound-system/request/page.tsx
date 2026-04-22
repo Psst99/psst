@@ -1,7 +1,11 @@
 import {eachDayOfInterval, parseISO, format} from 'date-fns'
 import PssoundRequestPageClient from '@/components/pssound-system/PssoundRequestPageClient'
 import {sanityFetch} from '@/sanity/lib/live'
-import {allApprovedCollectivesQuery, allBlockedDatesQuery} from '@/sanity/lib/queries'
+import {
+  allApprovedCollectivesQuery,
+  allBlockedDatesQuery,
+  pssoundFilesQuery,
+} from '@/sanity/lib/queries'
 
 export default async function SoundSystemRequestPage() {
   const {data} = await sanityFetch({query: allBlockedDatesQuery})
@@ -17,5 +21,11 @@ export default async function SoundSystemRequestPage() {
     query: allApprovedCollectivesQuery,
   })
 
-  return <PssoundRequestPageClient bookedDates={blockedDates} collectives={collectives} />
+  const {data: files} = await sanityFetch({
+    query: pssoundFilesQuery,
+  })
+
+  return (
+    <PssoundRequestPageClient bookedDates={blockedDates} collectives={collectives} files={files} />
+  )
 }

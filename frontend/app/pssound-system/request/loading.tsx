@@ -1,4 +1,13 @@
 export default function Loading() {
+  const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+  const mobileDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+  const monthLabel = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: 'numeric',
+  })
+    .format(new Date())
+    .toUpperCase()
+
   return (
     <div className="animate-pulse">
       {/* Calendar skeleton */}
@@ -8,8 +17,11 @@ export default function Loading() {
           {[...Array(7)].map((_, i) => (
             <div
               key={i}
-              className="p-1 sm:p-1 bg-[color:var(--section-accent)]/40 text-center text-base leading-tight md:text-xl tracking-tight rounded-lg h-8"
-            />
+              className="p-1 sm:p-1 section-bg section-fg text-center text-base leading-tight md:text-xl tracking-tight rounded-lg h-8 flex items-center justify-center"
+            >
+              <span className="block sm:hidden">{mobileDays[i]}</span>
+              <span className="hidden sm:block">{days[i]}</span>
+            </div>
           ))}
         </div>
 
@@ -20,7 +32,7 @@ export default function Loading() {
               {[...Array(7)].map((_, dayIdx) => (
                 <div
                   key={dayIdx}
-                  className="flex-1 min-h-[60px] sm:min-h-[80px] flex items-center justify-center bg-white/20 rounded-lg"
+                  className="flex-1 min-h-[60px] sm:min-h-[80px] flex items-center justify-center bg-white border section-border rounded-lg"
                 />
               ))}
             </div>
@@ -29,9 +41,15 @@ export default function Loading() {
 
         {/* Navigation skeleton */}
         <div className="mt-2 flex items-center justify-between gap-2 h-6 text-base leading-tight md:text-xl tracking-tight shrink-0">
-          <div className="bg-[color:var(--section-accent)]/40 px-4 py-1 rounded-md flex items-center h-full w-12" />
-          <div className="bg-[color:var(--section-accent)]/40 px-4 rounded-md w-full flex items-center justify-center h-full" />
-          <div className="bg-[color:var(--section-accent)]/40 px-4 py-1 rounded-md flex items-center h-full w-12" />
+          <div className="section-bg section-fg px-4 py-1 rounded-md flex items-center justify-center h-full w-12">
+            ←
+          </div>
+          <div className="section-bg section-fg px-4 rounded-md w-full flex items-center justify-center h-full">
+            {monthLabel}
+          </div>
+          <div className="section-bg section-fg px-4 py-1 rounded-md flex items-center justify-center h-full w-12">
+            →
+          </div>
         </div>
       </div>
 

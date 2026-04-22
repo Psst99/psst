@@ -1,8 +1,7 @@
 'use client'
 
 import {ThemeContext} from '@/app/ThemeProvider'
-import React, {useContext} from 'react'
-import {IoAccessibility} from 'react-icons/io5'
+import {useContext} from 'react'
 import {MdInvertColors} from 'react-icons/md'
 
 export default function ThemeToggleButton() {
@@ -14,6 +13,7 @@ export default function ThemeToggleButton() {
   return (
     <button
       onClick={ctx.toggle}
+      aria-pressed={isAccessible}
       // title={isAccessible ? 'Switch to brand colors' : 'Switch to accessible (high contrast) mode'}
       aria-label="Toggle accessible theme"
       className="
@@ -26,11 +26,7 @@ export default function ThemeToggleButton() {
       
       "
     >
-      {isAccessible ? (
-        <IoAccessibility className="text-black w-5 h-5" />
-      ) : (
-        <MdInvertColors className="w-5 h-5 text-[#1D53FF]" />
-      )}
+      <MdInvertColors className={`h-5 w-5 ${isAccessible ? 'text-black' : 'text-[#1D53FF]'}`} />
     </button>
   )
 }

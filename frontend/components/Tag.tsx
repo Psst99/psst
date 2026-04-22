@@ -48,19 +48,17 @@ export default function Tag({
       onClick={onClick}
       className={clsx(
         'inline-flex items-center gap-1 rounded-none border',
-        'font-mono lowercase',
+        'font-mono lowercase tracking-normal',
         'bg-[var(--tag-bg)] text-[var(--tag-fg)] border-[var(--tag-bd)]',
         sizeClasses[size],
         interactive && 'hover:opacity-90 transition-colors',
         className,
       )}
       style={style}
-      {...(interactive ? { type: 'button', 'aria-pressed': isActive } : {})}
+      {...(interactive ? {type: 'button', 'aria-pressed': isActive} : {})}
     >
       {label}
-      {isActive && showCloseIcon && (
-        <IoMdClose className="h-3 w-3" aria-hidden="true" />
-      )}
+      {isActive && showCloseIcon && <IoMdClose className="h-3 w-3" aria-hidden="true" />}
     </TagElement>
   )
 }

@@ -123,7 +123,7 @@ export default function WorkshopsGrid({workshops}: WorkshopsGridProps) {
       )}
 
       <div
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto group-has-[[data-pending]]:opacity-50 group-has-[[data-pending]]:transition-opacity"
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mx-auto pb-6 min-[69.375rem]:pb-[calc(var(--home-nav-h)+1.5rem)] group-has-[[data-pending]]:opacity-50 group-has-[[data-pending]]:transition-opacity"
         data-pending={isPending ? '' : undefined}
       >
         {filteredWorkshops.map((item) => (

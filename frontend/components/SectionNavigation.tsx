@@ -76,6 +76,7 @@ export default function SectionNavigation({
           const href = isActive ? '/' : tab.href
           const isFirst = idx === 0
           const isLast = idx === TABS.length - 1
+          const horizontalPaddingClass = isLast ? 'pl-6 pr-8' : 'px-6'
 
           let tabSide = 'none'
           if (activeIdx !== -1) {
@@ -106,7 +107,8 @@ export default function SectionNavigation({
                 className={[
                   'intercalaire-tab h-[var(--home-nav-h)] whitespace-nowrap',
                   'font-normal text-[24px] leading-[22px] uppercase tracking-tight',
-                  'px-6 py-1 flex items-center justify-end',
+                  horizontalPaddingClass,
+                  'py-1 flex items-center justify-end',
                   isFirst ? 'intercalaire-tab--first' : '',
                   isLast ? 'intercalaire-tab--last' : '',
                   'opacity-0 pointer-events-none select-none border-transparent text-transparent',
@@ -121,7 +123,8 @@ export default function SectionNavigation({
           const tabClassName = [
             'intercalaire-tab h-[var(--home-nav-h)] whitespace-nowrap',
             'font-normal text-[24px] leading-[22px] uppercase tracking-tight',
-            'px-6 pt-1 pb-1 flex items-center justify-end',
+            horizontalPaddingClass,
+            'pt-1 pb-1 flex items-center justify-end',
             'section-bg section-fg',
             enableDockHover ? 'intercalaire-tab--hoverlift' : '',
             enableDockHover && isHovered ? 'intercalaire-tab--lifted' : '',

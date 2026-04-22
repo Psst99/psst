@@ -14,6 +14,12 @@ export const pssoundMembership = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'email',
+      title: 'Contact email',
+      type: 'string',
+      validation: (Rule) => Rule.required().email(),
+    }),
+    defineField({
       name: 'isPolitical',
       title: 'Is your project political?',
       type: 'array',
@@ -85,6 +91,24 @@ export const pssoundMembership = defineType({
           }
           return true
         }),
+    }),
+    defineField({
+      name: 'confirmationEmailSentAt',
+      title: 'Confirmation email sent at',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'approvalEmailSentAt',
+      title: 'Approval email sent at',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'emailDeliveryError',
+      title: 'Email delivery error',
+      type: 'text',
+      readOnly: true,
     }),
   ],
 })

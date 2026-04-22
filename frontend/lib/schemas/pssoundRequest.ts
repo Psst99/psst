@@ -1,13 +1,22 @@
-import { z } from 'zod'
+import {z} from 'zod'
+import {isValidUrl, normalizeUrlInput} from '@/lib/url'
+
+const optionalLinkSchema = z
+  .string()
+  .transform((value) => {
+    if (!value.trim()) return undefined
+    return normalizeUrlInput(value)
+  })
+  .refine((value) => !value || isValidUrl(value), 'Must be a valid URL')
 
 export const marginalizedArtistSchema = z.object({
-  name: z.string().min(1, 'Name required'),
-  link: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  name: z.string().min(1, 'Artist name is required'),
+  link: optionalLinkSchema.optional(),
 })
 
 export const pssoundRequestSchema = z.object({
   eventTitle: z.string().min(2, 'Event title is required'),
-  eventLink: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  eventLink: optionalLinkSchema.optional(),
   eventLocation: z.string().min(2, 'Event location is required'),
   eventDescription: z.string().min(10, 'Description is required'),
   isPolitical: z.record(z.union([z.boolean(), z.string()])),
@@ -19,22 +28,14 @@ export const pssoundRequestSchema = z.object({
   //   fundraiser: z.string().optional(),
   //   other: z.string().optional(),
   // }),
-  marginalizedArtists: z
-    .array(marginalizedArtistSchema)
-    .min(1, 'At least one artist required'),
+  marginalizedArtists: z.array(marginalizedArtistSchema).min(1, 'At least one artist is required'),
   wagePolicy: z.string().min(5, 'Please describe your wage policy'),
   eventDate: z.string().min(1, 'Event date required'),
   pickupDate: z.string().min(1, 'Pick-up date required'),
   returnDate: z.string().min(1, 'Return date required'),
-  vehicleCert: z
-    .boolean()
-    .refine((val) => val, { message: 'Vehicle certification required' }),
-  teamCert: z
-    .boolean()
-    .refine((val) => val, { message: 'Team certification required' }),
-  charterCert: z
-    .boolean()
-    .refine((val) => val, { message: 'Charter certification required' }),
+  vehicleCert: z.boolean().refine((val) => val, {message: 'Vehicle certification required'}),
+  teamCert: z.boolean().refine((val) => val, {message: 'Team certification required'}),
+  charterCert: z.boolean().refine((val) => val, {message: 'Charter certification required'}),
   membershipCert: z.boolean(),
   collective: z.string().optional(),
 })

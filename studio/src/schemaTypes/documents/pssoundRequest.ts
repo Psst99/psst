@@ -13,6 +13,20 @@ export const pssoundRequest = defineType({
       type: 'string',
     }),
     defineField({
+      name: 'contactEmail',
+      title: 'Contact email',
+      type: 'string',
+      readOnly: true,
+      description: 'Resolved from the approved collective membership when available.',
+    }),
+    defineField({
+      name: 'membership',
+      title: 'Related membership request',
+      type: 'reference',
+      to: [{type: 'pssoundMembership'}],
+      readOnly: true,
+    }),
+    defineField({
       name: 'eventTitle',
       title: 'Event Title',
       type: 'string',
@@ -127,6 +141,18 @@ export const pssoundRequest = defineType({
       title: 'Approved',
       type: 'boolean',
       initialValue: false,
+    }),
+    defineField({
+      name: 'confirmationEmailSentAt',
+      title: 'Confirmation email sent at',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'emailDeliveryError',
+      title: 'Email delivery error',
+      type: 'text',
+      readOnly: true,
     }),
   ],
 })

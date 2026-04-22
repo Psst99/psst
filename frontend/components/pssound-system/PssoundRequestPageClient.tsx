@@ -3,15 +3,18 @@
 import {useState} from 'react'
 import Calendar from '@/components/calendar'
 import PssoundCombinedForm from './PssoundCombinedForm'
+import type {PssoundFileLink} from './PssoundCombinedForm'
 
 interface PssoundRequestPageClientProps {
   bookedDates: string[]
   collectives: {_id: string; collectiveName: string}[]
+  files: PssoundFileLink[]
 }
 
 export default function PssoundRequestPageClient({
   bookedDates,
   collectives,
+  files,
 }: PssoundRequestPageClientProps) {
   const [selectedStartDate, setSelectedStartDate] = useState<string | null>(null)
   const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null)
@@ -34,6 +37,7 @@ export default function PssoundRequestPageClient({
         <PssoundCombinedForm
           bookedDates={bookedDates}
           collectives={collectives}
+          files={files}
           selectedStartDate={selectedStartDate}
           selectedEndDate={selectedEndDate}
         />

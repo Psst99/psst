@@ -61,6 +61,33 @@ export const resourceSubmission = defineType({
       initialValue: false,
     }),
     defineField({
+      name: 'publishedResource',
+      title: 'Published Resource',
+      type: 'reference',
+      to: [{type: 'resource'}],
+      readOnly: true,
+      description:
+        'Created automatically when an approved submission is published by email webhook.',
+    }),
+    defineField({
+      name: 'confirmationEmailSentAt',
+      title: 'Confirmation email sent at',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'approvalEmailSentAt',
+      title: 'Approval email sent at',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'emailDeliveryError',
+      title: 'Email delivery error',
+      type: 'text',
+      readOnly: true,
+    }),
+    defineField({
       name: 'submittedAt',
       title: 'Submitted At',
       type: 'datetime',

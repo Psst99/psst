@@ -3,6 +3,7 @@
 import React, {useState} from 'react'
 import {useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
+import {useRouter} from 'next/navigation'
 import {pssoundMembershipSchema, PssoundMembershipFormData} from '@/lib/schemas/pssoundMembership'
 import {FormField} from '@/components/form/FormField'
 import {TextInput} from '@/components/form/TextInput'
@@ -10,16 +11,18 @@ import {StyledCheckbox} from '../StyledCheckbox'
 import CmsContent from '../CmsContent'
 
 export default function PssoundMembershipForm() {
+  const router = useRouter()
+
   const {
     register,
     handleSubmit,
     formState: {errors},
-    reset,
     watch,
   } = useForm<PssoundMembershipFormData>({
     resolver: zodResolver(pssoundMembershipSchema),
     defaultValues: {
       collectiveName: '',
+      email: '',
       isPolitical: [],
       otherPolitical: '',
       caribbeanOrAfro: undefined,
@@ -30,11 +33,11 @@ export default function PssoundMembershipForm() {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const onSubmit = async (data: PssoundMembershipFormData) => {
     setIsSubmitting(true)
-    setSubmitStatus(null)
+    setSubmitError(null)
     try {
       const res = await fetch('/api/register-pssound-membership', {
         method: 'POST',
@@ -42,10 +45,9 @@ export default function PssoundMembershipForm() {
         body: JSON.stringify(data),
       })
       if (!res.ok) throw new Error('Submission failed')
-      setSubmitStatus('success')
-      reset()
-    } catch (err) {
-      setSubmitStatus('error')
+      router.push('/pssound-system/membership/success')
+    } catch {
+      setSubmitError('Something went wrong. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -53,7 +55,7 @@ export default function PssoundMembershipForm() {
 
   return (
     <div className="h-full w-full md:max-w-[65vw] mx-auto mt-16">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 form-scroll-bottom-space">
         <FormField
           label="Name of your collective / association"
           error={errors.collectiveName}
@@ -61,6 +63,15 @@ export default function PssoundMembershipForm() {
           bgClassName="bg-[color:var(--section-accent)]"
         >
           <TextInput registration={register('collectiveName')} />
+        </FormField>
+
+        <FormField
+          label="Contact email"
+          error={errors.email}
+          required
+          bgClassName="bg-[color:var(--section-accent)]"
+        >
+          <TextInput registration={register('email')} type="email" />
         </FormField>
 
         <FormField
@@ -137,14 +148,7 @@ export default function PssoundMembershipForm() {
           </div>
         </FormField>
 
-        {submitStatus === 'success' && (
-          <div className="text-green-600 text-center">
-            Thank you! Your membership request was received.
-          </div>
-        )}
-        {submitStatus === 'error' && (
-          <div className="text-red-600 text-center">Something went wrong. Please try again.</div>
-        )}
+        {submitError && <div className="text-red-600 text-center">{submitError}</div>}
 
         <button
           type="submit"

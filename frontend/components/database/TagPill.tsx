@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import {ChevronRight} from 'lucide-react'
 import {slugifyTag, getTagColors} from '@/lib/tags'
 import clsx from 'clsx'
 
@@ -12,15 +11,10 @@ type TagPillProps = {
   searchParams: URLSearchParams
 }
 
-export default function TagPill({
-  label,
-  pathname,
-  selectedSlugs,
-  searchParams,
-}: TagPillProps) {
+export default function TagPill({label, pathname, selectedSlugs, searchParams}: TagPillProps) {
   const slug = slugifyTag(label)
   const isActive = selectedSlugs.has(slug)
-  const { bg, fg } = getTagColors(label)
+  const {bg, fg} = getTagColors(label)
 
   // Build next URL with toggle
   const next = new URLSearchParams(searchParams.toString())
@@ -28,7 +22,7 @@ export default function TagPill({
     (next.get('tags') ?? '')
       .split(',')
       .map((s) => s.trim())
-      .filter(Boolean)
+      .filter(Boolean),
   )
   if (current.has(slug)) current.delete(slug)
   else current.add(slug)
@@ -68,8 +62,7 @@ export default function TagPill({
       style={style}
       aria-pressed={isActive}
     >
-      <span className='uppercase font-mono tracking-tight'>{label}</span>
-      {isActive && <ChevronRight className='h-3 w-3' aria-hidden='true' />}
+      <span className="uppercase font-mono tracking-normal">{label}</span>
     </Link>
   )
 }

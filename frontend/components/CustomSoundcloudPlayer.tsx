@@ -5,7 +5,6 @@ import {usePathname} from 'next/navigation'
 import {MdPause, MdPlayArrow, MdPushPin, MdSkipNext, MdSkipPrevious} from 'react-icons/md'
 import {ThemeContext} from '@/app/ThemeProvider'
 import {getTheme, type MainSectionSlug, type SectionSlug} from '@/lib/theme/sections'
-import {CgPlayList} from 'react-icons/cg'
 
 declare global {
   interface Window {
@@ -24,8 +23,17 @@ type TrackInfo = {
 
 type Point = {x: number; y: number}
 
+const DESKTOP_PLAYER_WIDTH = 360
+const DESKTOP_PLAYER_MARGIN = 16
+const DOCKED_PLAYER_SIZE = 48
+
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n))
+}
+
+function getDesktopPlayerWidth() {
+  if (typeof window === 'undefined') return DESKTOP_PLAYER_WIDTH
+  return Math.min(DESKTOP_PLAYER_WIDTH, window.innerWidth - DESKTOP_PLAYER_MARGIN * 2)
 }
 
 const MAIN_MENU_ITEMS: ReadonlyArray<{path: string; section: MainSectionSlug}> = [
@@ -101,6 +109,19 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
     )}&auto_play=false&show_artwork=true`
   }, [SOUNDCLOUD_PLAYLIST_URL])
 
+  const getExpandedDockRightOffset = (edge: 'left' | 'right') => {
+    if (edge === 'right') return 0
+    return Math.max(0, window.innerWidth - getDesktopPlayerWidth())
+  }
+
+  const expandDesktopPlayer = () => {
+    setIsDetached(true)
+    setPos((prev) => ({
+      x: getExpandedDockRightOffset(dockEdge),
+      y: prev.y,
+    }))
+  }
+
   useEffect(() => {
     if (!window.SC || !window.SC.Widget) {
       const script = document.createElement('script')
@@ -174,7 +195,10 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
 
     let startX = 16
     if (dockEdge === 'left' && containerRef.current) {
-      startX = Math.max(16, window.innerWidth - containerRef.current.getBoundingClientRect().width - 16)
+      startX = Math.max(
+        16,
+        window.innerWidth - containerRef.current.getBoundingClientRect().width - 16,
+      )
     }
 
     setIsDetached(true)
@@ -198,7 +222,9 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
     if (!isDetached) {
       // Calculate real starting pixel offset relative to right edge
       if (dockEdge === 'left') {
-        startingX = window.innerWidth - (containerRef.current?.getBoundingClientRect().width || 48)
+        startingX =
+          window.innerWidth -
+          (containerRef.current?.getBoundingClientRect().width || DOCKED_PLAYER_SIZE)
       } else {
         startingX = 0
       }
@@ -235,10 +261,10 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
         // dragging right away from left edge
         setIsDetached(true)
         // The element grows in width when detached. Since we anchor via "right",
-        // the left boundary will expand off-screen. We decrease the right offset by ~200px
-        // to keep it under the cursor nicely.
-        dragRef.current.startPos.x -= 200
-        setPos({x: nextX - 200, y: nextY})
+        // decrease the right offset by the expansion delta so it stays under the cursor.
+        const expansionDelta = getDesktopPlayerWidth() - DOCKED_PLAYER_SIZE
+        dragRef.current.startPos.x -= expansionDelta
+        setPos({x: nextX - expansionDelta, y: nextY})
       }
     }
   }
@@ -260,7 +286,8 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
 
     if (containerRef.current) {
       if (isClick && !isDetached) {
-        // Play/Pause when clicking the docked player
+        // Open the deluxe player and start playback when clicking the docked player.
+        expandDesktopPlayer()
         playPause()
         return
       }
@@ -388,7 +415,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
         onPointerUp={onDragEnd}
         onPointerCancel={onDragEnd}
         className={`soundcloud-player-fixed hidden md:flex fixed z-50 items-center justify-center cursor-grab active:cursor-grabbing ${
-          !isDragging ? 'transition-all duration-300 ease-in-out' : ''
+          !isDragging ? 'transition-all duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]' : ''
         } ${
           isDetached
             ? 'rounded-md px-4 py-2 gap-3 shadow-md min-w-[200px]'
@@ -413,9 +440,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           borderBottomLeftRadius: !isDetached && dockEdge === 'left' ? 0 : undefined,
           borderLeft: !isDetached && dockEdge === 'left' ? 'none' : undefined,
         }}
-        title={
-          isDetached ? 'Drag to move, or snap to edges' : 'Click to Play/Pause, drag out to expand'
-        }
+        title={isDetached ? 'Drag to move, or snap to edges' : 'Click to play and expand'}
       >
         {!isDetached ? (
           // Docked minimal view
@@ -531,7 +556,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
             style={{backgroundColor: theme.bg, borderColor: theme.fg, color: theme.fg}}
             aria-label={isExpanded ? 'Collapse player' : 'Expand player'}
           >
-            ♪{/* <CgPlayList /> */}
+            ♪
           </button>
 
           {/* Player content (slides in/out) */}

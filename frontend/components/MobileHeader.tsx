@@ -7,6 +7,7 @@ import {motion, AnimatePresence} from 'framer-motion'
 
 import CustomLink from './CustomLink'
 import SectionScope from './SectionScope'
+import {resolveActiveSubNavHref} from './SubNavigation'
 import {getSectionConfig, type DynamicSubNavItemsBySection} from '@/lib/route-utils'
 import type {SectionSlug, MainSectionSlug} from '@/lib/theme/sections'
 
@@ -45,12 +46,13 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
 
   const {subNavItems} = getSectionConfig(pathname, dynamicSubNavItemsBySection)
   const hasSubMenu = Array.isArray(subNavItems) && subNavItems.length > 0
+  const activeSubNavHref = hasSubMenu ? resolveActiveSubNavHref(pathname, subNavItems) : null
 
   const currentSubsection = (() => {
     if (!hasSubMenu) return null
 
-    const exact = subNavItems?.find((sub) => sub.href === pathname)
-    if (exact) return exact
+    const active = subNavItems?.find((sub) => sub.href === activeSubNavHref)
+    if (active) return active
 
     // PSST root: default to first
     if (pathname === '/psst') return subNavItems?.[0] ?? null
@@ -398,7 +400,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
             >
               <div className="flex flex-col h-full">
                 {subNavItems?.map((subMenu, idx) => {
-                  const isActive = pathname === subMenu.href
+                  const isActive = activeSubNavHref === subMenu.href
                   return (
                     <SectionScope key={subMenu.href} section={activeSection} variant="page" asChild>
                       <Link

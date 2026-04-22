@@ -1,7 +1,7 @@
 'use client'
 
 import {useState, useEffect} from 'react'
-import {useForm, useFieldArray} from 'react-hook-form'
+import {useForm, useFieldArray, type FieldError} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -12,10 +12,11 @@ import {StyledCheckbox} from '../StyledCheckbox'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '../ui/select'
 import {IoAddCircle} from 'react-icons/io5'
 import {RiDeleteBack2Fill} from 'react-icons/ri'
+import {useRouter} from 'next/navigation'
 
 // Import combined schema
 import {z} from 'zod'
-import {pssoundRequestSchema, PssoundRequestFormData} from '@/lib/schemas/pssoundRequest'
+import {pssoundRequestSchema} from '@/lib/schemas/pssoundRequest'
 import {pssoundMembershipSchema, PssoundMembershipFormData} from '@/lib/schemas/pssoundMembership'
 
 // Create combined schema
@@ -36,24 +37,105 @@ const combinedFormSchema = z.discriminatedUnion('isMember', [
 
 type CombinedFormData = z.infer<typeof combinedFormSchema>
 
+export type PssoundFileGroup = 'technicalManuals' | 'manifesto' | 'other'
+
+export interface PssoundFileLink {
+  _id: string
+  label?: string | null
+  fileGroup?: PssoundFileGroup | string | null
+  languageCode?: string | null
+  languageName?: string | null
+  url?: string | null
+}
+
 interface PssoundCombinedFormProps {
   bookedDates: string[]
   collectives: {_id: string; collectiveName: string}[]
+  files?: PssoundFileLink[]
   selectedStartDate?: string | null
   selectedEndDate?: string | null
+}
+
+const PSSOUND_FILE_GROUPS: Array<{title: string; value: PssoundFileGroup}> = [
+  {title: 'Technical manuals', value: 'technicalManuals'},
+  {title: 'Manifesto', value: 'manifesto'},
+  {title: 'Files', value: 'other'},
+]
+
+const LINEUP_INPUT_CLASSNAME =
+  '!bg-transparent !rounded-none !border-b !border-current !px-0 !py-2 min-[69.375rem]:!text-2xl placeholder:text-current placeholder:opacity-60'
+
+function resolveFileGroup(fileGroup: PssoundFileLink['fileGroup']): PssoundFileGroup {
+  if (fileGroup === 'technicalManuals' || fileGroup === 'manifesto' || fileGroup === 'other') {
+    return fileGroup
+  }
+
+  return 'other'
+}
+
+function formatFileTitle(file: PssoundFileLink) {
+  const title = file.label?.trim() || file.languageName?.trim() || 'Open PDF'
+  const languageCode = file.languageCode?.trim()
+
+  if (!languageCode) {
+    return title
+  }
+
+  const formattedCode = languageCode.toUpperCase()
+  if (title.toLowerCase().endsWith(`(${languageCode.toLowerCase()})`)) {
+    return title
+  }
+
+  return `${title} (${formattedCode})`
 }
 
 function isDateBooked(dateStr: string, bookedDates: string[]) {
   return bookedDates.includes(dateStr)
 }
 
+function getLineupErrorMessage(error: unknown): string | undefined {
+  if (!error || typeof error !== 'object') {
+    return undefined
+  }
+
+  const maybeError = error as {
+    message?: unknown
+    name?: {message?: unknown}
+    link?: {message?: unknown}
+  }
+
+  if (typeof maybeError.message === 'string') {
+    return maybeError.message
+  }
+
+  if (Array.isArray(error)) {
+    for (const item of error) {
+      const itemMessage = getLineupErrorMessage(item)
+      if (itemMessage) return itemMessage
+    }
+  }
+
+  if (typeof maybeError.name?.message === 'string') {
+    return maybeError.name.message
+  }
+
+  if (typeof maybeError.link?.message === 'string') {
+    return maybeError.link.message
+  }
+
+  return undefined
+}
+
 export default function PssoundCombinedForm({
   bookedDates,
   collectives,
+  files = [],
   selectedStartDate,
   selectedEndDate,
 }: PssoundCombinedFormProps) {
   const [isMember, setIsMember] = useState<boolean | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const router = useRouter()
 
   const {
     register,
@@ -62,7 +144,6 @@ export default function PssoundCombinedForm({
     setValue,
     watch,
     formState: {errors, touchedFields, isSubmitted, isSubmitting},
-    reset,
   } = useForm<CombinedFormData>({
     resolver: zodResolver(combinedFormSchema),
     mode: 'onBlur',
@@ -72,6 +153,7 @@ export default function PssoundCombinedForm({
       selectedCollective: '',
       membership: {
         collectiveName: '',
+        email: '',
         isPolitical: [], // Initialize as empty array
         otherPolitical: '',
         caribbeanOrAfro: undefined,
@@ -113,11 +195,11 @@ export default function PssoundCombinedForm({
   const eventDate = watch('request.eventDate') ? new Date(watch('request.eventDate')) : null
   const pickupDate = watch('request.pickupDate') ? new Date(watch('request.pickupDate')) : null
   const returnDate = watch('request.returnDate') ? new Date(watch('request.returnDate')) : null
-  const dateTabLabel = selectedStartDate
+  const selectedCalendarLabel = selectedStartDate
     ? selectedEndDate
-      ? `${selectedStartDate} → ${selectedEndDate}`
+      ? `${selectedStartDate} to ${selectedEndDate}`
       : selectedStartDate
-    : 'Dates'
+    : null
   const membershipErrors =
     isMember === false && errors.membership && typeof errors.membership === 'object'
       ? (errors.membership as Partial<Record<keyof PssoundMembershipFormData, any>>)
@@ -126,6 +208,14 @@ export default function PssoundCombinedForm({
     isMember === false && touchedFields.membership && typeof touchedFields.membership === 'object'
       ? (touchedFields.membership as Partial<Record<keyof PssoundMembershipFormData, boolean>>)
       : undefined
+  const fileGroups = PSSOUND_FILE_GROUPS.map((group) => ({
+    ...group,
+    files: files.filter((file) => resolveFileGroup(file.fileGroup) === group.value && file.url),
+  })).filter((group) => group.files.length > 0)
+  const lineupErrorMessage = getLineupErrorMessage(errors.request?.marginalizedArtists)
+  const lineupError = lineupErrorMessage
+    ? ({type: 'manual', message: lineupErrorMessage} as FieldError)
+    : undefined
 
   // Auto-populate dates from calendar selection
   useEffect(() => {
@@ -147,13 +237,15 @@ export default function PssoundCombinedForm({
   }, [selectedEndDate, setValue, watch])
 
   const onSubmit = async (data: CombinedFormData) => {
+    setSubmitError(null)
+
     // Check if any dates are booked
     if (
       isDateBooked(data.request.eventDate, bookedDates) ||
       isDateBooked(data.request.pickupDate, bookedDates) ||
       isDateBooked(data.request.returnDate, bookedDates)
     ) {
-      alert('One or more selected dates are unavailable. Please choose different dates.')
+      setSubmitError('One or more selected dates are unavailable. Please choose different dates.')
       return
     }
 
@@ -168,25 +260,24 @@ export default function PssoundCombinedForm({
         throw new Error('Submission failed')
       }
 
-      reset()
-      alert('Your request has been submitted!')
+      router.push('/pssound-system/request/success')
     } catch (error) {
-      alert('Submission failed. Please try again.')
+      setSubmitError('Submission failed. Please try again.')
       console.error('Error submitting form:', error)
     }
   }
 
   return (
     <div className="h-full w-full md:max-w-[65vw] mx-auto md:p-4">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 form-scroll-bottom-space">
         {/* Membership selection */}
         <div className="p-6 section-bg rounded-xl">
-          <div className="mb-4 flex flex-col gap-4 min-[69.375rem]:flex-row min-[69.375rem]:items-baseline min-[69.375rem]:justify-between">
-            <p className="tracking-tight text-2xl mb-4 section-fg">
+          <div className="mb-4 flex flex-col items-center gap-4 min-[86rem]:flex-row min-[86rem]:items-baseline min-[86rem]:justify-between">
+            <p className="tracking-tight text-2xl mb-4 section-fg text-center min-[86rem]:text-left">
               Are you already a Pssound Community member?
             </p>
 
-            <div className="flex flex-wrap gap-4 justify-start min-[69.375rem]:justify-center">
+            <div className="flex flex-wrap gap-4 justify-center">
               <button
                 type="button"
                 onClick={() => {
@@ -249,9 +340,13 @@ export default function PssoundCombinedForm({
                 <SelectTrigger className="w-full bg-white section-fg border-0 rounded px-2 py-1 text-xl">
                   <SelectValue placeholder="Select your collective" />
                 </SelectTrigger>
-                <SelectContent className="section-bg section-fg border rounded">
+                <SelectContent className="section-bg section-fg border rounded max-h-[min(22rem,var(--radix-select-content-available-height))]">
                   {collectives.map((col) => (
-                    <SelectItem key={col._id} value={col.collectiveName}>
+                    <SelectItem
+                      key={col._id}
+                      value={col.collectiveName}
+                      className="text-base md:text-xl py-2"
+                    >
                       {col.collectiveName}
                     </SelectItem>
                   ))}
@@ -284,6 +379,15 @@ export default function PssoundCombinedForm({
                 showError={!!membershipTouched?.collectiveName || isSubmitted}
               >
                 <TextInput registration={register('membership.collectiveName')} />
+              </FormField>
+
+              <FormField
+                label="Contact email"
+                error={membershipErrors?.email}
+                required
+                showError={!!membershipTouched?.email || isSubmitted}
+              >
+                <TextInput registration={register('membership.email')} type="email" />
               </FormField>
 
               <FormField
@@ -381,12 +485,6 @@ export default function PssoundCombinedForm({
                 <span className="pointer-events-none absolute left-0 right-0 bottom-[-1px] h-[1px] panel-bg" />
               </div>
             </div>
-            <div className="absolute right-6 -top-[31px]">
-              <div className="relative inline-flex items-center justify-center px-8 py-1 border border-b-0 rounded-t-xl uppercase tracking-tight panel-bg panel-fg panel-border">
-                <span className="font-normal text-[24px] leading-[22px]">{dateTabLabel}</span>
-                <span className="pointer-events-none absolute left-0 right-0 bottom-[-1px] h-[1px] panel-bg" />
-              </div>
-            </div>
 
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
@@ -412,24 +510,9 @@ export default function PssoundCombinedForm({
                 </FormField>
 
                 {selectedStartDate && (
-                  <div className="p-4 panel-bg/20 rounded-lg border panel-border">
-                    <p className="text-sm panel-fg mb-1 font-medium">Selected from calendar:</p>
-                    <p className="text-lg panel-fg">
-                      {selectedEndDate ? (
-                        <>
-                          <span className="font-bold">{selectedStartDate}</span>
-                          {' → '}
-                          <span className="font-bold">{selectedEndDate}</span>
-                          <span className="text-sm ml-2 opacity-70">(multi-day event)</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-bold">{selectedStartDate}</span>
-                          <span className="text-sm ml-2 opacity-70">
-                            (click another date to select range)
-                          </span>
-                        </>
-                      )}
+                  <div className="min-h-[88px] px-4 rounded-xl border panel-border flex items-center justify-center text-center panel-bg invert-panel">
+                    <p className="font-normal text-[24px] leading-[22px]">
+                      {selectedCalendarLabel}
                     </p>
                   </div>
                 )}
@@ -521,7 +604,7 @@ export default function PssoundCombinedForm({
 
                 <FormField label="Is the event political?" error={undefined}>
                   <div className="flex flex-col gap-4">
-                    <div className="flex gap-x-4 flex-wrap px-4 py-2">
+                    <div className="flex flex-col gap-4 px-4 py-4">
                       {['feminist', 'queer', 'racial', 'disability'].map((key) => (
                         <StyledCheckbox
                           key={key}
@@ -585,67 +668,70 @@ export default function PssoundCombinedForm({
 
                 <FormField
                   label="Line-up"
-                  error={errors.request?.marginalizedArtists}
-                  showError={!!touchedFields.request?.marginalizedArtists || isSubmitted}
+                  error={lineupError}
+                  required
+                  showError={
+                    Boolean(lineupError) &&
+                    (!!touchedFields.request?.marginalizedArtists || isSubmitted)
+                  }
                 >
-                  {fields.map((field, idx) => (
-                    <div key={field.id} className="flex flex-col gap-1 mb-2">
-                      <div className="flex w-full relative">
+                  <div className="flex flex-col gap-4 px-4 py-4">
+                    {fields.map((field, idx) => (
+                      <div
+                        key={field.id}
+                        className="grid grid-cols-1 gap-4 min-[69.375rem]:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_2.5rem] min-[69.375rem]:items-center"
+                      >
                         <TextInput
                           registration={register(
                             `request.marginalizedArtists.${idx}.name` as const,
                           )}
                           placeholder="Name"
-                          className="!rounded-none border-r-0 flex-1"
+                          className={LINEUP_INPUT_CLASSNAME}
                         />
 
-                        <div className="flex-[2] relative">
+                        <div className="relative">
                           <TextInput
                             registration={register(
                               `request.marginalizedArtists.${idx}.link` as const,
                             )}
                             placeholder="Link (URL or leave blank)"
-                            className="!rounded-none !rounded-tr-xl pr-10 flex-1"
+                            className={`${LINEUP_INPUT_CLASSNAME} pr-10`}
                           />
 
+                          {fields.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => remove(idx)}
+                              className="absolute right-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center section-fg transition-opacity hover:opacity-70 cursor-pointer"
+                              aria-label="Remove artist"
+                            >
+                              <RiDeleteBack2Fill aria-hidden="true" />
+                            </button>
+                          )}
+                        </div>
+
+                        {fields.length > 1 && (
                           <button
                             type="button"
                             onClick={() => remove(idx)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 section-fg hover:opacity-70 transition-opacity"
+                            className="hidden h-9 w-9 items-center justify-center section-fg transition-opacity hover:opacity-70 cursor-pointer min-[69.375rem]:flex"
                             aria-label="Remove artist"
                           >
-                            <RiDeleteBack2Fill />
+                            <RiDeleteBack2Fill aria-hidden="true" />
                           </button>
-                        </div>
+                        )}
                       </div>
+                    ))}
 
-                      <div className="flex gap-2">
-                        <div className="flex-1">
-                          {errors.request?.marginalizedArtists?.[idx]?.name && (
-                            <span className="section-fg text-xs italic">
-                              {errors.request?.marginalizedArtists[idx]?.name?.message}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex-[2]">
-                          {errors.request?.marginalizedArtists?.[idx]?.link && (
-                            <span className="section-fg text-xs italic">
-                              {errors.request?.marginalizedArtists[idx]?.link?.message}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  <button
-                    type="button"
-                    onClick={() => append({name: '', link: ''})}
-                    className="section-fg flex items-center gap-1 hover:underline -mt-3 py-1 text-sm px-2"
-                  >
-                    <IoAddCircle />
-                    Add another artist
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => append({name: '', link: ''})}
+                      className="mt-1 inline-flex w-fit items-center gap-2 section-fg text-lg leading-tight transition-opacity hover:opacity-75 cursor-pointer min-[69.375rem]:text-xl"
+                    >
+                      <IoAddCircle aria-hidden="true" />
+                      Add another artist
+                    </button>
+                  </div>
                 </FormField>
 
                 <FormField
@@ -676,8 +762,8 @@ export default function PssoundCombinedForm({
                     isSubmitted
                   }
                 >
-                  <div className="flex justify-center items-center h-full w-full p-4 text-sm">
-                    <div className="flex flex-col gap-2 w-full">
+                  <div className="flex h-full w-full items-center px-4 py-4">
+                    <div className="flex w-full flex-col gap-4">
                       <StyledCheckbox
                         label="I certify that I have a vehicle to transport the sound safely (minimum 8 m³)."
                         {...register('request.vehicleCert')}
@@ -698,48 +784,34 @@ export default function PssoundCombinedForm({
           </div>
         )}
 
-        {/* Installation Manual and Manifesto Links */}
-        <div className="border panel-border p-6 rounded-xl mt-4">
-          <h2 className="text-xl mb-4 panel-fg">Technical manuals</h2>
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <a
-              href="/docs/pssound-manual-en.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 section-bg invert-panel hover:opacity-80 rounded-md text-center"
-            >
-              English Manual (PDF)
-            </a>
-            <a
-              href="/docs/pssound-manual-fr.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 panel-bg invert-panel hover:opacity-80 rounded-md text-center"
-            >
-              Manuel Français (PDF)
-            </a>
+        {fileGroups.length > 0 && (
+          <div className="border panel-border p-6 rounded-xl mt-4">
+            {fileGroups.map((group, groupIndex) => (
+              <section
+                key={group.value}
+                className={groupIndex < fileGroups.length - 1 ? 'mb-6' : undefined}
+              >
+                <h2 className="text-xl mb-4 panel-fg">{group.title}</h2>
+                <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+                  {group.files.map((file) => (
+                    <a
+                      key={file._id}
+                      href={file.url || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      hrefLang={file.languageCode || undefined}
+                      className="px-4 py-2 panel-bg invert-panel hover:opacity-80 rounded-md text-center"
+                    >
+                      {formatFileTitle(file)}
+                    </a>
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
+        )}
 
-          <h2 className="text-xl mb-4 panel-fg">Manifesto</h2>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <a
-              href="/docs/pssound-manifesto-en.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 panel-bg invert-panel hover:opacity-80 rounded-md text-center"
-            >
-              English Manifesto (PDF)
-            </a>
-            <a
-              href="/docs/pssound-manifesto-fr.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 panel-bg invert-panel hover:opacity-80 rounded-md text-center"
-            >
-              Manifeste Français (PDF)
-            </a>
-          </div>
-        </div>
+        {submitError && <div className="text-red-600 text-center">{submitError}</div>}
 
         {/* Submit button */}
         <button

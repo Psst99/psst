@@ -35,7 +35,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<{
-    type: 'success' | 'error' | null
+    type: 'error' | null
     message: string
   }>({type: null, message: ''})
 
@@ -84,12 +84,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
 
       if (!response.ok) throw new Error('Submission failed')
 
-      setSubmitStatus({
-        type: 'success',
-        message:
-          'Thank you for your submission. Our collective approves each entry manually.\nYou’ll receive a confirmation email when it’s done.',
-      })
-      // router.refresh() // optional
+      router.push('/database/submit/success')
     } catch (error) {
       setSubmitStatus({
         type: 'error',
@@ -116,7 +111,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
 
   return (
     <div className="p-6 h-full w-full min-[69.375rem]:max-w-[65vw] mx-auto min-[69.375rem]:p-4">
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 form-scroll-bottom-space">
         <FormField
           label="Name"
           error={errors.artistName}
@@ -210,9 +205,7 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
         </FormField>
 
         {submitStatus.type && (
-          <div className={submitStatus.type === 'success' ? 'text-green-600' : 'text-red-600'}>
-            {submitStatus.message}
-          </div>
+          <div className="text-red-600">{submitStatus.message}</div>
         )}
 
         <button

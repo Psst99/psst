@@ -200,12 +200,6 @@ export const databaseGuidelinesQuery = `
   }
 `
 
-export const pssoundGuidelinesQuery = `
-  *[_type == "guidelines" && _id == "pssound-guidelines"][0]{
-    content
-  }
-`
-
 export const resourcesGuidelinesQuery = `
   *[_type == "guidelines" && _id == "resources-guidelines"][0]{
     content,
@@ -428,6 +422,18 @@ export const allApprovedCollectivesQuery = `
     collectiveName
   }
 `
+
+export const pssoundFilesQuery = `
+  *[_type == "pssoundFile" && coalesce(active, true) == true && defined(file.asset)] | order(defined(orderRank) desc, orderRank asc, _createdAt asc){
+    _id,
+    label,
+    fileGroup,
+    languageCode,
+    languageName,
+    "url": file.asset->url
+  }
+`
+
 export const homepageQuery = `
   *[_type == "homepage"][0]{
     content,

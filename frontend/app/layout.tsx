@@ -28,7 +28,6 @@ import DynamicLayout from '@/components/DynamicLayout'
 import CustomSoundcloudPlayer from '@/components/CustomSoundcloudPlayer'
 import ThemeProvider from './ThemeProvider'
 import ThemeToggleButton from '@/components/ThemeToggleButton'
-import RoundedToggleButton from '@/components/RoundedToggleButton'
 import {buildThemeOverrides} from '@/lib/theme/overrides'
 import SupportModalWidget from '@/components/SupportModalWidget'
 import NavigationPendingProvider from './NavigationPendingProvider'
@@ -141,8 +140,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             initialMode={initialMode}
             initialRounded={initialRounded}
           >
-            {/* <RoundedToggleButton /> */}
-            {/* <ThemeToggleButton /> */}
+            <ThemeToggleButton />
             <SupportModalWidget content={(settings as any)?.support ?? null} />
             <div className="min-[69.375rem]:hidden">
               <MobileHeader dynamicSubNavItemsBySection={dynamicSubNavItemsBySection} />

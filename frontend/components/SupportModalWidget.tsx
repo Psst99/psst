@@ -1,19 +1,12 @@
 'use client'
 
 import {PortableText, type PortableTextComponents} from '@portabletext/react'
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type PointerEvent,
-} from 'react'
+import {useCallback, useContext, useEffect, useState, type FormEvent} from 'react'
 import {usePathname, useRouter, useSearchParams} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
 import {SiMinutemailer} from 'react-icons/si'
+import {GiLetterBomb} from 'react-icons/gi'
 import {useForm} from 'react-hook-form'
 import {ThemeContext} from '@/app/ThemeProvider'
 import {FormField} from '@/components/form/FormField'
@@ -22,7 +15,6 @@ import {getTheme} from '@/lib/theme/sections'
 import {LINK_PILL_CLASS} from '@/lib/linkStyles'
 
 type SupportTab = 'donation' | 'newsletter'
-type Point = {x: number; y: number}
 
 type SupportContent = {
   floatingButtonLabel?: string
@@ -55,8 +47,12 @@ const OPEN_VALUE = 'open'
 
 const richTextComponents: PortableTextComponents = {
   block: {
-    normal: ({children}) => <p className="text-sm min-[69.375rem]:text-xl leading-snug">{children}</p>,
-    h2: ({children}) => <h3 className="text-xl min-[69.375rem]:text-3xl leading-tight">{children}</h3>,
+    normal: ({children}) => (
+      <p className="text-sm min-[69.375rem]:text-xl leading-snug">{children}</p>
+    ),
+    h2: ({children}) => (
+      <h3 className="text-xl min-[69.375rem]:text-3xl leading-tight">{children}</h3>
+    ),
   },
   marks: {
     link: ({children, value}) => {
@@ -83,10 +79,6 @@ function SupportRichText({value}: {value?: any[]}) {
   return <PortableText value={value} components={richTextComponents} />
 }
 
-function clamp(n: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, n))
-}
-
 export default function SupportModalWidget({content = null}: SupportModalWidgetProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -105,21 +97,6 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const [newsletterState, setNewsletterState] = useState<'idle' | 'success' | 'error'>('idle')
   const [newsletterMessage, setNewsletterMessage] = useState('')
   const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false)
-  const [floatingPos, setFloatingPos] = useState<Point | null>(null)
-  const floatingContainerRef = useRef<HTMLButtonElement>(null)
-  const dragRef = useRef<{
-    dragging: boolean
-    didDrag: boolean
-    startPointer: Point
-    startPos: Point
-    bounds: {maxX: number; maxY: number}
-  }>({
-    dragging: false,
-    didDrag: false,
-    startPointer: {x: 0, y: 0},
-    startPos: {x: 0, y: 0},
-    bounds: {maxX: 0, maxY: 0},
-  })
 
   const isOpen = searchParams.get(SUPPORT_PARAM) === OPEN_VALUE
   const donationStatus = searchParams.get(DONATION_STATUS_PARAM)
@@ -323,137 +300,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     [newsletterSuccessMessage, pathname, resetNewsletterForm],
   )
 
-  useEffect(() => {
-    if (!isMounted) return
-    const container = floatingContainerRef.current
-    if (!container) return
-
-    const updateInitialOrClamp = () => {
-      const rect = container.getBoundingClientRect()
-      const maxX = Math.max(0, window.innerWidth - rect.width)
-      const maxY = Math.max(0, window.innerHeight - rect.height)
-      const margin = window.matchMedia('(min-width: 69.375rem)').matches ? 24 : 16
-
-      setFloatingPos((prev) => {
-        if (!prev) {
-          return {
-            x: margin,
-            y: clamp(maxY - margin, 0, maxY),
-          }
-        }
-
-        return {x: clamp(prev.x, 0, maxX), y: clamp(prev.y, 0, maxY)}
-      })
-    }
-
-    updateInitialOrClamp()
-    window.addEventListener('resize', updateInitialOrClamp)
-    return () => window.removeEventListener('resize', updateInitialOrClamp)
-  }, [isMounted])
-
-  const onFloatingPointerDown = useCallback(
-    (e: PointerEvent<HTMLButtonElement>) => {
-      if (isOpen || !floatingPos) return
-
-      e.preventDefault()
-      e.currentTarget.setPointerCapture(e.pointerId)
-
-      const container = floatingContainerRef.current
-      if (!container) return
-
-      container.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease'
-      container.style.transform = 'scale(1.05)'
-      container.style.boxShadow = '0 8px 30px rgba(0,0,0,0.3)'
-
-      const rect = container.getBoundingClientRect()
-      const maxX = Math.max(0, window.innerWidth - rect.width)
-      const maxY = Math.max(0, window.innerHeight - rect.height)
-
-      dragRef.current = {
-        dragging: true,
-        didDrag: false,
-        startPointer: {x: e.clientX, y: e.clientY},
-        startPos: {x: floatingPos.x, y: floatingPos.y},
-        bounds: {maxX, maxY},
-      }
-
-      document.body.style.userSelect = 'none'
-    },
-    [floatingPos, isOpen],
-  )
-
-  const onFloatingPointerMove = useCallback((e: PointerEvent<HTMLButtonElement>) => {
-    if (!dragRef.current.dragging) return
-    e.preventDefault()
-
-    const dx = e.clientX - dragRef.current.startPointer.x
-    const dy = e.clientY - dragRef.current.startPointer.y
-
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-      dragRef.current.didDrag = true
-    }
-
-    const nextX = clamp(dragRef.current.startPos.x + dx, 0, dragRef.current.bounds.maxX)
-    const nextY = clamp(dragRef.current.startPos.y + dy, 0, dragRef.current.bounds.maxY)
-
-    if (floatingContainerRef.current) {
-      floatingContainerRef.current.style.left = `${nextX}px`
-      floatingContainerRef.current.style.top = `${nextY}px`
-    }
-  }, [])
-
-  const onFloatingPointerUp = useCallback((e: PointerEvent<HTMLButtonElement>) => {
-    if (!dragRef.current.dragging) return
-    dragRef.current.dragging = false
-    document.body.style.userSelect = ''
-
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {
-      // ignore
-    }
-
-    if (dragRef.current.didDrag && floatingContainerRef.current) {
-      const container = floatingContainerRef.current
-      container.style.transition =
-        'left 0.3s ease, top 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease'
-      container.style.transform = 'scale(1)'
-      container.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)'
-
-      const {maxX, maxY} = dragRef.current.bounds
-      const margin = window.matchMedia('(min-width: 69.375rem)').matches ? 24 : 16
-      const rect = container.getBoundingClientRect()
-      const midX = window.innerWidth / 2
-      const midY = window.innerHeight / 2
-      const dx = e.clientX - dragRef.current.startPointer.x
-      const dy = e.clientY - dragRef.current.startPointer.y
-      const flickThreshold = 30
-
-      let targetX = rect.left + rect.width / 2 < midX ? margin : Math.max(margin, maxX - margin)
-      let targetY = rect.top + rect.height / 2 < midY ? margin : Math.max(margin, maxY - margin)
-
-      if (dx > flickThreshold) targetX = Math.max(margin, maxX - margin)
-      else if (dx < -flickThreshold) targetX = margin
-
-      if (dy > flickThreshold) targetY = Math.max(margin, maxY - margin)
-      else if (dy < -flickThreshold) targetY = margin
-
-      container.style.left = `${targetX}px`
-      container.style.top = `${targetY}px`
-      setFloatingPos({x: targetX, y: targetY})
-    } else if (floatingContainerRef.current) {
-      const container = floatingContainerRef.current
-      container.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease'
-      container.style.transform = 'scale(1)'
-      container.style.boxShadow = '0 2px 12px rgba(0,0,0,0.15)'
-    }
-  }, [])
-
   const onFloatingClick = useCallback(() => {
-    if (dragRef.current.didDrag) {
-      dragRef.current.didDrag = false
-      return
-    }
     openModal('newsletter')
   }, [openModal])
 
@@ -468,25 +315,19 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         onClick={closeModal}
       />
 
-      {!isOpen && (
-        <button
-          ref={floatingContainerRef}
-          className="support-widget-fixed fixed z-[10002] flex items-center justify-center w-[40px] h-[40px] min-[69.375rem]:w-[56px] min-[69.375rem]:h-[56px] rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.15)] cursor-pointer select-none"
-          style={{
-            backgroundColor: theme.fg,
-            color: theme.bg,
-            left: floatingPos?.x,
-            top: floatingPos?.y,
-            touchAction: 'none',
-          }}
-          onPointerDown={onFloatingPointerDown}
-          onPointerMove={onFloatingPointerMove}
-          onPointerUp={onFloatingPointerUp}
-          onClick={onFloatingClick}
-        >
-          <SiMinutemailer className="h-[22px] w-[22px] min-[69.375rem]:h-[30px] min-[69.375rem]:w-[30px]" />
-        </button>
-      )}
+      <button
+        className="support-widget-fixed fixed z-[10002] flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-l-md shadow-[0_2px_12px_rgba(0,0,0,0.15)] cursor-pointer select-none transition-colors duration-300"
+        style={{
+          right: 0,
+          bottom: 'clamp(88px, 12vw, 136px)',
+          backgroundColor: isOpen ? theme.fg : theme.bg,
+          color: isOpen ? theme.bg : theme.fg,
+        }}
+        onClick={onFloatingClick}
+        aria-label="Open newsletter modal"
+      >
+        <GiLetterBomb className="h-[22px] w-[22px] md:h-7 md:w-7" />
+      </button>
 
       <div
         className={`fixed inset-0 z-[10001] flex items-center justify-center p-4 ${

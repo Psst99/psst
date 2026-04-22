@@ -3,12 +3,11 @@ import {ResourceSubmissionForm} from '@/components/resources/ResourceSubmissionF
 
 const resourcesSubmitQuery = `
 {
-  "categories": [
-    {"_id": "text", "title": "TEXT"},
-    {"_id": "video", "title": "VIDEO"},
-    {"_id": "sound", "title": "SOUND"},
-    {"_id": "website", "title": "WEBSITE"}
-  ],
+  "categories": *[_type == "resourceCategory"] | order(title asc){
+    _id,
+    title,
+    "slug": slug.current
+  },
   "tags": *[_type == "resourceTag"] | order(title asc){
     _id,
     title

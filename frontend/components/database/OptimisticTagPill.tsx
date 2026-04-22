@@ -1,6 +1,6 @@
 'use client'
 
-import { slugifyTag } from '@/lib/tags'
+import {slugifyTag} from '@/lib/tags'
 import Tag from '@/components/Tag'
 
 type OptimisticTagPillProps = {
@@ -17,8 +17,7 @@ export default function ResourcesOptimisticTagPill({
   const slug = slugifyTag(label)
 
   // Ensure we have a Set to use has() method on
-  const slugsSet =
-    selectedSlugs instanceof Set ? selectedSlugs : new Set(selectedSlugs)
+  const slugsSet = selectedSlugs instanceof Set ? selectedSlugs : new Set(selectedSlugs)
 
   const isActive = slugsSet.has(slug)
 
@@ -29,7 +28,7 @@ export default function ResourcesOptimisticTagPill({
       onClick={() => onToggle(label)}
       interactive={true}
       showCloseIcon={isActive}
-      size='sm'
+      size="sm"
     />
   )
 }

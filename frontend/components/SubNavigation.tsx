@@ -20,7 +20,7 @@ export function resolveActiveSubNavHref(pathname: string, items: readonly SubNav
   const isDatabaseArtistModalPath = pathname.startsWith('/database/artists/')
   const isResourcesItemModalPath = pathname.startsWith('/resources/items/')
 
-  const activeItem = items.find((item) => {
+  const forcedBrowseItem = items.find((item) => {
     const shouldForceBrowseActive =
       (isDatabaseArtistModalPath &&
         item.href === '/database/browse' &&
@@ -29,15 +29,14 @@ export function resolveActiveSubNavHref(pathname: string, items: readonly SubNav
         item.href === '/resources/browse' &&
         items.some((navItem) => navItem.href === '/resources'))
 
-    return (
-      shouldForceBrowseActive ||
-      pathname === item.href ||
-      (!isDatabaseArtistModalPath &&
-        !isResourcesItemModalPath &&
-        item.href === `/${pathname.split('/')[1]}` &&
-        items.every((i) => i.href !== pathname))
-    )
+    return shouldForceBrowseActive
   })
+
+  if (forcedBrowseItem) return forcedBrowseItem.href
+
+  const activeItem = items
+    .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0]
 
   return activeItem?.href ?? null
 }

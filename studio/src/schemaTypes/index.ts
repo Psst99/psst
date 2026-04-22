@@ -15,7 +15,7 @@ import {workshopRegistration} from './documents/workshopRegistration'
 import {workshopTag} from './documents/workshopTag'
 import {event} from './documents/event'
 import {pssoundRequest} from './documents/pssoundRequest'
-import {pssoundManual} from './singletons/pssoundManual'
+import {pssoundFile} from './documents/pssoundFile'
 import {pssoundCalendar} from './documents/pssoundCalendar'
 import {pageSettings} from './singletons/pageSettings'
 import {resource} from './documents/resource'
@@ -23,13 +23,15 @@ import {resource} from './documents/resource'
 import archiveMedia from './documents/archiveMedia'
 import {archiveTag} from './documents/archiveTag'
 import {highlightedBox} from './objects/highlightedBox'
+import {emailMessage} from './objects/emailMessage'
 import {pssoundMembership} from './documents/pssoundMembership'
-import {resourceSubmission} from './documents/resourceSubmission'
 import {eventTag} from './documents/eventTag'
 import {membershipPage} from './singletons/membershipPage'
 import homepage from './singletons/homepage'
 import {themeSettings} from './singletons/themeSettings'
+import {emailSettings} from './singletons/emailSettings'
 import {pssoundArchive} from './documents/pssoundArchive'
+import {resourceCategory} from './documents/resourceCategory'
 import {resourceTag} from './documents/resourceTag'
 import psstSection from './documents/psstSection'
 import pssoundSection from './documents/pssoundSection'
@@ -44,6 +46,7 @@ export const schemaTypes = [
   membershipPage,
   homepage,
   themeSettings,
+  emailSettings,
   // Documents
   psstPage,
   psstSection,
@@ -59,13 +62,13 @@ export const schemaTypes = [
   workshopRegistration,
   event,
   pssoundRequest,
-  pssoundManual,
+  pssoundFile,
   pssoundCalendar,
   resource,
   archiveMedia,
   archiveTag,
-  resourceSubmission,
   pssoundArchive,
+  resourceCategory,
   resourceTag,
   // Objects
   blockContent,
@@ -73,5 +76,6 @@ export const schemaTypes = [
   callToAction,
   link,
   highlightedBox,
+  emailMessage,
   pssoundMembership,
 ]

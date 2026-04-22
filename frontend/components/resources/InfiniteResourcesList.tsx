@@ -1,18 +1,14 @@
 'use client'
 
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useContext,
-  useTransition,
-  type MouseEvent,
-} from 'react'
+import {useState, useEffect, useCallback, useContext, useTransition, type MouseEvent} from 'react'
 import {useInView} from 'react-intersection-observer'
 import {BiLoaderCircle} from 'react-icons/bi'
 import Link from 'next/link'
 import {usePathname, useRouter} from 'next/navigation'
-import {getResourcesPaginated, PaginatedResourcesParams} from '@/app/resources/(browse)/browse/actions'
+import {
+  getResourcesPaginated,
+  PaginatedResourcesParams,
+} from '@/app/resources/(browse)/browse/actions'
 import {getResourceSlug} from '@/lib/resources'
 import Tag from '../Tag'
 import {ThemeContext} from '@/app/ThemeProvider'
@@ -112,6 +108,21 @@ export default function InfiniteResourcesList({
     >
       {resources.map((resource: any, index: number) => {
         const resourceSlug = getResourceSlug(resource.title, resource._id)
+        const resourceTags = Array.isArray(resource.tags)
+          ? resource.tags.filter((tag: any) => Boolean(tag?.title))
+          : []
+        const resourceCategories =
+          Array.isArray(resource.categories) && resource.categories.length > 0
+            ? resource.categories.filter((category: any) => Boolean(category?.title))
+            : resource.category
+              ? [
+                  {
+                    _id: `legacy-${resource.category}`,
+                    title: String(resource.category).toUpperCase(),
+                  },
+                ]
+              : []
+
         return (
           <Link
             key={`${resource._id}-${index}`}
@@ -132,15 +143,18 @@ export default function InfiniteResourcesList({
               </div>
 
               <div className="flex flex-wrap gap-2 w-full xl:w-1/3">
-                {resource.category && (
-                  <span className="bg-[var(--section-bg)] text-[var(--section-fg)] px-1 py-0 text-lg uppercase font-mono flex items-center gap-1.25 leading-tight">
-                    {resource.category}
+                {resourceCategories.map((category: any, idx: number) => (
+                  <span
+                    key={category._id || `category-${idx}`}
+                    className="bg-[var(--section-bg)] text-[var(--section-fg)] px-1 py-0 text-lg uppercase font-mono flex items-center gap-1.25 leading-tight"
+                  >
+                    {category.title}
                   </span>
-                )}
+                ))}
               </div>
 
               <div className="flex flex-wrap gap-0 w-full xl:w-1/3">
-                {resource.tags?.map((tag: any, idx: number) => (
+                {resourceTags.map((tag: any, idx: number) => (
                   <Tag key={tag._id || `fallback-${idx}`} label={tag.title} size="sm" />
                 ))}
               </div>

@@ -1,7 +1,8 @@
 import {render} from '@react-email/components'
 import * as React from 'react'
-import {ArtistConfirmationEmail} from '../../emails/artist-confirmation'
-import {getTagColors} from '@/lib/tags'
+import {PsstFormEmail} from '../../emails/psst-form-email'
+import {buildEmailContentFromDefaults} from '../email/preview'
+import {getResolvedEmailTheme} from '../email/theme.server'
 
 interface ArtistConfirmationEmailProps {
   artistName: string
@@ -15,21 +16,16 @@ interface ArtistConfirmationEmailProps {
 }
 
 export const generateArtistConfirmationEmail = async (data: ArtistConfirmationEmailProps) => {
-  // Add colors to tags
-  const tagsWithColors = data.tags.map((tag) => {
-    const colors = getTagColors(tag.title.toLowerCase())
-    return {
-      title: tag.title,
-      bg: colors.bg,
-      fg: colors.fg,
-      bd: colors.bd,
-    }
+  const content = buildEmailContentFromDefaults('databaseReceived', {
+    artistName: data.artistName,
+    email: data.email,
   })
+  const theme = await getResolvedEmailTheme('databaseReceived')
 
   const html = await render(
-    React.createElement(ArtistConfirmationEmail, {
-      ...data,
-      tags: tagsWithColors,
+    React.createElement(PsstFormEmail, {
+      content,
+      theme,
     }),
   )
 

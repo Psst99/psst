@@ -5,7 +5,7 @@ const RESERVED_PSSOUND_SLUGS = new Set(['request', 'archive', 'membership'])
 
 export default defineType({
   name: 'pssoundSection',
-  title: 'PSƧOUND System Page',
+  title: 'PSƧOUND System Tab',
   type: 'document',
   fields: [
     defineField({name: 'title', type: 'string', validation: (Rule) => Rule.required()}),
@@ -29,7 +29,7 @@ export default defineType({
       options: {
         list: [
           {title: 'Default', value: 'default'},
-          {title: 'Guidelines (Columns)', value: 'guidelines'},
+          {title: 'Columns (2-column layout)', value: 'guidelines'},
         ],
         layout: 'radio',
       },

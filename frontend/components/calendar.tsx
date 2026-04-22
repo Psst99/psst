@@ -102,6 +102,12 @@ export default function Calendar({
   const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
   const mobileDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
+  const availableBackground = 'white'
+  const outsideMonthBackground = `color-mix(in srgb, ${theme.fg} 8%, white 92%)`
+  const outsideMonthText = `color-mix(in srgb, ${theme.fg} 62%, white 38%)`
+  const outsideMonthBorder = `color-mix(in srgb, ${theme.fg} 40%, white 60%)`
+  const rangeBackground = `color-mix(in srgb, ${theme.bg} 70%, white 30%)`
+
   const weeks = []
   let daysInWeek = []
   let day = startDate
@@ -120,25 +126,42 @@ export default function Calendar({
       const isEnd = isEndDate(currentDay)
       const inRange = isInRange(currentDay)
       const isClickable = !isBooked && !isPast && isCurrentMonth
+      const dayBackground = isBooked
+        ? '#A20018'
+        : isStart || isEnd
+          ? theme.bg
+          : inRange
+            ? rangeBackground
+            : isPast
+              ? availableBackground
+              : isCurrentMonth
+                ? availableBackground
+                : outsideMonthBackground
+      const dayTextColor = isBooked
+        ? 'white'
+        : isStart || isEnd || inRange
+          ? theme.fg
+          : isCurrentMonth
+            ? theme.fg
+            : outsideMonthText
 
       daysInWeek.push(
         <div
           key={day.toString()}
           onClick={() => handleDateClick(currentDay)}
+          aria-disabled={!isClickable}
           style={{
-            borderColor: theme.bg,
-            ...(isBooked
-              ? {backgroundColor: '#A20018'}
-              : isStart || isEnd
-                ? {
-                    backgroundColor: theme.bg,
-                    boxShadow: `0 0 0 4px ${theme.fg}80`,
-                  }
-                : inRange
-                  ? {backgroundColor: `${theme.bg}99`}
-                  : isPast
-                    ? {backgroundColor: 'white', opacity: 0.4}
-                    : {backgroundColor: 'white'}),
+            backgroundColor: dayBackground,
+            borderColor: isBooked || isPast || isCurrentMonth ? theme.bg : outsideMonthBorder,
+            opacity: isPast && !isBooked ? 0.4 : 1,
+            boxShadow:
+              isBooked || isPast
+                ? undefined
+                : isStart || isEnd
+                ? `0 0 0 4px ${theme.fg}80`
+                : !isCurrentMonth
+                  ? `inset 0 0 0 1px ${outsideMonthBorder}`
+                  : undefined,
           }}
           className={`flex-1 min-h-[60px] sm:min-h-[80px] flex items-center justify-center transition-colors rounded-lg ${
             isBooked
@@ -147,34 +170,28 @@ export default function Calendar({
                 ? 'cursor-pointer'
                 : inRange
                   ? 'cursor-pointer'
-                  : isPast
-                    ? 'cursor-not-allowed'
-                    : 'cursor-pointer'
+                : isPast
+                  ? 'cursor-not-allowed'
+                  : isCurrentMonth
+                    ? 'cursor-pointer'
+                    : 'cursor-default'
           }`}
           onMouseEnter={(e) => {
-            if (!isBooked && !isPast && !(isStart || isEnd || inRange)) {
+            if (isClickable && !(isStart || isEnd || inRange)) {
               e.currentTarget.style.backgroundColor = theme.bg
             }
           }}
           onMouseLeave={(e) => {
-            if (!isBooked && !isPast && !(isStart || isEnd || inRange)) {
-              e.currentTarget.style.backgroundColor = 'white'
+            if (isClickable && !(isStart || isEnd || inRange)) {
+              e.currentTarget.style.backgroundColor = dayBackground
             }
           }}
         >
           <span
             style={{
-              color: isBooked
-                ? 'white'
-                : isStart || isEnd || inRange
-                  ? theme.fg
-                  : isCurrentMonth
-                    ? theme.fg
-                    : `${theme.bg}`,
+              color: dayTextColor,
             }}
-            className={`text-lg sm:text-2xl ${
-              isStart || isEnd ? 'font-bold' : inRange ? 'font-semibold' : ''
-            }`}
+            className="text-lg sm:text-2xl"
           >
             {formattedDate}
           </span>
@@ -233,7 +250,7 @@ export default function Calendar({
         <button
           onClick={prevMonth}
           style={{backgroundColor: theme.bg, color: theme.fg}}
-          className="px-4 py-1 rounded-md flex items-center h-full"
+          className="px-4 py-1 rounded-md flex items-center h-full cursor-pointer transition-opacity hover:opacity-75"
         >
           ←
         </button>
@@ -246,7 +263,7 @@ export default function Calendar({
         <button
           onClick={nextMonth}
           style={{backgroundColor: theme.bg, color: theme.fg}}
-          className="px-4 py-1 rounded-md flex items-center h-full"
+          className="px-4 py-1 rounded-md flex items-center h-full cursor-pointer transition-opacity hover:opacity-75"
         >
           →
         </button>

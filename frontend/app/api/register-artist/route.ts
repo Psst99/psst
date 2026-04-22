@@ -1,12 +1,10 @@
 import {NextRequest, NextResponse} from 'next/server'
 import {client} from '@/sanity/lib/client'
 import {writeToken} from '@/sanity/lib/token'
+import {getEmailDeliveryErrorMessage, getEmailDeliveryFailureMessage} from '@/lib/email/delivery'
+import {sendPsstEmail} from '@/lib/email/send'
 import {artistFormSchema} from '@/lib/schemas/artist'
 import {v4 as uuidv4} from 'uuid'
-import {Resend} from 'resend'
-import {generateArtistConfirmationEmail} from '@/lib/email-templates/artist-confirmation'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Helper function to detect platform from URL
 const detectPlatform = (url: string): string => {
@@ -34,26 +32,20 @@ const detectPlatform = (url: string): string => {
   }
 }
 
+const slugifyArtistName = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .slice(0, 96)
+
 export async function POST(req: NextRequest) {
   try {
     const rawData = await req.json()
 
     // Validate with Zod
     const validatedData = artistFormSchema.parse(rawData)
-
-    // Fetch category and tag titles from Sanity
-    const categoryIds = validatedData.categories
-    const tagIds = validatedData.tags
-
-    const [categories, tags] = await Promise.all([
-      client.fetch<{_id: string; title: string}[]>(
-        `*[_type == "category" && _id in $ids]{_id, title}`,
-        {ids: categoryIds},
-      ),
-      client.fetch<{_id: string; title: string}[]>(`*[_type == "tag" && _id in $ids]{_id, title}`, {
-        ids: tagIds,
-      }),
-    ])
 
     // Process links with platform detection
     const linksWithPlatform = validatedData.links.map((url: string) => ({
@@ -65,6 +57,10 @@ export async function POST(req: NextRequest) {
     const doc = {
       _type: 'artist',
       artistName: validatedData.artistName,
+      slug: {
+        _type: 'slug',
+        current: slugifyArtistName(validatedData.artistName),
+      },
       pronouns: validatedData.pronouns,
       customPronouns: validatedData.customPronouns,
       email: validatedData.email,
@@ -85,33 +81,42 @@ export async function POST(req: NextRequest) {
       })),
       description: validatedData.description,
       approved: false,
+      submissionSource: 'website',
     }
 
-    // Save to Sanity
-    await client.withConfig({token: writeToken}).create(doc)
+    const writeClient = client.withConfig({token: writeToken})
+    const createdDoc = await writeClient.create(doc)
 
-    // Send confirmation email
     try {
-      const emailHtml = await generateArtistConfirmationEmail({
-        artistName: validatedData.artistName,
-        pronouns: validatedData.pronouns,
-        customPronouns: validatedData.customPronouns,
-        email: validatedData.email,
-        categories,
-        tags,
-        links: linksWithPlatform,
-        description: validatedData.description,
+      const emailResult = await sendPsstEmail({
+        to: validatedData.email,
+        templateKey: 'databaseReceived',
+        variables: {
+          artistName: validatedData.artistName,
+          email: validatedData.email,
+        },
       })
 
-      await resend.emails.send({
-        from: 'PSST <info@psst.space>',
-        to: validatedData.email,
-        subject: 'Artist Registration Confirmation - PSST',
-        html: emailHtml,
-      })
+      if (emailResult.sent) {
+        await writeClient
+          .patch(createdDoc._id)
+          .set({confirmationEmailSentAt: new Date().toISOString()})
+          .unset(['emailDeliveryError'])
+          .commit()
+      } else {
+        await writeClient
+          .patch(createdDoc._id)
+          .set({emailDeliveryError: getEmailDeliveryFailureMessage(emailResult.reason)})
+          .commit()
+          .catch(() => undefined)
+      }
     } catch (emailError) {
-      console.error('Email sending failed:', emailError)
-      // Continue anyway - don't fail the registration if email fails
+      console.error('Artist confirmation email failed:', emailError)
+      await writeClient
+        .patch(createdDoc._id)
+        .set({emailDeliveryError: getEmailDeliveryErrorMessage(emailError)})
+        .commit()
+        .catch(() => undefined)
     }
 
     return NextResponse.json({success: true})

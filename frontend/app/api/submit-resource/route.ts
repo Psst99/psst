@@ -1,11 +1,9 @@
 import {NextRequest, NextResponse} from 'next/server'
 import {client} from '@/sanity/lib/client'
+import {getEmailDeliveryErrorMessage, getEmailDeliveryFailureMessage} from '@/lib/email/delivery'
 import {writeToken} from '@/sanity/lib/token'
 import {resourceSubmissionSchema} from '@/lib/schemas/resource'
-import {Resend} from 'resend'
-import {generateResourceConfirmationEmail} from '@/lib/email-templates/resource-confirmation'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import {sendPsstEmail} from '@/lib/email/send'
 
 const MAX_PDF_SIZE_MB = 10
 const MAX_PDF_SIZE_BYTES = MAX_PDF_SIZE_MB * 1024 * 1024
@@ -43,7 +41,6 @@ export async function POST(req: NextRequest) {
     const validatedData = resourceSubmissionSchema.parse(payload)
 
     let fileField: {_type: 'file'; asset: {_type: 'reference'; _ref: string}} | undefined
-    let fileName: string | undefined
     if (formData) {
       const fileEntry = formData.get('file')
       if (fileEntry instanceof File) {
@@ -68,7 +65,6 @@ export async function POST(req: NextRequest) {
             filename: fileEntry.name,
           })
 
-        fileName = fileEntry.name
         fileField = {
           _type: 'file',
           asset: {_type: 'reference', _ref: asset._id},
@@ -83,49 +79,67 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const tagIds = validatedData.tags ?? []
-    const tags = tagIds.length
-      ? await client.fetch<{_id: string; title: string}[]>(
-          `*[_type == "resourceTag" && _id in $ids]{_id, title}`,
-          {ids: tagIds},
-        )
-      : []
+    const submittedAt = new Date().toISOString()
+    const tagReferences =
+      validatedData.tags?.map((tagId) => ({
+        _key: crypto.randomUUID(),
+        _type: 'reference',
+        _ref: tagId,
+      })) ?? []
+    const categoryReferences = validatedData.categories.map((categoryId) => ({
+      _key: crypto.randomUUID(),
+      _type: 'reference',
+      _ref: categoryId,
+    }))
 
-    // Prepare the document for Sanity
+    // Prepare the canonical resource document for Sanity. Submitted resources start pending.
     const doc = {
-      _type: 'resourceSubmission',
+      _type: 'resource',
       title: validatedData.title,
       url: validatedData.url,
       email: validatedData.email,
-      categories: validatedData.categories,
-      tags: validatedData.tags,
+      categories: categoryReferences,
+      tags: tagReferences,
       description: validatedData.description,
-      approved: false, // All submissions start as pending
-      submittedAt: new Date().toISOString(),
+      submissionSource: 'website',
+      approved: false,
+      submittedAt,
       ...(fileField ? {file: fileField} : {}),
     }
 
-    await client.withConfig({token: writeToken}).create(doc)
+    const writeClient = client.withConfig({token: writeToken})
+    const createdDoc = await writeClient.create(doc)
 
     try {
-      const emailHtml = await generateResourceConfirmationEmail({
-        title: validatedData.title,
-        email: validatedData.email,
-        categories: validatedData.categories,
-        tags,
-        description: validatedData.description,
-        url: validatedData.url,
-        fileName,
+      const emailResult = await sendPsstEmail({
+        to: validatedData.email,
+        templateKey: 'resourceReceived',
+        variables: {
+          title: validatedData.title,
+          email: validatedData.email,
+        },
       })
 
-      await resend.emails.send({
-        from: 'PSST <info@psst.space>',
-        to: validatedData.email,
-        subject: 'Resource Submission Confirmation - PSST',
-        html: emailHtml,
-      })
+      if (emailResult.sent) {
+        await writeClient
+          .patch(createdDoc._id)
+          .set({confirmationEmailSentAt: new Date().toISOString()})
+          .unset(['emailDeliveryError'])
+          .commit()
+      } else {
+        await writeClient
+          .patch(createdDoc._id)
+          .set({emailDeliveryError: getEmailDeliveryFailureMessage(emailResult.reason)})
+          .commit()
+          .catch(() => undefined)
+      }
     } catch (emailError) {
       console.error('Email sending failed:', emailError)
+      await writeClient
+        .patch(createdDoc._id)
+        .set({emailDeliveryError: getEmailDeliveryErrorMessage(emailError)})
+        .commit()
+        .catch(() => undefined)
     }
 
     return NextResponse.json({success: true})

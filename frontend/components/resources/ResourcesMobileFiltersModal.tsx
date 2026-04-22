@@ -13,6 +13,7 @@ interface ResourcesMobileFiltersModalProps {
   categories: Array<{
     _id: string
     title: string
+    slug?: string
   }>
   tags: Array<{
     _id: string
@@ -32,7 +33,7 @@ export default function ResourcesMobileFiltersModal({
 
   const categoriesWithSlug = categories.map((category) => ({
     ...category,
-    slug: slugifyTag(category.title),
+    slug: category.slug ?? slugifyTag(category.title),
   }))
 
   const tagsWithSlug = tags.map((tag) => ({

@@ -11,6 +11,11 @@ const resourceByIdQuery = `
     url,
     fileUrl,
     category,
+    "categories": categories[]->{
+      _id,
+      title,
+      "slug": slug.current
+    },
     image,
     "tags": tags[]->{
       _id,
@@ -19,11 +24,7 @@ const resourceByIdQuery = `
   }
 `
 
-export default async function ModalResourceRoute({
-  params,
-}: {
-  params: Promise<{slug: string}>
-}) {
+export default async function ModalResourceRoute({params}: {params: Promise<{slug: string}>}) {
   const routeSlug = (await params).slug
   const id = getResourceIdFromSlug(routeSlug)
   if (!id) return notFound()

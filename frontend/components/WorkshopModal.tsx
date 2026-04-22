@@ -7,7 +7,6 @@ import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
 import CmsContent from '@/components/CmsContent'
 import Tag from '@/components/Tag'
-import {urlForImage} from '@/sanity/lib/utils'
 import {getTheme} from '@/lib/theme/sections'
 import {ThemeContext} from '@/app/ThemeProvider'
 
@@ -129,39 +128,20 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
           {(workshop.location || workshop.url) && (
             <div className="mb-6 space-y-2 panel-fg text-base min-[69.375rem]:text-xl leading-snug">
               {workshop.location && (
-                <p className="flex items-start gap-2">
-                  <span aria-hidden="true" className="translate-y-[0.05em]">
-                    📍
-                  </span>
-                  <span>{workshop.location}</span>
+                <p>
+                  <span className="uppercase">LOCATION:</span> <span>{workshop.location}</span>
                 </p>
               )}
               {workshop.url && (
-                <p className="flex items-start gap-2">
-                  <span aria-hidden="true" className="translate-y-[0.05em]">
-                    🔗
-                  </span>
+                <p>
                   <Link
                     href={workshop.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="underline underline-offset-2 break-all"
                   >
-                    {workshop.url}
+                    LINK
                   </Link>
                 </p>
               )}
-            </div>
-          )}
-
-          {/* Cover Image */}
-          {workshop.coverImage && (
-            <div className="mb-6">
-              <img
-                src={urlForImage(workshop.coverImage)?.width(800).url() ?? ''}
-                alt={workshop.title}
-                className="w-full rounded-lg object-contain max-h-[40vh]"
-              />
             </div>
           )}
 

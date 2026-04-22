@@ -3,7 +3,8 @@
 import {useForm, useFieldArray} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {pssoundRequestSchema, PssoundRequestFormData} from '@/lib/schemas/pssoundRequest'
-import {useEffect} from 'react'
+import {useState} from 'react'
+import {useRouter} from 'next/navigation'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {FormField} from '@/components/form/FormField'
@@ -24,6 +25,9 @@ function isDateBooked(dateStr: string, bookedDates: string[]) {
 }
 
 export default function PssoundRequestForm({bookedDates, collectives}: PssoundRequestFormProps) {
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const router = useRouter()
+
   const {
     register,
     handleSubmit,
@@ -31,7 +35,6 @@ export default function PssoundRequestForm({bookedDates, collectives}: PssoundRe
     setValue,
     watch,
     formState: {errors, isSubmitting},
-    reset,
   } = useForm<PssoundRequestFormData>({
     resolver: zodResolver(pssoundRequestSchema),
     defaultValues: {
@@ -70,12 +73,14 @@ export default function PssoundRequestForm({bookedDates, collectives}: PssoundRe
   const returnDate = watch('returnDate') ? new Date(watch('returnDate')) : null
 
   const onSubmit = async (data: PssoundRequestFormData) => {
+    setSubmitError(null)
+
     if (
       isDateBooked(data.eventDate, bookedDates) ||
       isDateBooked(data.pickupDate, bookedDates) ||
       isDateBooked(data.returnDate, bookedDates)
     ) {
-      alert('One or more selected dates are unavailable. Please choose different dates.')
+      setSubmitError('One or more selected dates are unavailable. Please choose different dates.')
       return
     }
 
@@ -85,10 +90,9 @@ export default function PssoundRequestForm({bookedDates, collectives}: PssoundRe
       body: JSON.stringify(data),
     })
     if (res.ok) {
-      reset()
-      alert('Request submitted!')
+      router.push('/pssound-system/request/success')
     } else {
-      alert('Submission failed')
+      setSubmitError('Submission failed. Please try again.')
     }
   }
 
@@ -98,7 +102,7 @@ export default function PssoundRequestForm({bookedDates, collectives}: PssoundRe
         onSubmit={handleSubmit(onSubmit, (formErrors) => {
           console.error('Validation errors:', formErrors)
         })}
-        className="space-y-4"
+        className="space-y-4 form-scroll-bottom-space"
       >
         <FormField
           bgClassName="bg-[color:var(--section-accent)] flex flex-col xl:flex-row items-center"
@@ -404,6 +408,8 @@ export default function PssoundRequestForm({bookedDates, collectives}: PssoundRe
             </div>
           </div>
         </FormField>
+
+        {submitError && <div className="text-red-600 text-center">{submitError}</div>}
 
         <button
           type="submit"

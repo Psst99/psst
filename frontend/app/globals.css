@@ -142,6 +142,16 @@
     border-color: var(--section-fg);
   }
 
+  .form-scroll-bottom-space {
+    padding-bottom: 3rem;
+  }
+
+  @media (min-width: 69.375rem) {
+    .form-scroll-bottom-space {
+      padding-bottom: calc(var(--home-nav-h) + 4rem);
+    }
+  }
+
   .tab-inactive {
     background-color: var(--section-bg);
     color: var(--section-fg);

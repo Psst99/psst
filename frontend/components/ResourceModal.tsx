@@ -56,7 +56,14 @@ export default function ResourceModal({resource}: ResourceModalProps) {
   }
 
   const linkTarget = resource?.url || resource?.fileUrl
-  const hasDescription = typeof resource?.description === 'string' && resource.description.trim().length > 0
+  const hasDescription =
+    typeof resource?.description === 'string' && resource.description.trim().length > 0
+  const resourceCategories =
+    Array.isArray(resource?.categories) && resource.categories.length > 0
+      ? resource.categories.filter((category: any) => Boolean(category?.title))
+      : resource?.category
+        ? [{_id: `legacy-${resource.category}`, title: String(resource.category).toUpperCase()}]
+        : []
 
   const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={modalVars}>
@@ -75,11 +82,16 @@ export default function ResourceModal({resource}: ResourceModalProps) {
       >
         <h1 className="panel-fg text-4xl sm:text-4xl mb-4">{resource.title}</h1>
 
-        {resource.category && (
+        {resourceCategories.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="invert-panel py-0 font-mono font-normal px-1 text-lg uppercase">
-              {resource.category}
-            </span>
+            {resourceCategories.map((category: any, idx: number) => (
+              <span
+                key={category._id || `category-${idx}`}
+                className="invert-panel py-0 font-mono font-normal px-1 text-lg uppercase"
+              >
+                {category.title}
+              </span>
+            ))}
           </div>
         )}
 

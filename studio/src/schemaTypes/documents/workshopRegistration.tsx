@@ -71,6 +71,24 @@ export const workshopRegistration = defineType({
       type: 'datetime',
       initialValue: () => new Date().toISOString(),
     }),
+    defineField({
+      name: 'confirmationEmailSentAt',
+      title: 'Confirmation email sent at',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'approvalEmailSentAt',
+      title: 'Approval email sent at',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'emailDeliveryError',
+      title: 'Email delivery error',
+      type: 'text',
+      readOnly: true,
+    }),
   ],
   preview: {
     select: {
@@ -79,21 +97,12 @@ export const workshopRegistration = defineType({
       workshop: 'workshop.title',
       status: 'status',
     },
-    prepare({
-      title,
-      subtitle,
-      workshop,
-      status,
-    }: {
-      title: string
-      subtitle: string
-      workshop: string
-      status: string
-    }) {
+    prepare(selection: Record<string, string | undefined>) {
+      const {title, subtitle, workshop, status} = selection
       return {
         title,
         subtitle: `${workshop ? workshop + ' | ' : ''}${subtitle}`,
-        media: () => <StatusIcon status={status} />, // Add dynamic icon
+        media: () => <StatusIcon status={status || ''} />, // Add dynamic icon
       }
     },
   },

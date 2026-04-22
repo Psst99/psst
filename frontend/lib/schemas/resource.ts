@@ -1,12 +1,16 @@
 import {z} from 'zod'
+import {isValidUrl, normalizeUrlInput} from '@/lib/url'
 
 export const resourceSubmissionSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   url: z
     .string()
     .optional()
-    .transform((value) => (value === '' ? undefined : value))
-    .refine((value) => !value || z.string().url().safeParse(value).success, {
+    .transform((value) => {
+      if (!value?.trim()) return undefined
+      return normalizeUrlInput(value)
+    })
+    .refine((value) => !value || isValidUrl(value), {
       message: 'Must be a valid URL',
     }),
   email: z.string().email('Must be a valid email'),

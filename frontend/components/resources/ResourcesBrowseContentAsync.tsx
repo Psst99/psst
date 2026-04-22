@@ -31,7 +31,6 @@ export default async function ResourcesBrowseContentAsync({
     .map((s) => s.trim())
     .filter(Boolean)
 
-
   // Generate the appropriate order clause based on sort parameter
   let orderClause = '| order(title asc)'
   if (sort === 'chrono') {
@@ -41,7 +40,7 @@ export default async function ResourcesBrowseContentAsync({
   }
 
   // Build conditions for the query - FIXED TAG FILTERING
-  const conditions: string[] = []
+  const conditions: string[] = ['approved == true']
 
   if (tagSlugs.length > 0) {
     const mode = sp.mode ?? 'any'
@@ -56,9 +55,10 @@ export default async function ResourcesBrowseContentAsync({
     }
   }
 
-
   if (categorySlugs.length > 0) {
-    conditions.push(`category in [${categorySlugs.map((slug) => `"${slug}"`).join(',')}]`)
+    conditions.push(
+      `count((categories[]->slug.current)[@ in [${categorySlugs.map((slug) => `"${slug}"`).join(',')}]]) > 0`,
+    )
   }
 
   if (search) {
@@ -67,13 +67,18 @@ export default async function ResourcesBrowseContentAsync({
 
   // Construct the full query - FIXED
   const query = `{
-    "resources": *[_type == "resource" && approved == true${conditions.length > 0 ? ` && ${conditions.join(' && ')}` : ''}] ${orderClause} [0...20] {
+    "resources": *[_type == "resource"${conditions.length > 0 ? ` && ${conditions.join(' && ')}` : ''}] ${orderClause} [0...20] {
       _id,
       title,
       description,
       url,
       fileUrl,
       category,
+      "categories": categories[]-> {
+        _id,
+        title,
+        "slug": slug.current
+      },
       image,
       publishedAt,
       "tags": tags[]-> {
@@ -87,13 +92,12 @@ export default async function ResourcesBrowseContentAsync({
       title,
       "slug": slug.current
     },
-    "categories": [
-      {"_id": "text", "title": "TEXT", "slug": {"current": "text"}},
-      {"_id": "video", "title": "VIDEO", "slug": {"current": "video"}},
-      {"_id": "sound", "title": "SOUND", "slug": {"current": "sound"}},
-      {"_id": "website", "title": "WEBSITE", "slug": {"current": "website"}}
-    ],
-    "totalCount": count(*[_type == "resource" && approved == true${conditions.length > 0 ? ` && ${conditions.join(' && ')}` : ''}])
+    "categories": *[_type == "resourceCategory"] | order(title asc) {
+      _id,
+      title,
+      "slug": slug.current
+    },
+    "totalCount": count(*[_type == "resource"${conditions.length > 0 ? ` && ${conditions.join(' && ')}` : ''}])
   }`
 
   const {data} = await sanityFetch({query})

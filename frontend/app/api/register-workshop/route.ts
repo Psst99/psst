@@ -1,8 +1,11 @@
 // app/api/register-workshop/route.ts
 import {NextRequest, NextResponse} from 'next/server'
 import {client} from '@/sanity/lib/client'
+import {getEmailDeliveryErrorMessage, getEmailDeliveryFailureMessage} from '@/lib/email/delivery'
 import {writeToken} from '@/sanity/lib/token'
 import {workshopRegistrationSchema} from '@/lib/schemas/workshop'
+import {formatDateList} from '@/lib/email/cards'
+import {sendPsstEmail} from '@/lib/email/send'
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,10 +19,10 @@ export async function POST(req: NextRequest) {
       {workshopId},
     )
 
-    const workshop = await client.fetch(
-      `*[_type == "workshop" && _id == $workshopId][0]{totalSpots}`,
-      {workshopId},
-    )
+    const workshop = await client.fetch<{
+      title: string
+      totalSpots: number
+    } | null>(`*[_type == "workshop" && _id == $workshopId][0]{title, totalSpots}`, {workshopId})
 
     if (!workshop || approvedCount >= workshop.totalSpots) {
       return NextResponse.json(
@@ -40,7 +43,43 @@ export async function POST(req: NextRequest) {
       registrationDate: new Date().toISOString(),
     }
 
-    await client.withConfig({token: writeToken}).create(doc)
+    const writeClient = client.withConfig({token: writeToken})
+    const createdDoc = await writeClient.create(doc)
+
+    try {
+      const emailResult = await sendPsstEmail({
+        to: validatedData.email,
+        templateKey: 'workshopReceived',
+        variables: {
+          name: validatedData.name,
+          email: validatedData.email,
+          workshopTitle: workshop.title,
+          selectedDates: formatDateList(validatedData.selectedDates),
+        },
+      })
+
+      if (emailResult.sent) {
+        await writeClient
+          .patch(createdDoc._id)
+          .set({confirmationEmailSentAt: new Date().toISOString()})
+          .unset(['emailDeliveryError'])
+          .commit()
+      } else {
+        await writeClient
+          .patch(createdDoc._id)
+          .set({emailDeliveryError: getEmailDeliveryFailureMessage(emailResult.reason)})
+          .commit()
+          .catch(() => undefined)
+      }
+    } catch (emailError) {
+      console.error('Workshop confirmation email failed:', emailError)
+      await writeClient
+        .patch(createdDoc._id)
+        .set({emailDeliveryError: getEmailDeliveryErrorMessage(emailError)})
+        .commit()
+        .catch(() => undefined)
+    }
+
     return NextResponse.json({success: true})
   } catch (error) {
     console.error('Workshop registration error:', error)

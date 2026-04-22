@@ -5,24 +5,26 @@ interface StyledCheckboxProps extends React.InputHTMLAttributes<HTMLInputElement
 }
 
 export const StyledCheckbox: React.FC<StyledCheckboxProps> = ({label, ...props}) => (
-  <label className="flex items-start gap-0 text-[#81520a] relative cursor-pointer">
+  <label className="group relative flex cursor-pointer items-center gap-3 section-fg">
     <input
       type="checkbox"
       {...props}
-      className="peer appearance-none w-4 h-4 border border-[#81520a] rounded bg-white checked:bg-[#81520a] checked:border-[#81520a] focus:outline-none mt-1.5"
+      className="peer h-6 w-6 shrink-0 appearance-none rounded border border-current bg-white transition-colors checked:bg-current focus:outline-none focus-visible:ring-2 focus-visible:ring-current"
     />
     <svg
-      className="absolute mt-1.5 w-4 h-4 hidden peer-checked:block pointer-events-none"
+      className="pointer-events-none absolute left-0 top-1/2 hidden h-6 w-6 -translate-y-1/2 peer-checked:block"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="white"
-      strokeWidth="4"
+      strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
       <polyline points="20 6 9 17 4 12"></polyline>
     </svg>
-    <span className="pl-1">{label.charAt(0).toUpperCase() + label.slice(1)}</span>
+    <span className="text-lg leading-tight md:text-xl">
+      {label.charAt(0).toUpperCase() + label.slice(1)}
+    </span>
   </label>
 )

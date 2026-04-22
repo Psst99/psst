@@ -6,7 +6,6 @@ import {
   ListIcon,
   TagIcon,
   UserIcon,
-  EnvelopeIcon,
   ArchiveIcon,
   HomeIcon,
   CheckmarkIcon,
@@ -18,14 +17,14 @@ import {
   BsPlusCircle,
   BsFillInfoCircleFill,
 } from 'react-icons/bs'
-import {PiNotebookDuotone} from 'react-icons/pi'
 import {LuLibrary, LuLightbulb} from 'react-icons/lu'
 import {CgUnavailable} from 'react-icons/cg'
-import {CiBoxList} from 'react-icons/ci'
+import {MdOutlineAlternateEmail, MdOutlineInvertColors} from 'react-icons/md'
 
 import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import pluralize from 'pluralize-esm'
 import ThemePreviewTool from '../components/ThemePreviewTool'
+import EmailPreviewPane from '../components/EmailPreviewPane'
 
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
 
@@ -46,8 +45,6 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
         .title('Homepage')
         .child(S.document().schemaType('homepage').documentId('homepage'))
         .icon(HomeIcon),
-
-      S.divider(),
 
       S.documentTypeListItem('psstSection').title('PSƧT').icon(BsFillInfoCircleFill),
       // Database section
@@ -127,46 +124,48 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
             .title('Resources')
             .items([
               S.listItem()
-                .title('Pending submissions')
+                .title('Pending resources')
                 .icon(ClockIcon)
                 .child(
-                  S.documentTypeList('resourceSubmission')
-                    .title('Pending submissions')
+                  S.documentTypeList('resource')
+                    .title('Pending resources')
                     .apiVersion(STUDIO_API_VERSION)
-                    .filter(
-                      '_type == "resourceSubmission" && (!defined(approved) || approved == false)',
-                    ),
+                    .filter('_type == "resource" && (!defined(approved) || approved == false)'),
                 ),
 
-              S.listItem()
-                .title('All submissions')
-                .icon(ListIcon)
-                .child(
-                  S.documentTypeList('resourceSubmission')
-                    .title('All submissions')
-                    .apiVersion(STUDIO_API_VERSION)
-                    .filter('_type == "resourceSubmission"'),
-                ),
+              S.divider(),
 
               S.listItem()
-                .title('Approved Resources')
+                .title('Resources')
                 .icon(ListIcon)
                 .child(
                   S.documentTypeList('resource')
-                    .title('Approved Resources')
+                    .title('Resources')
                     .apiVersion(STUDIO_API_VERSION)
                     .filter('_type == "resource" && approved == true'),
                 ),
 
               S.listItem()
-                .title('All Resources')
-                .icon(ListIcon)
+                .title('Browse by Category')
+                .icon(FolderIcon)
                 .child(
-                  S.documentTypeList('resource')
-                    .title('All Resources')
-                    .apiVersion(STUDIO_API_VERSION)
-                    .filter('_type == "resource"'),
+                  S.documentTypeList('resourceCategory')
+                    .title('Browse by Category')
+                    .child((categoryId) =>
+                      S.documentTypeList('resource')
+                        .title('Resources in selected category')
+                        .apiVersion(STUDIO_API_VERSION)
+                        .filter(
+                          '_type == "resource" && approved == true && $categoryId in categories[]._ref',
+                        )
+                        .params({categoryId}),
+                    ),
                 ),
+
+              S.divider(),
+
+              S.documentTypeListItem('resourceCategory').title('Categories'),
+              S.documentTypeListItem('resourceTag').title('Tags').icon(TagIcon),
 
               S.divider(),
 
@@ -174,30 +173,21 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                 .title('Guidelines')
                 .icon(BookIcon)
                 .child(S.document().schemaType('guidelines').documentId('resources-guidelines')),
-
-              S.divider(),
-
-              S.listItem()
-                .title('Page settings')
-                .icon(CogIcon)
-                .child(
-                  S.document().schemaType('pageSettings').documentId('resources-pageSettings'),
-                ),
             ]),
         ),
 
       // ————— PSSOUND SYSTEM SECTION —————
       S.listItem()
-        .title('PSƧOUND System')
+        .title('PSƧOUND')
         .icon(BsFillSpeakerFill)
         .child(
           S.list()
             .title('PSƧOUND System')
             .items([
-              // Content Pages Group
+              // Content Tabs Group
               orderableDocumentListDeskItem({
                 type: 'pssoundSection',
-                title: 'Pages',
+                title: 'Tabs',
                 icon: BookIcon,
                 createIntent: true,
                 S,
@@ -285,29 +275,16 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                     ]),
                 ),
 
-              // Documentation
+              // Files
               S.divider(),
-              S.listItem()
-                .title('Documentation')
-                .icon(PiNotebookDuotone)
-                .child(
-                  S.list()
-                    .title('Documentation')
-                    .items([
-                      S.listItem()
-                        .title('Guidelines')
-                        .icon(CiBoxList)
-                        .child(
-                          S.document().schemaType('guidelines').documentId('pssound-guidelines'),
-                        ),
-                      S.listItem()
-                        .title('User manual')
-                        .icon(PiNotebookDuotone)
-                        .child(
-                          S.document().schemaType('pssoundManual').documentId('pssound-manual'),
-                        ),
-                    ]),
-                ),
+              orderableDocumentListDeskItem({
+                type: 'pssoundFile',
+                title: 'Files',
+                icon: FolderIcon,
+                createIntent: true,
+                S,
+                context,
+              }),
             ]),
         ),
 
@@ -555,10 +532,25 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
               S.view.component(ThemePreviewTool).title('Preview').id('theme-preview'),
             ]),
         )
-        .icon(CogIcon),
+        .icon(MdOutlineInvertColors),
 
       S.listItem()
-        .title('Site settings')
+        .title('Emails')
+        .icon(MdOutlineAlternateEmail)
+        .child(
+          S.document()
+            .schemaType('emailSettings')
+            .documentId('emailSettings')
+            .views([
+              S.view.form(),
+              S.view.component(EmailPreviewPane).title('Preview').id('email-preview'),
+            ]),
+        ),
+
+      S.divider(),
+
+      S.listItem()
+        .title('Settings')
         .child(S.document().schemaType('settings').documentId('siteSettings'))
         .icon(CogIcon),
     ])

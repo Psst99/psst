@@ -11,17 +11,22 @@ export const artist = defineType({
   title: 'Artist',
   icon: UserIcon,
   type: 'document',
+  groups: [
+    {name: 'profile', title: 'Profile', default: true},
+    {name: 'internal', title: 'Internal'},
+  ],
   fields: [
     defineField({
       name: 'artistName',
       title: 'Artist Name',
-
+      group: 'profile',
       type: 'string',
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'slug',
       title: 'Slug',
+      group: 'profile',
       type: 'slug',
       options: {
         source: 'artistName',
@@ -38,6 +43,7 @@ export const artist = defineType({
     defineField({
       name: 'pronouns',
       title: 'Pronouns',
+      group: 'profile',
       type: 'string',
       description: 'The pronouns used by the artist (e.g., she/her, they/them).',
       options: {
@@ -56,18 +62,21 @@ export const artist = defineType({
     defineField({
       name: 'customPronouns',
       title: 'Custom pronouns',
+      group: 'profile',
       type: 'string',
       hidden: ({parent}) => parent?.pronouns !== 'other',
     }),
     defineField({
       name: 'email',
       title: 'Email',
+      group: 'profile',
       type: 'string',
       // validation: (rule) => rule.required().email(),
     }),
     defineField({
       name: 'categories',
       title: 'Categories',
+      group: 'profile',
       type: 'array',
       of: [
         {
@@ -88,6 +97,7 @@ export const artist = defineType({
     defineField({
       name: 'links',
       title: 'Links',
+      group: 'profile',
       type: 'array',
       of: [
         {
@@ -120,12 +130,14 @@ export const artist = defineType({
     defineField({
       name: 'description',
       title: 'Description',
+      group: 'profile',
       type: 'text',
       description: 'A short bio or description of the artist.',
     }),
     defineField({
       name: 'tags',
       title: 'Tags',
+      group: 'profile',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'tag'}]}],
       description: 'Relevant tags for this artist (e.g., genres, styles, roles)',
@@ -133,9 +145,78 @@ export const artist = defineType({
     defineField({
       name: 'approved',
       title: 'Approved',
+      group: 'profile',
       type: 'boolean',
       initialValue: false,
       description: 'Check to approve this artist and make them visible in the database.',
+    }),
+    defineField({
+      name: 'submissionSource',
+      title: 'Submission source',
+      group: 'internal',
+      type: 'string',
+      readOnly: true,
+      hidden: ({document}) => !document?.submissionSource,
+      description: 'Set automatically for website submissions. Imported artists stay blank.',
+    }),
+    defineField({
+      name: 'googleSheetsSyncedAt',
+      title: 'Google Sheets synced at',
+      group: 'internal',
+      type: 'datetime',
+      readOnly: true,
+      hidden: ({document}) => !document?.googleSheetsSyncedAt,
+    }),
+    defineField({
+      name: 'googleSheetsSheetName',
+      title: 'Google Sheets sheet name',
+      group: 'internal',
+      type: 'string',
+      readOnly: true,
+      hidden: ({document}) => !document?.googleSheetsSheetName,
+    }),
+    defineField({
+      name: 'googleSheetsRowNumber',
+      title: 'Google Sheets row number',
+      group: 'internal',
+      type: 'number',
+      readOnly: true,
+      hidden: ({document}) => typeof document?.googleSheetsRowNumber !== 'number',
+    }),
+    defineField({
+      name: 'googleSheetsSyncError',
+      title: 'Google Sheets sync error',
+      group: 'internal',
+      type: 'text',
+      readOnly: true,
+      hidden: ({document}) => !document?.googleSheetsSyncError,
+    }),
+    defineField({
+      name: 'confirmationEmailSentAt',
+      title: 'Confirmation email sent at',
+      group: 'internal',
+      type: 'datetime',
+      readOnly: true,
+      hidden: ({document}) => !document?.confirmationEmailSentAt,
+      description: 'Legacy field. Only shown when a confirmation email was actually sent.',
+    }),
+    defineField({
+      name: 'approvalEmailSentAt',
+      title: 'Approval email sent at',
+      group: 'internal',
+      type: 'datetime',
+      readOnly: true,
+      hidden: ({document}) => !document?.approvalEmailSentAt,
+      description: 'Only shown when an approval email was actually sent.',
+    }),
+    defineField({
+      name: 'emailDeliveryError',
+      title: 'Email delivery error',
+      group: 'internal',
+      type: 'text',
+      readOnly: true,
+      hidden: ({document}) => !document?.emailDeliveryError,
+      description: 'Legacy field kept only for older artist records.',
     }),
 
     // defineField({

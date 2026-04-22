@@ -132,7 +132,10 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
 
   return (
     <div className="p-6 h-full w-full md:max-w-[65vw] mx-auto md:p-4">
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form
+        onSubmit={handleSubmit(handleFormSubmit)}
+        className="space-y-4 form-scroll-bottom-space"
+      >
         <FormField
           label="Title"
           error={errors.title}
@@ -142,16 +145,8 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
           <TextInput registration={register('title')} />
         </FormField>
 
-        <FormField
-          label="URL"
-          error={errors.url}
-          showError={!!touchedFields.url || isSubmitted}
-        >
-          <TextInput
-            registration={register('url')}
-            type="url"
-            placeholder="https://..."
-          />
+        <FormField label="URL" error={errors.url} showError={!!touchedFields.url || isSubmitted}>
+          <TextInput registration={register('url')} type="text" placeholder="" />
         </FormField>
 
         <FormField
@@ -201,11 +196,7 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
           <TextInput registration={register('description')} isTextArea rows={4} />
         </FormField>
 
-        <FormField
-          label="PDF"
-          error={errors.file}
-          showError={!!touchedFields.file || isSubmitted}
-        >
+        <FormField label="PDF" error={errors.file} showError={!!touchedFields.file || isSubmitted}>
           <input
             type="file"
             accept="application/pdf"
