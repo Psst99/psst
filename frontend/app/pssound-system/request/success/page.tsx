@@ -1,9 +1,5 @@
-import {FormConfirmationPage} from '@/components/form/FormConfirmationPage'
+import {FormSuccessPage} from '@/components/form/FormSuccessPage'
 
 export default function PssoundRequestSuccessPage() {
-  return (
-    <FormConfirmationPage title="Pssound request received.">
-      Thank you for submitting your request. The team will review it and get back to you soon.
-    </FormConfirmationPage>
-  )
+  return <FormSuccessPage contentKey="pssoundRequestContent" />
 }

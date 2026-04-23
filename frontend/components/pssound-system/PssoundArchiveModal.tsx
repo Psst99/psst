@@ -7,6 +7,7 @@ import CmsContent from '@/components/CmsContent'
 import Tag from '@/components/Tag'
 import {urlForImage} from '@/sanity/lib/utils'
 import {ThemeContext} from '@/app/ThemeProvider'
+import {MODAL_CLOSE_BUTTON_CLASS} from '@/lib/modalStyles'
 import {getTheme} from '@/lib/theme/sections'
 
 interface PssoundArchiveModalProps {
@@ -77,9 +78,7 @@ export default function PssoundArchiveModal({archive, onClose}: PssoundArchiveMo
       >
         {/* Scrollable content area */}
         <div className="overflow-y-auto max-h-full no-scrollbar">
-          <h1 className="panel-fg text-4xl sm:text-4xl font-bold mb-4 capitalize">
-            {archive.title}
-          </h1>
+          <h1 className="panel-fg text-4xl sm:text-4xl mb-4 capitalize">{archive.title}</h1>
 
           {/* Date */}
           {archive.date && (
@@ -123,7 +122,12 @@ export default function PssoundArchiveModal({archive, onClose}: PssoundArchiveMo
 
         {/* Close button - positioned outside scrollable area */}
         <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full invert-panel z-10">
-          <button onClick={handleClose} className="text-3xl">
+          <button
+            onClick={handleClose}
+            className={`text-3xl ${MODAL_CLOSE_BUTTON_CLASS}`}
+            type="button"
+            aria-label="Close PSSound archive modal"
+          >
             <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
           </button>
         </div>

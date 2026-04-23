@@ -1,9 +1,5 @@
-import {FormConfirmationPage} from '@/components/form/FormConfirmationPage'
+import {FormSuccessPage} from '@/components/form/FormSuccessPage'
 
 export default function ResourceSubmitSuccessPage() {
-  return (
-    <FormConfirmationPage title="Resource submission received.">
-      Your resource submission has been received and will be reviewed shortly.
-    </FormConfirmationPage>
-  )
+  return <FormSuccessPage contentKey="resourceSubmitContent" />
 }

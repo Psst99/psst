@@ -5,6 +5,8 @@ import {useRouter} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
 import {ThemeContext} from '@/app/ThemeProvider'
+import {LINK_PILL_CLASS} from '@/lib/linkStyles'
+import {MODAL_CLOSE_BUTTON_CLASS} from '@/lib/modalStyles'
 import {getTheme} from '@/lib/theme/sections'
 import Tag from '@/components/Tag'
 import {urlForImage} from '@/sanity/lib/utils'
@@ -101,7 +103,7 @@ export default function ResourceModal({resource}: ResourceModalProps) {
               href={linkTarget}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-1 py-0 border-[var(--section-bg)] border text-[color:var(--section-bg)] rounded-md font-mono text-lg tracking-tighter leading-tight inline-flex items-center gap-x-2"
+              className={LINK_PILL_CLASS}
             >
               Visit Resource
             </a>
@@ -133,7 +135,12 @@ export default function ResourceModal({resource}: ResourceModalProps) {
         )}
 
         <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full invert-panel ">
-          <button onClick={handleClose} className="text-3xl cursor-pointer">
+          <button
+            onClick={handleClose}
+            className={`text-3xl ${MODAL_CLOSE_BUTTON_CLASS}`}
+            type="button"
+            aria-label="Close resource modal"
+          >
             <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
           </button>
         </div>

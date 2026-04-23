@@ -184,45 +184,14 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
           S.list()
             .title('PSƧOUND System')
             .items([
-              // Content Tabs Group
-              orderableDocumentListDeskItem({
-                type: 'pssoundSection',
-                title: 'Tabs',
-                icon: BookIcon,
-                createIntent: true,
-                S,
-                context,
-              }),
-
-              // Request System Group
+              // Memberships
               S.listItem()
-                .title('Request')
-                .icon(BsFillInboxFill)
+                .title('Memberships')
+                .icon(UserIcon)
                 .child(
                   S.list()
-                    .title('Request System')
+                    .title('Memberships')
                     .items([
-                      S.listItem()
-                        .title('Sound System Requests')
-                        .icon(BsFillInboxFill)
-                        .child(
-                          S.documentTypeList('pssoundRequest')
-                            .title('New Requests')
-                            .apiVersion(STUDIO_API_VERSION)
-                            .filter(
-                              '_type == "pssoundRequest" && !defined(archived) || archived == false',
-                            ),
-                        ),
-                      S.listItem()
-                        .title('Blocked dates')
-                        .icon(CgUnavailable)
-                        .child(
-                          S.documentTypeList('pssoundCalendar')
-                            .title('Blocked dates')
-                            .apiVersion(STUDIO_API_VERSION)
-                            .filter('_type == "pssoundCalendar"'),
-                        ),
-                      S.divider(),
                       S.listItem()
                         .title('Membership Requests')
                         .icon(UserIcon)
@@ -242,6 +211,48 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                             .title('Accepted Memberships')
                             .apiVersion(STUDIO_API_VERSION)
                             .filter('_type == "pssoundMembership" && approved == true'),
+                        ),
+                    ]),
+                ),
+
+              // Request System Group
+              S.listItem()
+                .title('Requests')
+                .icon(BsFillInboxFill)
+                .child(
+                  S.list()
+                    .title('Requests')
+                    .items([
+                      S.listItem()
+                        .title('Pending loan requests')
+                        .icon(BsFillInboxFill)
+                        .child(
+                          S.documentTypeList('pssoundRequest')
+                            .title('Pending loan requests')
+                            .apiVersion(STUDIO_API_VERSION)
+                            .filter(
+                              '_type == "pssoundRequest" && coalesce(status, "pending") == "pending" && coalesce(archived, false) == false',
+                            ),
+                        ),
+                      S.listItem()
+                        .title('Confirmed')
+                        .icon(CheckmarkIcon)
+                        .child(
+                          S.documentTypeList('pssoundRequest')
+                            .title('Confirmed')
+                            .apiVersion(STUDIO_API_VERSION)
+                            .filter(
+                              '_type == "pssoundRequest" && status == "confirmed" && coalesce(archived, false) == false',
+                            ),
+                        ),
+                      S.listItem()
+                        .title('Blocked dates')
+                        .icon(CgUnavailable)
+                        .child(
+                          S.documentTypeList('pssoundCalendar')
+                            .title('Blocked dates')
+                            .apiVersion(STUDIO_API_VERSION)
+                            .filter('_type == "pssoundCalendar"'),
                         ),
                     ]),
                 ),
@@ -275,8 +286,21 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                     ]),
                 ),
 
-              // Files
               S.divider(),
+
+              // Content Tabs Group
+              orderableDocumentListDeskItem({
+                type: 'pssoundSection',
+                title: 'Tabs',
+                icon: BookIcon,
+                createIntent: true,
+                S,
+                context,
+              }),
+
+              S.divider(),
+
+              // Files
               orderableDocumentListDeskItem({
                 type: 'pssoundFile',
                 title: 'Files',
@@ -546,6 +570,11 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
               S.view.component(EmailPreviewPane).title('Preview').id('email-preview'),
             ]),
         ),
+
+      S.listItem()
+        .title('Form success pages')
+        .icon(CheckmarkIcon)
+        .child(S.document().schemaType('formSuccessPages').documentId('formSuccessPages')),
 
       S.divider(),
 

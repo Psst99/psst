@@ -10,6 +10,7 @@ type ApprovalDocumentState = {
   approved?: boolean
   status?: string
   googleSheetsSheetName?: string
+  approvalEmailSentAt?: string
 }
 
 type ArtistActionResult = {
@@ -19,6 +20,8 @@ type ArtistActionResult = {
   updated?: boolean
   sheetName?: string
   rowNumber?: number
+  blockedDatesUpdated?: boolean
+  blockedDatesId?: string
   reason?: string
 }
 
@@ -42,6 +45,7 @@ const APPROVAL_SCHEMA_TYPES = new Set([
   'resourceSubmission',
   'resource',
   'workshopRegistration',
+  'pssoundRequest',
   'pssoundMembership',
 ])
 
@@ -71,6 +75,10 @@ function isApprovedDocument(
 ) {
   if (props.type === 'workshopRegistration') {
     return document?.status === 'approved'
+  }
+
+  if (props.type === 'pssoundRequest') {
+    return document?.status === 'confirmed'
   }
 
   return document?.approved === true
@@ -106,9 +114,16 @@ function buildSuccessMessage(result: ArtistActionResult) {
 
 function buildApprovalMessage(result: ArtistActionResult, documentType: string) {
   const isArtist = documentType === 'artist'
+  const isPssoundRequest = documentType === 'pssoundRequest'
   const description = buildSuccessDescription(result)
+  const blockedSuffix =
+    isPssoundRequest && result.blockedDatesUpdated ? ' Dates blocked in the calendar.' : ''
 
   if (result.sent) {
+    if (isPssoundRequest) {
+      return `Confirmation email sent.${blockedSuffix}`
+    }
+
     if (!isArtist) {
       return 'Approval email sent'
     }
@@ -119,6 +134,10 @@ function buildApprovalMessage(result: ArtistActionResult, documentType: string) 
   }
 
   if (result.reason === 'already sent') {
+    if (isPssoundRequest) {
+      return `Confirmation email was already sent.${blockedSuffix}`
+    }
+
     if (!isArtist) {
       return 'Approval email was already sent'
     }
@@ -129,6 +148,10 @@ function buildApprovalMessage(result: ArtistActionResult, documentType: string) 
   }
 
   if (result.reason) {
+    if (isPssoundRequest) {
+      return `Confirmation email not sent: ${result.reason}.${blockedSuffix}`
+    }
+
     if (!isArtist) {
       return `Approval email not sent: ${result.reason}`
     }
@@ -136,6 +159,10 @@ function buildApprovalMessage(result: ArtistActionResult, documentType: string) 
     return description
       ? `Google Sheet synced: ${description}. Approval email not sent: ${result.reason}`
       : `Approval email not sent: ${result.reason}`
+  }
+
+  if (isPssoundRequest) {
+    return `Confirmation processed.${blockedSuffix}`
   }
 
   return isArtist
@@ -226,6 +253,11 @@ function createPublishAction(
       void request
         .then((result) => {
           if (action === 'approval') {
+            if (props.type === 'pssoundRequest') {
+              notifyManualSyncResult(buildApprovalMessage(result, props.type))
+              return
+            }
+
             if (
               result.sent ||
               result.reason === 'already sent' ||
@@ -242,13 +274,18 @@ function createPublishAction(
           console.info(buildSuccessMessage(result))
         })
         .catch((error) => {
+          const approvalErrorPrefix =
+            props.type === 'pssoundRequest'
+              ? 'Confirmation handling failed'
+              : 'Approval handling failed'
+
           notifyManualSyncResult(
             action === 'approval'
-              ? `Approval handling failed: ${buildErrorMessage(error)}`
+              ? `${approvalErrorPrefix}: ${buildErrorMessage(error)}`
               : `Google Sheet sync failed: ${buildErrorMessage(error)}`,
           )
         })
-    }, [pendingPublishAction, props.id, publishEvent])
+    }, [pendingPublishAction, props.id, props.type, publishEvent])
 
     if (!originalResult) {
       return null
@@ -322,6 +359,54 @@ const syncArtistSheetAction: DocumentActionComponent = (props) => {
 
 syncArtistSheetAction.displayName = 'SyncArtistGoogleSheetAction'
 
+const processPssoundRequestApprovalAction: DocumentActionComponent = (props) => {
+  const [isProcessing, setIsProcessing] = useState(false)
+  const document = getDocumentState(props)
+
+  if (props.type !== 'pssoundRequest') {
+    return null
+  }
+
+  const isApproved = isApprovedDocument(props, document)
+  if (!isApproved) {
+    return null
+  }
+
+  const hasUnpublishedChanges = Boolean(props.draft)
+
+  return {
+    label: document?.approvalEmailSentAt
+      ? 'Update blocked dates'
+      : 'Send confirmation email + block dates',
+    icon: CheckmarkCircleIcon,
+    disabled: isProcessing || hasUnpublishedChanges,
+    title: hasUnpublishedChanges
+      ? 'Publish changes first so the email and blocked dates use the latest request.'
+      : undefined,
+    onHandle: () => {
+      if (isProcessing || hasUnpublishedChanges) {
+        return
+      }
+
+      setIsProcessing(true)
+
+      void approveDocument(props.id, props.type)
+        .then((result) => {
+          notifyManualSyncResult(buildApprovalMessage(result, props.type))
+        })
+        .catch((error) => {
+          notifyManualSyncResult(`Confirmation handling failed: ${buildErrorMessage(error)}`)
+        })
+        .finally(() => {
+          setIsProcessing(false)
+          props.onComplete()
+        })
+    },
+  }
+}
+
+processPssoundRequestApprovalAction.displayName = 'ProcessPssoundRequestApprovalAction'
+
 export const artistDocumentActions: DocumentActionsResolver = (previousActions, context) => {
   if (!APPROVAL_SCHEMA_TYPES.has(context.schemaType)) {
     return previousActions
@@ -331,5 +416,13 @@ export const artistDocumentActions: DocumentActionsResolver = (previousActions, 
     action.action === 'publish' ? createPublishAction(action) : action,
   )
 
-  return context.schemaType === 'artist' ? [...actions, syncArtistSheetAction] : actions
+  if (context.schemaType === 'artist') {
+    return [...actions, syncArtistSheetAction]
+  }
+
+  if (context.schemaType === 'pssoundRequest') {
+    return [...actions, processPssoundRequestApprovalAction]
+  }
+
+  return actions
 }

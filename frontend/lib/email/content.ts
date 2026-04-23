@@ -68,6 +68,7 @@ async function fetchEmailSettings(): Promise<EmailSettings> {
     workshopReceived: mergeMessage('workshopReceived', settings.workshopReceived),
     workshopApproved: mergeMessage('workshopApproved', settings.workshopApproved),
     pssoundRequestReceived: mergeMessage('pssoundRequestReceived', settings.pssoundRequestReceived),
+    pssoundRequestApproved: mergeMessage('pssoundRequestApproved', settings.pssoundRequestApproved),
     pssoundMembershipReceived: mergeMessage(
       'pssoundMembershipReceived',
       settings.pssoundMembershipReceived,

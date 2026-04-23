@@ -4,11 +4,46 @@ import {getEmailDeliveryErrorMessage, getEmailDeliveryFailureMessage} from '@/li
 import {writeToken} from '@/sanity/lib/token'
 import {pssoundRequestSchema} from '@/lib/schemas/pssoundRequest'
 import {sendPsstEmail} from '@/lib/email/send'
+import {PSSOUND_UNAVAILABLE_RANGE_MESSAGE} from '@/lib/pssound-dates'
+
+type BlockedPeriod = {
+  title?: string
+  startDate?: string
+  endDate?: string
+}
+
+async function findBlockedPeriodOverlap(startDate: string, endDate: string) {
+  return client.withConfig({useCdn: false}).fetch<BlockedPeriod | null>(
+    `*[
+      _type == "pssoundCalendar" &&
+      defined(startDate) &&
+      defined(endDate) &&
+      startDate <= $endDate &&
+      endDate >= $startDate
+    ][0]{title, startDate, endDate}`,
+    {startDate, endDate},
+  )
+}
 
 export async function POST(req: NextRequest) {
   try {
     const rawData = await req.json()
     const data = pssoundRequestSchema.parse(rawData)
+    const overlappingBlock =
+      (await findBlockedPeriodOverlap(data.pickupDate, data.returnDate)) ||
+      (await findBlockedPeriodOverlap(data.eventDate, data.eventDate))
+
+    if (overlappingBlock) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: PSSOUND_UNAVAILABLE_RANGE_MESSAGE,
+          blockedPeriod: overlappingBlock,
+        },
+        {status: 409},
+      )
+    }
+
     const collectiveName = data.collective || ''
     const member = collectiveName
       ? await client.fetch<{email?: string} | null>(

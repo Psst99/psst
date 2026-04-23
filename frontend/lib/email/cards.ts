@@ -10,7 +10,7 @@ type LinkLike = {
   url?: string | null
 }
 
-function formatDate(value?: string | null) {
+export function formatDate(value?: string | null) {
   if (!value) return ''
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
@@ -105,7 +105,6 @@ export function workshopEmailCard(data: {
   location?: string | null
   dates?: string[] | null
   selectedDates?: string[] | null
-  imageUrl?: string | null
   tags?: TagLike[] | null
   publicUrl?: string
 }): EmailCard {
@@ -121,10 +120,42 @@ export function workshopEmailCard(data: {
   return {
     title: data.title,
     description: data.description || undefined,
-    imageUrl: data.imageUrl || undefined,
     tags: emailTags(data.tags),
     meta,
     actionUrl: data.publicUrl,
     links,
+  }
+}
+
+export function pssoundRequestEmailCard(data: {
+  collectiveName?: string | null
+  eventTitle: string
+  eventLink?: string | null
+  eventLocation?: string | null
+  eventDescription?: string | null
+  eventDate?: string | null
+  pickupDate?: string | null
+  returnDate?: string | null
+  lineup?: string | null
+  wagePolicy?: string | null
+  politicalContext?: string | null
+}): EmailCard {
+  const meta = [
+    data.collectiveName ? {label: 'Collective', value: data.collectiveName} : null,
+    data.eventDate ? {label: 'Event date', value: formatDate(data.eventDate)} : null,
+    data.pickupDate ? {label: 'Pick-up date', value: formatDate(data.pickupDate)} : null,
+    data.returnDate ? {label: 'Return date', value: formatDate(data.returnDate)} : null,
+    data.eventLocation ? {label: 'Event location', value: data.eventLocation} : null,
+    data.lineup ? {label: 'Line-up', value: data.lineup} : null,
+    data.wagePolicy ? {label: 'Wage policy', value: data.wagePolicy} : null,
+    data.politicalContext ? {label: 'Political context', value: data.politicalContext} : null,
+  ].filter((item): item is {label: string; value: string} => !!item)
+
+  return {
+    title: data.eventTitle,
+    description: data.eventDescription || undefined,
+    categories: ['PSSOUND LOAN'],
+    meta,
+    links: data.eventLink ? [{label: 'Open event link', url: data.eventLink}] : [],
   }
 }

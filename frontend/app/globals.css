@@ -130,6 +130,48 @@
     border-color: var(--panel-fg);
   }
 
+  .loan-request-tab {
+    --loan-request-notch: 14px;
+    --loan-request-radius: var(--loan-request-notch);
+    border-top-left-radius: var(--loan-request-radius) !important;
+    border-top-right-radius: var(--loan-request-radius) !important;
+    overflow: visible;
+    isolation: isolate;
+  }
+
+  .loan-request-tab::before,
+  .loan-request-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: var(--loan-request-notch);
+    height: var(--loan-request-notch);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .loan-request-tab::before {
+    left: calc(-1 * var(--loan-request-notch));
+    background: radial-gradient(
+      circle at top left,
+      transparent calc(var(--loan-request-radius) - 0.75px),
+      var(--panel-fg) calc(var(--loan-request-radius) - 0.75px),
+      var(--panel-fg) calc(var(--loan-request-radius) + 0.25px),
+      var(--panel-bg) calc(var(--loan-request-radius) + 0.25px)
+    );
+  }
+
+  .loan-request-tab::after {
+    right: calc(-1 * var(--loan-request-notch));
+    background: radial-gradient(
+      circle at top right,
+      transparent calc(var(--loan-request-radius) - 0.75px),
+      var(--panel-fg) calc(var(--loan-request-radius) - 0.75px),
+      var(--panel-fg) calc(var(--loan-request-radius) + 0.25px),
+      var(--panel-bg) calc(var(--loan-request-radius) + 0.25px)
+    );
+  }
+
   .section-bg {
     background-color: var(--section-bg);
   }

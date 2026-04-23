@@ -2,7 +2,7 @@ import {defineField, defineType} from 'sanity'
 
 export const pssoundCalendar = defineType({
   name: 'pssoundCalendar',
-  title: 'Blocked Period',
+  title: 'Blocked Dates',
   type: 'document',
   fields: [
     defineField({
@@ -34,6 +34,7 @@ export const pssoundCalendar = defineType({
       title: 'Related Request',
       type: 'reference',
       to: [{type: 'pssoundRequest'}],
+      description: 'Automatically linked when dates are blocked from an approved loan request.',
     }),
   ],
   preview: {
@@ -41,11 +42,22 @@ export const pssoundCalendar = defineType({
       title: 'title',
       start: 'startDate',
       end: 'endDate',
+      requestTitle: 'request.eventTitle',
+      requestCollective: 'request.collective',
     },
-    prepare({title, start, end}) {
+    prepare({title, start, end, requestTitle, requestCollective}) {
+      const fallbackTitle = requestTitle
+        ? `Loan: ${requestTitle}`
+        : start && end
+          ? `${start} to ${end}`
+          : 'Blocked dates'
+      const subtitleParts = [requestCollective, start && end ? `${start} to ${end}` : null].filter(
+        Boolean,
+      )
+
       return {
-        title: title || `${start} → ${end}`,
-        subtitle: start && end ? `${start} → ${end}` : '',
+        title: title || fallbackTitle,
+        subtitle: subtitleParts.join(' - '),
       }
     },
   },

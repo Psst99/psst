@@ -434,6 +434,16 @@ export const pssoundFilesQuery = `
   }
 `
 
+export const formSuccessPagesQuery = `
+  *[_type == "formSuccessPages" && _id == "formSuccessPages"][0]{
+    databaseSubmitContent,
+    resourceSubmitContent,
+    workshopRegistrationContent,
+    pssoundRequestContent,
+    pssoundMembershipContent
+  }
+`
+
 export const homepageQuery = `
   *[_type == "homepage"][0]{
     content,

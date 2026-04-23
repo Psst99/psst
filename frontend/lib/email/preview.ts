@@ -1,4 +1,10 @@
-import {artistEmailCard, formatDateList, resourceEmailCard, workshopEmailCard} from './cards'
+import {
+  artistEmailCard,
+  formatDateList,
+  pssoundRequestEmailCard,
+  resourceEmailCard,
+  workshopEmailCard,
+} from './cards'
 import {DEFAULT_EMAIL_MESSAGES, EMAIL_TEMPLATE_KEYS, type EmailTemplateKey} from './defaults'
 import {createEmailTheme} from './theme'
 import type {ThemeOverrides} from '../theme/sections'
@@ -119,6 +125,34 @@ const PREVIEW_DEFINITIONS: PreviewRecord = {
       pickupDate: '23/05/2026',
       returnDate: '25/05/2026',
     },
+  },
+  pssoundRequestApproved: {
+    templateKey: 'pssoundRequestApproved',
+    routeId: 'pssound-request-confirmed',
+    label: 'Pssound request confirmed',
+    variables: {
+      collectiveName: 'Sample Collective',
+      eventTitle: 'Community Fundraiser',
+      eventDate: '24/05/2026',
+      pickupDate: '23/05/2026',
+      returnDate: '25/05/2026',
+      eventLocation: 'PSST Studio',
+      lineup: 'DJ Sample, Live Artist',
+    },
+    card: pssoundRequestEmailCard({
+      collectiveName: 'Sample Collective',
+      eventTitle: 'Community Fundraiser',
+      eventLink: 'https://psst.space/events/community-fundraiser',
+      eventLocation: 'PSST Studio',
+      eventDescription:
+        'A community fundraiser with a shared sound system setup and a collectively managed team.',
+      eventDate: '2026-05-24',
+      pickupDate: '2026-05-23',
+      returnDate: '2026-05-25',
+      lineup: 'DJ Sample, Live Artist',
+      wagePolicy: 'Transparent fee split across the artists and support team.',
+      politicalContext: 'Feminist, fundraiser',
+    }),
   },
   pssoundMembershipReceived: {
     templateKey: 'pssoundMembershipReceived',

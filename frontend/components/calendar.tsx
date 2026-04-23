@@ -48,6 +48,23 @@ export default function Calendar({
 
   const isPastDate = (date: Date) => isBefore(startOfDay(date), startOfDay(new Date()))
 
+  const isDateUnavailable = (date: Date) => isDateBooked(date) || isPastDate(date)
+
+  const rangeContainsUnavailableDate = (start: Date, end: Date) => {
+    let day = startOfDay(start)
+    const lastDay = startOfDay(end)
+
+    while (!isAfter(day, lastDay)) {
+      if (isDateUnavailable(day)) {
+        return true
+      }
+
+      day = addDays(day, 1)
+    }
+
+    return false
+  }
+
   const isStartDate = (date: Date) => rangeStart && isSameDay(date, rangeStart)
 
   const isEndDate = (date: Date) => {
@@ -69,7 +86,7 @@ export default function Calendar({
   }
 
   const handleDateClick = (date: Date) => {
-    if (!isDateBooked(date) && !isPastDate(date) && isSameMonth(date, currentMonth)) {
+    if (!isDateUnavailable(date) && isSameMonth(date, currentMonth)) {
       const dateStr = format(date, 'yyyy-MM-dd')
 
       if (!rangeStart) {
@@ -85,9 +102,14 @@ export default function Calendar({
         setRangeStart(date)
         onDateRangeSelect?.(dateStr, null)
       } else {
-        // Click after start - set end date
-        onDateRangeSelect?.(format(rangeStart, 'yyyy-MM-dd'), dateStr)
-        // Keep rangeStart for visual feedback
+        const startDateStr = format(rangeStart, 'yyyy-MM-dd')
+
+        if (rangeContainsUnavailableDate(rangeStart, date)) {
+          onDateRangeSelect?.(startDateStr, null)
+          return
+        }
+
+        onDateRangeSelect?.(startDateStr, dateStr)
       }
     }
   }
@@ -103,10 +125,13 @@ export default function Calendar({
   const mobileDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
   const availableBackground = 'white'
-  const outsideMonthBackground = `color-mix(in srgb, ${theme.fg} 8%, white 92%)`
+  const outsideMonthBackground = `color-mix(in srgb, ${theme.fg} 8%, white 82%)`
   const outsideMonthText = `color-mix(in srgb, ${theme.fg} 62%, white 38%)`
   const outsideMonthBorder = `color-mix(in srgb, ${theme.fg} 40%, white 60%)`
   const rangeBackground = `color-mix(in srgb, ${theme.bg} 70%, white 30%)`
+  const unavailableBackground = availableBackground
+  const unavailableText = theme.fg
+  const unavailableOpacity = 0.2
 
   const weeks = []
   let daysInWeek = []
@@ -122,23 +147,23 @@ export default function Calendar({
 
       const isBooked = isDateBooked(currentDay)
       const isPast = isPastDate(currentDay)
+      const isUnavailable = isDateUnavailable(currentDay)
       const isStart = isStartDate(currentDay)
       const isEnd = isEndDate(currentDay)
       const inRange = isInRange(currentDay)
-      const isClickable = !isBooked && !isPast && isCurrentMonth
-      const dayBackground = isBooked
-        ? '#A20018'
+      const isMiddleRangeDate = inRange && !isStart && !isEnd
+      const isClickable = !isUnavailable && isCurrentMonth
+      const dayBackground = isUnavailable
+        ? unavailableBackground
         : isStart || isEnd
           ? theme.bg
           : inRange
             ? rangeBackground
-            : isPast
+            : isCurrentMonth
               ? availableBackground
-              : isCurrentMonth
-                ? availableBackground
-                : outsideMonthBackground
-      const dayTextColor = isBooked
-        ? 'white'
+              : outsideMonthBackground
+      const dayTextColor = isUnavailable
+        ? unavailableText
         : isStart || isEnd || inRange
           ? theme.fg
           : isCurrentMonth
@@ -152,12 +177,11 @@ export default function Calendar({
           aria-disabled={!isClickable}
           style={{
             backgroundColor: dayBackground,
-            borderColor: isBooked || isPast || isCurrentMonth ? theme.bg : outsideMonthBorder,
-            opacity: isPast && !isBooked ? 0.4 : 1,
-            boxShadow:
-              isBooked || isPast
-                ? undefined
-                : isStart || isEnd
+            borderColor: isUnavailable || isCurrentMonth ? theme.bg : outsideMonthBorder,
+            opacity: isUnavailable ? unavailableOpacity : isMiddleRangeDate ? 0.77 : 1,
+            boxShadow: isUnavailable
+              ? undefined
+              : isStart || isEnd
                 ? `0 0 0 4px ${theme.fg}80`
                 : !isCurrentMonth
                   ? `inset 0 0 0 1px ${outsideMonthBorder}`
@@ -170,11 +194,11 @@ export default function Calendar({
                 ? 'cursor-pointer'
                 : inRange
                   ? 'cursor-pointer'
-                : isPast
-                  ? 'cursor-not-allowed'
-                  : isCurrentMonth
-                    ? 'cursor-pointer'
-                    : 'cursor-default'
+                  : isPast
+                    ? 'cursor-not-allowed'
+                    : isCurrentMonth
+                      ? 'cursor-pointer'
+                      : 'cursor-default'
           }`}
           onMouseEnter={(e) => {
             if (isClickable && !(isStart || isEnd || inRange)) {
@@ -241,7 +265,7 @@ export default function Calendar({
           <span>Selected</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-4 h-4 bg-[#A20018] border border-[#81520a] rounded"></div>
+          <div className="w-4 h-4 bg-[color:var(--section-bg)] opacity-60 border border-[#81520a] rounded"></div>
           <span>Booked</span>
         </div>
       </div> */}

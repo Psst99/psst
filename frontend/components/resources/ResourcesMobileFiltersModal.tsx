@@ -6,6 +6,7 @@ import {IoMdClose} from 'react-icons/io'
 import {RiSearchLine} from 'react-icons/ri'
 import ResourcesOptimisticFilters from './ResourcesOptimisticFilters'
 import type {ResourcesSearchParams} from './ResourcesBrowseContentAsync'
+import {MODAL_CLOSE_BUTTON_CLASS} from '@/lib/modalStyles'
 import {slugifyTag} from '@/lib/tags'
 import SectionScope from '@/components/SectionScope'
 
@@ -63,8 +64,9 @@ export default function ResourcesMobileFiltersModal({
               <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-white">
                 <button
                   onClick={() => setOpen(false)}
-                  className="text-[var(--panel-fg)] text-3xl"
+                  className={`text-[var(--panel-fg)] text-3xl ${MODAL_CLOSE_BUTTON_CLASS}`}
                   type="button"
+                  aria-label="Close resources filters"
                 >
                   <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
                 </button>

@@ -6,6 +6,7 @@ export const EMAIL_TEMPLATE_KEYS = [
   'workshopReceived',
   'workshopApproved',
   'pssoundRequestReceived',
+  'pssoundRequestApproved',
   'pssoundMembershipReceived',
   'pssoundMembershipApproved',
 ] as const
@@ -31,6 +32,7 @@ export const EMAIL_TEMPLATE_LABELS: Record<EmailTemplateKey, string> = {
   workshopReceived: 'Workshops: received',
   workshopApproved: 'Workshops: approved',
   pssoundRequestReceived: 'Pssound: loan request received',
+  pssoundRequestApproved: 'Pssound: loan request confirmed',
   pssoundMembershipReceived: 'Pssound: membership received',
   pssoundMembershipApproved: 'Pssound: membership approved',
 }
@@ -43,6 +45,15 @@ export const EMAIL_TEMPLATE_VARIABLES: Record<EmailTemplateKey, string[]> = {
   workshopReceived: ['name', 'email', 'workshopTitle', 'selectedDates'],
   workshopApproved: ['name', 'email', 'workshopTitle', 'selectedDates', 'publicUrl'],
   pssoundRequestReceived: ['collectiveName', 'eventTitle', 'eventDate', 'pickupDate', 'returnDate'],
+  pssoundRequestApproved: [
+    'collectiveName',
+    'eventTitle',
+    'eventDate',
+    'pickupDate',
+    'returnDate',
+    'eventLocation',
+    'lineup',
+  ],
   pssoundMembershipReceived: ['collectiveName', 'email'],
   pssoundMembershipApproved: ['collectiveName', 'email', 'startDate'],
 }
@@ -124,6 +135,18 @@ export const EMAIL_MESSAGE_DEFAULTS: Record<EmailTemplateKey, EmailMessageDefaul
     intro:
       'Thanks {{collectiveName}}. Your request for {{eventTitle}} has been received by the team.',
     notice: 'Event date: {{eventDate}}. Pick-up: {{pickupDate}}. Return: {{returnDate}}.',
+    footer: 'With care,\nPSST',
+    disclaimer: 'Automated confirmation for {{collectiveName}}.',
+  },
+  pssoundRequestApproved: {
+    enabled: true,
+    subject: 'Your Pssound request is confirmed: {{eventTitle}}',
+    previewText: 'Your sound system loan request has been confirmed.',
+    heading: 'Your sound system request is confirmed',
+    intro:
+      'Hi {{collectiveName}}, your Pssound loan request for {{eventTitle}} has been confirmed. The selected loan period is now reserved.',
+    notice:
+      'Event date: {{eventDate}}. Pick-up: {{pickupDate}}. Return: {{returnDate}}. Reply if any detail needs to change.',
     footer: 'With care,\nPSST',
     disclaimer: 'Automated confirmation for {{collectiveName}}.',
   },

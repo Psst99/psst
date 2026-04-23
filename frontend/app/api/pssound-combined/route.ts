@@ -6,14 +6,42 @@ import {z} from 'zod'
 import {pssoundMembershipSchema} from '@/lib/schemas/pssoundMembership'
 import {pssoundRequestSchema} from '@/lib/schemas/pssoundRequest'
 import {sendPsstEmail} from '@/lib/email/send'
+import {PSSOUND_UNAVAILABLE_RANGE_MESSAGE} from '@/lib/pssound-dates'
+
+type BlockedPeriod = {
+  title?: string
+  startDate?: string
+  endDate?: string
+}
 
 // Combined schema validation
-const combinedFormSchema = z.object({
-  isMember: z.boolean(),
-  selectedCollective: z.string().optional(),
-  membership: pssoundMembershipSchema.optional(),
-  request: pssoundRequestSchema,
-})
+const combinedFormSchema = z.discriminatedUnion('isMember', [
+  z.object({
+    isMember: z.literal(true),
+    selectedCollective: z.string().min(1, 'Please select your collective'),
+    membership: z.any().optional(),
+    request: pssoundRequestSchema,
+  }),
+  z.object({
+    isMember: z.literal(false),
+    selectedCollective: z.string().optional(),
+    membership: pssoundMembershipSchema,
+    request: z.any().optional(),
+  }),
+])
+
+async function findBlockedPeriodOverlap(startDate: string, endDate: string) {
+  return client.withConfig({useCdn: false}).fetch<BlockedPeriod | null>(
+    `*[
+      _type == "pssoundCalendar" &&
+      defined(startDate) &&
+      defined(endDate) &&
+      startDate <= $endDate &&
+      endDate >= $startDate
+    ][0]{title, startDate, endDate}`,
+    {startDate, endDate},
+  )
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -77,12 +105,35 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Determine collective name
-    const collectiveName = validatedData.isMember
-      ? validatedData.selectedCollective
-      : validatedData.membership?.collectiveName
+    if (!validatedData.isMember) {
+      return NextResponse.json({success: true})
+    }
 
-    if (validatedData.isMember && collectiveName) {
+    const overlappingBlock =
+      (await findBlockedPeriodOverlap(
+        validatedData.request.pickupDate,
+        validatedData.request.returnDate,
+      )) ||
+      (await findBlockedPeriodOverlap(
+        validatedData.request.eventDate,
+        validatedData.request.eventDate,
+      ))
+
+    if (overlappingBlock) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: PSSOUND_UNAVAILABLE_RANGE_MESSAGE,
+          blockedPeriod: overlappingBlock,
+        },
+        {status: 409},
+      )
+    }
+
+    // Determine collective name
+    const collectiveName = validatedData.selectedCollective
+
+    if (collectiveName) {
       const member = await client.fetch<{email?: string} | null>(
         `*[_type == "pssoundMembership" && approved == true && collectiveName == $collectiveName][0]{email}`,
         {collectiveName},
@@ -109,6 +160,7 @@ export async function POST(req: NextRequest) {
       vehicleCert: !!validatedData.request.vehicleCert,
       teamCert: !!validatedData.request.teamCert,
       charterCert: !!validatedData.request.charterCert,
+      membershipCert: !!validatedData.request.membershipCert,
       status: 'pending',
     })
 

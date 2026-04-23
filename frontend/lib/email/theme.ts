@@ -10,6 +10,7 @@ const TEMPLATE_SECTION: Record<EmailTemplateKey, SectionSlug> = {
   workshopReceived: 'workshops',
   workshopApproved: 'workshops',
   pssoundRequestReceived: 'pssound-system',
+  pssoundRequestApproved: 'pssound-system',
   pssoundMembershipReceived: 'pssound-system',
   pssoundMembershipApproved: 'pssound-system',
 }

@@ -6,6 +6,7 @@ export const EMAIL_TEMPLATE_KEYS = [
   'workshopReceived',
   'workshopApproved',
   'pssoundRequestReceived',
+  'pssoundRequestApproved',
   'pssoundMembershipReceived',
   'pssoundMembershipApproved',
 ] as const
@@ -106,6 +107,18 @@ export const DEFAULT_EMAIL_MESSAGES: Record<EmailTemplateKey, EmailMessage> = {
     intro:
       'Thanks {{collectiveName}}. Your request for {{eventTitle}} has been received by the team.',
     notice: 'Event date: {{eventDate}}. Pick-up: {{pickupDate}}. Return: {{returnDate}}.',
+    footer: 'With care,\nPSST',
+    disclaimer: 'Automated confirmation for {{collectiveName}}.',
+  },
+  pssoundRequestApproved: {
+    enabled: true,
+    subject: 'Your Pssound request is confirmed: {{eventTitle}}',
+    previewText: 'Your sound system loan request has been confirmed.',
+    heading: 'Your sound system request is confirmed',
+    intro:
+      'Hi {{collectiveName}}, your Pssound loan request for {{eventTitle}} has been confirmed. The selected loan period is now reserved.',
+    notice:
+      'Event date: {{eventDate}}. Pick-up: {{pickupDate}}. Return: {{returnDate}}. Reply if any detail needs to change.',
     footer: 'With care,\nPSST',
     disclaimer: 'Automated confirmation for {{collectiveName}}.',
   },

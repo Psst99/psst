@@ -1,12 +1,13 @@
 'use client'
 
 import {useCallback, useEffect, useState} from 'react'
-import Link from 'next/link'
 import {useRouter} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
 import CmsContent from '@/components/CmsContent'
+import ModalMetaRows from '@/components/ModalMetaRows'
 import Tag from '@/components/Tag'
+import {MODAL_CLOSE_BUTTON_CLASS} from '@/lib/modalStyles'
 import {urlForImage} from '@/sanity/lib/utils'
 
 interface EventModalProps {
@@ -85,33 +86,7 @@ export default function EventModal({event}: EventModalProps) {
         </div>
 
         <div className="px-8 pb-8 flex-1 min-h-0 overflow-y-auto no-scrollbar pr-2">
-          {(event.location || event.url) && (
-            <div className="mb-6 space-y-2 text-base min-[69.375rem]:text-xl leading-snug">
-              {event.location && (
-                <p className="flex items-start gap-2">
-                  <span aria-hidden="true" className="translate-y-[0.05em]">
-                    📍
-                  </span>
-                  <span>{event.location}</span>
-                </p>
-              )}
-              {event.url && (
-                <p className="flex items-start gap-2">
-                  <span aria-hidden="true" className="translate-y-[0.05em]">
-                    🔗
-                  </span>
-                  <Link
-                    href={event.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline underline-offset-2 break-all"
-                  >
-                    {event.url}
-                  </Link>
-                </p>
-              )}
-            </div>
-          )}
+          <ModalMetaRows location={event.location} url={event.url} />
 
           {coverImage && (
             <div className="mb-6">
@@ -138,7 +113,12 @@ export default function EventModal({event}: EventModalProps) {
 
         {/* Close button */}
         <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full bg-[#00ffdd]">
-          <button onClick={handleClose} className="text-[#fff] text-3xl">
+          <button
+            onClick={handleClose}
+            className={`text-[#fff] text-3xl ${MODAL_CLOSE_BUTTON_CLASS}`}
+            type="button"
+            aria-label="Close event modal"
+          >
             <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
           </button>
         </div>

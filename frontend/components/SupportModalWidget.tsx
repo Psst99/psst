@@ -13,6 +13,7 @@ import {FormField} from '@/components/form/FormField'
 import {TextInput} from '@/components/form/TextInput'
 import {getTheme} from '@/lib/theme/sections'
 import {LINK_PILL_CLASS} from '@/lib/linkStyles'
+import {MODAL_CLOSE_BUTTON_CLASS} from '@/lib/modalStyles'
 
 type SupportTab = 'donation' | 'newsletter'
 
@@ -357,7 +358,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         >
           <button
             onClick={closeModal}
-            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full invert-panel cursor-pointer"
+            className={`absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full invert-panel ${MODAL_CLOSE_BUTTON_CLASS}`}
             type="button"
             aria-label="Close support modal"
           >

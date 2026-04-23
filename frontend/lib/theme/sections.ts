@@ -93,6 +93,7 @@ export function getTheme(slug: SectionSlug, mode: ThemeMode, overrides?: ThemeOv
   const palette = getPalette(mode)
   const {a, b} = palette[slug]
   const override = mode === 'accessible' ? undefined : overrides?.[slug]
+
   return {bg: override?.sectionBg ?? a, fg: override?.sectionFg ?? b}
 }
 

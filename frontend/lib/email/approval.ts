@@ -4,13 +4,21 @@ import {client} from '@/sanity/lib/client'
 import {writeToken} from '@/sanity/lib/token'
 import {syncArtistDocumentToGoogleSheet} from '../google-sheets/artist-sync'
 import {sendPsstEmail} from './send'
-import {artistEmailCard, formatDateList, resourceEmailCard, workshopEmailCard} from './cards'
+import {
+  artistEmailCard,
+  formatDate,
+  formatDateList,
+  pssoundRequestEmailCard,
+  resourceEmailCard,
+  workshopEmailCard,
+} from './cards'
 
 type SupportedApprovalType =
   | 'artist'
   | 'resourceSubmission'
   | 'resource'
   | 'workshopRegistration'
+  | 'pssoundRequest'
   | 'pssoundMembership'
 
 type ApprovalResult =
@@ -21,6 +29,8 @@ type ApprovalResult =
       updated?: boolean
       sheetName?: string
       rowNumber?: number
+      blockedDatesUpdated?: boolean
+      blockedDatesId?: string
     }
   | {handled: false; reason: string}
 
@@ -384,7 +394,6 @@ async function handleWorkshopRegistration(id: string, baseUrl: string): Promise<
       slug?: {current?: string}
       dates?: string[]
       location?: string
-      imageUrl?: string
       tags?: {title?: string}[]
     }
   } | null>(
@@ -400,7 +409,6 @@ async function handleWorkshopRegistration(id: string, baseUrl: string): Promise<
         slug,
         dates,
         location,
-        "imageUrl": coverImage.asset->url,
         tags[]->{title}
       }
     }`,
@@ -434,7 +442,6 @@ async function handleWorkshopRegistration(id: string, baseUrl: string): Promise<
         location: doc.workshop.location,
         dates: doc.workshop.dates,
         selectedDates: doc.selectedDates,
-        imageUrl: doc.workshop.imageUrl,
         tags: doc.workshop.tags,
         publicUrl: url,
       }),
@@ -442,6 +449,276 @@ async function handleWorkshopRegistration(id: string, baseUrl: string): Promise<
 
     if (result.sent) await patchSuccess(doc._id)
     return {handled: true, sent: result.sent, reason: result.sent ? undefined : result.reason}
+  } catch (error) {
+    await patchError(doc._id, error)
+    throw error
+  }
+}
+
+const PSSOUND_POLITICAL_LABELS: Record<string, string> = {
+  feminist: 'Feminist',
+  queer: 'Queer',
+  racial: 'Racial',
+  disability: 'Disability',
+  fundraiser: 'Fundraiser',
+  other: 'Other',
+}
+
+function formatPssoundLineup(artists?: Array<{name?: string | null; link?: string | null}> | null) {
+  return (
+    artists
+      ?.map((artist) => {
+        const name = artist.name?.trim()
+        if (!name) return null
+        const link = artist.link?.trim()
+        return link ? `${name} - ${link}` : name
+      })
+      .filter((value): value is string => !!value)
+      .join('\n') || ''
+  )
+}
+
+function formatPssoundPoliticalContext(value?: Record<string, unknown> | null) {
+  if (!value) return ''
+
+  return Object.entries(PSSOUND_POLITICAL_LABELS)
+    .map(([key, label]) => {
+      const item = value[key]
+      if (item === true) return label
+      if (typeof item !== 'string' || item.length === 0) return null
+
+      const trimmed = item.trim()
+      return trimmed ? `${label}: ${trimmed}` : label
+    })
+    .filter((item): item is string => !!item)
+    .join('\n')
+}
+
+function pssoundCalendarIdForRequest(id: string) {
+  return `pssoundCalendar.${id.replace(/[^a-zA-Z0-9_.-]/g, '-')}`
+}
+
+async function ensurePssoundCalendarBlock(doc: {
+  _id: string
+  eventTitle?: string | null
+  collective?: string | null
+  pickupDate?: string | null
+  returnDate?: string | null
+}) {
+  if (!doc.pickupDate || !doc.returnDate) {
+    throw new Error('request pick-up or return date missing')
+  }
+
+  if (doc.pickupDate > doc.returnDate) {
+    throw new Error('request pick-up date is after return date')
+  }
+
+  const calendarId = pssoundCalendarIdForRequest(doc._id)
+  const blockedAt = new Date().toISOString()
+  const titleParts = [doc.eventTitle, doc.collective].filter(Boolean)
+  const title = titleParts.length ? `Loan: ${titleParts.join(' - ')}` : 'Pssound loan'
+  const overlappingBlock = await writeClient.fetch<{
+    _id: string
+    title?: string
+    startDate?: string
+    endDate?: string
+  } | null>(
+    `*[
+      _type == "pssoundCalendar" &&
+      _id != $calendarId &&
+      defined(startDate) &&
+      defined(endDate) &&
+      startDate <= $endDate &&
+      endDate >= $startDate
+    ][0]{_id, title, startDate, endDate}`,
+    {
+      calendarId,
+      startDate: doc.pickupDate,
+      endDate: doc.returnDate,
+    },
+  )
+
+  if (overlappingBlock) {
+    throw new Error(
+      `loan period overlaps existing blocked dates: ${
+        overlappingBlock.title || overlappingBlock._id
+      } (${overlappingBlock.startDate || '?'} to ${overlappingBlock.endDate || '?'})`,
+    )
+  }
+
+  await writeClient.createIfNotExists({
+    _id: calendarId,
+    _type: 'pssoundCalendar',
+    title,
+    startDate: doc.pickupDate,
+    endDate: doc.returnDate,
+    request: {_type: 'reference', _ref: doc._id},
+  })
+
+  await writeClient
+    .patch(calendarId)
+    .set({
+      title,
+      startDate: doc.pickupDate,
+      endDate: doc.returnDate,
+      request: {_type: 'reference', _ref: doc._id},
+      notes: `Blocked automatically from confirmed request ${doc._id}.`,
+    })
+    .commit()
+
+  await writeClient
+    .patch(doc._id)
+    .set({
+      status: 'confirmed',
+      calendarBlock: {_type: 'reference', _ref: calendarId},
+      calendarBlockedAt: blockedAt,
+    })
+    .commit()
+    .catch(() => undefined)
+
+  return calendarId
+}
+
+async function resolvePssoundRequestEmail(doc: {
+  contactEmail?: string | null
+  collective?: string | null
+  membership?: {email?: string | null} | null
+}) {
+  if (doc.contactEmail) return doc.contactEmail
+  if (doc.membership?.email) return doc.membership.email
+  if (!doc.collective) return undefined
+
+  const member = await writeClient.fetch<{email?: string} | null>(
+    `*[_type == "pssoundMembership" && approved == true && collectiveName == $collectiveName][0]{email}`,
+    {collectiveName: doc.collective},
+  )
+
+  return member?.email
+}
+
+async function handlePssoundRequest(id: string): Promise<ApprovalResult> {
+  const doc = await writeClient.fetch<{
+    _id: string
+    status?: string
+    approvalEmailSentAt?: string
+    collective?: string
+    contactEmail?: string
+    membership?: {email?: string}
+    eventTitle?: string
+    eventLink?: string
+    eventLocation?: string
+    eventDescription?: string
+    isPolitical?: Record<string, unknown>
+    marginalizedArtists?: Array<{name?: string; link?: string}>
+    wagePolicy?: string
+    eventDate?: string
+    pickupDate?: string
+    returnDate?: string
+  } | null>(
+    `*[_type == "pssoundRequest" && _id == $id][0]{
+      _id,
+      status,
+      approvalEmailSentAt,
+      collective,
+      contactEmail,
+      membership->{email},
+      eventTitle,
+      eventLink,
+      eventLocation,
+      eventDescription,
+      isPolitical,
+      marginalizedArtists,
+      wagePolicy,
+      eventDate,
+      pickupDate,
+      returnDate
+    }`,
+    {id},
+  )
+
+  if (!doc || doc.status !== 'confirmed') {
+    return {handled: false, reason: 'request is not confirmed'}
+  }
+  if (!doc.eventTitle) return {handled: false, reason: 'request event title missing'}
+
+  let calendarId: string
+  try {
+    calendarId = await ensurePssoundCalendarBlock({
+      _id: doc._id,
+      eventTitle: doc.eventTitle,
+      collective: doc.collective,
+      pickupDate: doc.pickupDate,
+      returnDate: doc.returnDate,
+    })
+  } catch (error) {
+    await patchError(doc._id, error)
+    return {
+      handled: false,
+      reason: error instanceof Error ? error.message : 'date blocking failed',
+    }
+  }
+
+  if (doc.approvalEmailSentAt) {
+    return {
+      handled: true,
+      sent: false,
+      reason: 'already sent',
+      blockedDatesUpdated: true,
+      blockedDatesId: calendarId,
+    }
+  }
+
+  const email = await resolvePssoundRequestEmail(doc)
+  if (!email) {
+    return {
+      handled: true,
+      sent: false,
+      reason: 'request contact email missing',
+      blockedDatesUpdated: true,
+      blockedDatesId: calendarId,
+    }
+  }
+
+  const lineup = formatPssoundLineup(doc.marginalizedArtists)
+  const politicalContext = formatPssoundPoliticalContext(doc.isPolitical)
+  const variables = {
+    collectiveName: doc.collective || 'your collective',
+    eventTitle: doc.eventTitle,
+    eventDate: formatDate(doc.eventDate),
+    pickupDate: formatDate(doc.pickupDate),
+    returnDate: formatDate(doc.returnDate),
+    eventLocation: doc.eventLocation || '',
+    lineup,
+  }
+
+  try {
+    const result = await sendPsstEmail({
+      to: email,
+      templateKey: 'pssoundRequestApproved',
+      variables,
+      card: pssoundRequestEmailCard({
+        collectiveName: doc.collective,
+        eventTitle: doc.eventTitle,
+        eventLink: doc.eventLink,
+        eventLocation: doc.eventLocation,
+        eventDescription: doc.eventDescription,
+        eventDate: doc.eventDate,
+        pickupDate: doc.pickupDate,
+        returnDate: doc.returnDate,
+        lineup,
+        wagePolicy: doc.wagePolicy,
+        politicalContext,
+      }),
+    })
+
+    if (result.sent) await patchSuccess(doc._id)
+    return {
+      handled: true,
+      sent: result.sent,
+      reason: result.sent ? undefined : result.reason,
+      blockedDatesUpdated: true,
+      blockedDatesId: calendarId,
+    }
   } catch (error) {
     await patchError(doc._id, error)
     throw error
@@ -509,6 +786,8 @@ export async function sendApprovalEmailForDocument(
       return handleResource(id, baseUrl)
     case 'workshopRegistration':
       return handleWorkshopRegistration(id, baseUrl)
+    case 'pssoundRequest':
+      return handlePssoundRequest(id)
     case 'pssoundMembership':
       return handlePssoundMembership(id)
     default:

@@ -30,6 +30,7 @@ import {membershipPage} from './singletons/membershipPage'
 import homepage from './singletons/homepage'
 import {themeSettings} from './singletons/themeSettings'
 import {emailSettings} from './singletons/emailSettings'
+import {formSuccessPages} from './singletons/formSuccessPages'
 import {pssoundArchive} from './documents/pssoundArchive'
 import {resourceCategory} from './documents/resourceCategory'
 import {resourceTag} from './documents/resourceTag'
@@ -47,6 +48,7 @@ export const schemaTypes = [
   homepage,
   themeSettings,
   emailSettings,
+  formSuccessPages,
   // Documents
   psstPage,
   psstSection,

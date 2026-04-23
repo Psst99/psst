@@ -21,6 +21,10 @@ const THEME_STORAGE_KEY = 'psst-theme-mode'
 const ROUNDED_STORAGE_KEY = 'psst-rounded-corners'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365
 
+function isThemeMode(value: string | null): value is ThemeMode {
+  return value === 'brand' || value === 'accessible'
+}
+
 function writeCookie(key: string, value: string) {
   try {
     document.cookie = `${key}=${value}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`
@@ -102,7 +106,7 @@ export default function ThemeProvider({
     let resolvedRounded = initialRounded
     try {
       const storedMode = localStorage.getItem(THEME_STORAGE_KEY)
-      if (storedMode === 'brand' || storedMode === 'accessible') resolvedMode = storedMode
+      if (isThemeMode(storedMode)) resolvedMode = storedMode
 
       const storedRounded = localStorage.getItem(ROUNDED_STORAGE_KEY)
       if (storedRounded !== null) resolvedRounded = storedRounded === 'true'

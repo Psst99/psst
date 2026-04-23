@@ -11,6 +11,12 @@ import {FormField} from '@/components/form/FormField'
 import {TextInput} from '@/components/form/TextInput'
 import {StyledCheckbox} from '../StyledCheckbox'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '../ui/select'
+import {
+  getBookedDateInRange,
+  isDateRangeInOrder,
+  PSSOUND_INVALID_RANGE_MESSAGE,
+  PSSOUND_UNAVAILABLE_RANGE_MESSAGE,
+} from '@/lib/pssound-dates'
 
 import {IoAddCircle} from 'react-icons/io5'
 import {RiDeleteBack2Fill} from 'react-icons/ri'
@@ -75,12 +81,16 @@ export default function PssoundRequestForm({bookedDates, collectives}: PssoundRe
   const onSubmit = async (data: PssoundRequestFormData) => {
     setSubmitError(null)
 
+    if (!isDateRangeInOrder(data.pickupDate, data.returnDate)) {
+      setSubmitError(PSSOUND_INVALID_RANGE_MESSAGE)
+      return
+    }
+
     if (
       isDateBooked(data.eventDate, bookedDates) ||
-      isDateBooked(data.pickupDate, bookedDates) ||
-      isDateBooked(data.returnDate, bookedDates)
+      getBookedDateInRange(data.pickupDate, data.returnDate, bookedDates)
     ) {
-      setSubmitError('One or more selected dates are unavailable. Please choose different dates.')
+      setSubmitError(PSSOUND_UNAVAILABLE_RANGE_MESSAGE)
       return
     }
 
@@ -92,7 +102,8 @@ export default function PssoundRequestForm({bookedDates, collectives}: PssoundRe
     if (res.ok) {
       router.push('/pssound-system/request/success')
     } else {
-      setSubmitError('Submission failed. Please try again.')
+      const payload = (await res.json().catch(() => null)) as {error?: string} | null
+      setSubmitError(payload?.error || 'Submission failed. Please try again.')
     }
   }
 

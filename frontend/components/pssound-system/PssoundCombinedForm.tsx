@@ -13,10 +13,16 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '../
 import {IoAddCircle} from 'react-icons/io5'
 import {RiDeleteBack2Fill} from 'react-icons/ri'
 import {useRouter} from 'next/navigation'
+import {
+  getBookedDateInRange,
+  isDateRangeInOrder,
+  PSSOUND_INVALID_RANGE_MESSAGE,
+  PSSOUND_UNAVAILABLE_RANGE_MESSAGE,
+} from '@/lib/pssound-dates'
 
 // Import combined schema
 import {z} from 'zod'
-import {pssoundRequestSchema} from '@/lib/schemas/pssoundRequest'
+import {pssoundRequestSchema, PssoundRequestFormData} from '@/lib/schemas/pssoundRequest'
 import {pssoundMembershipSchema, PssoundMembershipFormData} from '@/lib/schemas/pssoundMembership'
 
 // Create combined schema
@@ -31,11 +37,23 @@ const combinedFormSchema = z.discriminatedUnion('isMember', [
     isMember: z.literal(false),
     selectedCollective: z.string().optional(),
     membership: pssoundMembershipSchema,
-    request: pssoundRequestSchema,
+    request: z.any().optional(),
   }),
 ])
 
-type CombinedFormData = z.infer<typeof combinedFormSchema>
+type CombinedFormData =
+  | {
+      isMember: true
+      selectedCollective: string
+      membership?: unknown
+      request: PssoundRequestFormData
+    }
+  | {
+      isMember: false
+      selectedCollective?: string
+      membership: PssoundMembershipFormData
+      request?: PssoundRequestFormData
+    }
 
 export type PssoundFileGroup = 'technicalManuals' | 'manifesto' | 'other'
 
@@ -182,6 +200,7 @@ export default function PssoundCombinedForm({
         vehicleCert: false,
         teamCert: false,
         charterCert: false,
+        membershipCert: true,
       },
     },
   })
@@ -192,9 +211,12 @@ export default function PssoundCombinedForm({
   })
 
   const bookedDateObjs = bookedDates.map((date) => new Date(date))
-  const eventDate = watch('request.eventDate') ? new Date(watch('request.eventDate')) : null
-  const pickupDate = watch('request.pickupDate') ? new Date(watch('request.pickupDate')) : null
-  const returnDate = watch('request.returnDate') ? new Date(watch('request.returnDate')) : null
+  const watchedEventDate = watch('request.eventDate')
+  const watchedPickupDate = watch('request.pickupDate')
+  const watchedReturnDate = watch('request.returnDate')
+  const eventDate = watchedEventDate ? new Date(watchedEventDate) : null
+  const pickupDate = watchedPickupDate ? new Date(watchedPickupDate) : null
+  const returnDate = watchedReturnDate ? new Date(watchedReturnDate) : null
   const selectedCalendarLabel = selectedStartDate
     ? selectedEndDate
       ? `${selectedStartDate} to ${selectedEndDate}`
@@ -216,60 +238,103 @@ export default function PssoundCombinedForm({
   const lineupError = lineupErrorMessage
     ? ({type: 'manual', message: lineupErrorMessage} as FieldError)
     : undefined
+  const visibleSubmitError =
+    submitError === 'Please complete the required fields above.' ? null : submitError
 
   // Auto-populate dates from calendar selection
   useEffect(() => {
-    if (selectedStartDate && selectedStartDate !== watch('request.pickupDate')) {
+    if (!selectedStartDate) return
+
+    if (selectedStartDate !== watchedEventDate) {
+      setValue('request.eventDate', selectedStartDate, {
+        shouldTouch: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (selectedStartDate !== watchedPickupDate) {
       setValue('request.pickupDate', selectedStartDate, {
         shouldTouch: true,
         shouldValidate: true,
       })
     }
-  }, [selectedStartDate, setValue, watch])
 
-  useEffect(() => {
-    if (selectedEndDate && selectedEndDate !== watch('request.returnDate')) {
-      setValue('request.returnDate', selectedEndDate, {
+    const selectedReturnDate = selectedEndDate || selectedStartDate
+    if (selectedReturnDate !== watchedReturnDate) {
+      setValue('request.returnDate', selectedReturnDate, {
         shouldTouch: true,
         shouldValidate: true,
       })
     }
-  }, [selectedEndDate, setValue, watch])
+  }, [
+    selectedEndDate,
+    selectedStartDate,
+    setValue,
+    watchedEventDate,
+    watchedPickupDate,
+    watchedReturnDate,
+  ])
 
   const onSubmit = async (data: CombinedFormData) => {
     setSubmitError(null)
 
-    // Check if any dates are booked
-    if (
-      isDateBooked(data.request.eventDate, bookedDates) ||
-      isDateBooked(data.request.pickupDate, bookedDates) ||
-      isDateBooked(data.request.returnDate, bookedDates)
-    ) {
-      setSubmitError('One or more selected dates are unavailable. Please choose different dates.')
-      return
+    // Check if any request dates are booked
+    if (data.isMember) {
+      if (!isDateRangeInOrder(data.request.pickupDate, data.request.returnDate)) {
+        setSubmitError(PSSOUND_INVALID_RANGE_MESSAGE)
+        return
+      }
+
+      if (
+        isDateBooked(data.request.eventDate, bookedDates) ||
+        getBookedDateInRange(data.request.pickupDate, data.request.returnDate, bookedDates)
+      ) {
+        setSubmitError(PSSOUND_UNAVAILABLE_RANGE_MESSAGE)
+        return
+      }
     }
 
     try {
+      const payload = data.isMember
+        ? {
+            isMember: true,
+            selectedCollective: data.selectedCollective,
+            request: data.request,
+          }
+        : {
+            isMember: false,
+            membership: data.membership,
+          }
       const res = await fetch('/api/pssound-combined', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       })
 
       if (!res.ok) {
-        throw new Error('Submission failed')
+        const payload = (await res.json().catch(() => null)) as {error?: string} | null
+        throw new Error(payload?.error || 'Submission failed')
       }
 
       router.push('/pssound-system/request/success')
     } catch (error) {
-      setSubmitError('Submission failed. Please try again.')
+      setSubmitError(
+        error instanceof Error ? error.message : 'Submission failed. Please try again.',
+      )
       console.error('Error submitting form:', error)
     }
   }
 
+  const onInvalidSubmit = () => {
+    setSubmitError(null)
+  }
+
   return (
     <div className="h-full w-full md:max-w-[65vw] mx-auto md:p-4">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 form-scroll-bottom-space">
+      <form
+        onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
+        className="space-y-6 form-scroll-bottom-space"
+      >
         {/* Membership selection */}
         <div className="p-6 section-bg rounded-xl">
           <div className="mb-4 flex flex-col items-center gap-4 min-[86rem]:flex-row min-[86rem]:items-baseline min-[86rem]:justify-between">
@@ -327,7 +392,10 @@ export default function PssoundCombinedForm({
 
         {isMember === true && (
           <div className="p-6 section-bg rounded-xl">
-            <p className="tracking-tight text-2xl mb-4 section-fg">Select your collective</p>
+            <p className="tracking-tight text-2xl mb-4 section-fg">
+              Select your collective
+              <span className="ml-1 text-red-500">*</span>
+            </p>
             <div className="bg-white p-2 rounded-xl">
               <Select
                 onValueChange={(value) =>
@@ -352,19 +420,22 @@ export default function PssoundCombinedForm({
                   ))}
                 </SelectContent>
               </Select>
-              {(touchedFields.selectedCollective || isSubmitted) && errors.selectedCollective && (
-                <p className="section-fg text-sm mt-1">Please select your collective</p>
-              )}
             </div>
+            {(touchedFields.selectedCollective || isSubmitted) && errors.selectedCollective && (
+              <p className="panel-fg text-lg tracking-tight mt-2 ml-2">
+                <span className="mr-0.5 text-red-500">*</span>
+                {errors.selectedCollective.message}
+              </p>
+            )}
           </div>
         )}
 
         {/* Section A: Membership Form (conditional) */}
         {isMember === false && (
           <div className="relative border panel-border rounded-3xl panel-bg p-6 pt-10 mt-16">
-            <div className="absolute left-6 -top-[31px]">
-              <div className="relative inline-flex items-center justify-center px-8 py-1 border border-b-0 rounded-t-xl uppercase tracking-tight panel-bg panel-fg panel-border">
-                <span className="font-normal text-[24px] leading-[22px]">
+            <div className="absolute left-14 -top-[31px]">
+              <div className="loan-request-tab relative inline-flex items-center justify-center px-8 py-1 border border-b-0 uppercase tracking-tight panel-bg panel-fg panel-border">
+                <span className="relative z-[2] font-normal text-[24px] leading-[22px]">
                   Membership application
                 </span>
                 <span className="pointer-events-none absolute left-0 right-0 bottom-[-1px] h-[1px] panel-bg" />
@@ -396,7 +467,7 @@ export default function PssoundCombinedForm({
                 showError={!!membershipTouched?.isPolitical || isSubmitted}
               >
                 <div className="flex flex-col gap-4">
-                  <div className="flex gap-x-4 flex-wrap px-4 py-2">
+                  <div className="flex flex-col gap-2 px-4 py-3">
                     {['feminist', 'queer', 'racial', 'disability', 'other'].map((opt) => (
                       <StyledCheckbox
                         key={opt}
@@ -422,14 +493,24 @@ export default function PssoundCombinedForm({
                 required
                 showError={!!membershipTouched?.caribbeanOrAfro || isSubmitted}
               >
-                <select
-                  {...register('membership.caribbeanOrAfro')}
-                  className="w-full rounded-t-none rounded-b-lg section-fg px-4 py-2 text-xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-full"
-                >
-                  <option value="">Select…</option>
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
+                <div className="flex h-full flex-col justify-center gap-2 px-4 py-3">
+                  {[
+                    {label: 'Yes', value: 'true' as const},
+                    {label: 'No', value: 'false' as const},
+                  ].map((option) => (
+                    <StyledCheckbox
+                      key={option.value}
+                      label={option.label}
+                      checked={watch('membership.caribbeanOrAfro') === option.value}
+                      onChange={() =>
+                        setValue('membership.caribbeanOrAfro', option.value, {
+                          shouldTouch: true,
+                          shouldValidate: true,
+                        })
+                      }
+                    />
+                  ))}
+                </div>
               </FormField>
 
               <FormField
@@ -438,16 +519,27 @@ export default function PssoundCombinedForm({
                 required
                 showError={!!membershipTouched?.qualifiedSoundEngineer || isSubmitted}
               >
-                <select
-                  {...register('membership.qualifiedSoundEngineer')}
-                  className="w-full rounded-t-none rounded-b-lg section-fg px-4 py-2 text-xl border-0 outline-0 md:rounded-l-none md:rounded-tr-lg bg-white h-full"
-                >
-                  <option value="">Select…</option>
-                  <option value="yes">Yes</option>
-                  <option value="no_commit">
-                    No, but we commit to work with a qualified person at our events.
-                  </option>
-                </select>
+                <div className="flex h-full flex-col justify-center gap-2 px-4 py-3">
+                  {[
+                    {label: 'Yes', value: 'yes' as const},
+                    {
+                      label: 'No, but we commit to work with a qualified person at our events.',
+                      value: 'no_commit' as const,
+                    },
+                  ].map((option) => (
+                    <StyledCheckbox
+                      key={option.value}
+                      label={option.label}
+                      checked={watch('membership.qualifiedSoundEngineer') === option.value}
+                      onChange={() =>
+                        setValue('membership.qualifiedSoundEngineer', option.value, {
+                          shouldTouch: true,
+                          shouldValidate: true,
+                        })
+                      }
+                    />
+                  ))}
+                </div>
               </FormField>
 
               <FormField
@@ -477,37 +569,41 @@ export default function PssoundCombinedForm({
         )}
 
         {/* Section B: Request Form */}
-        {(isMember === true || isMember === false) && (
+        {isMember === true && (
           <div className="relative border panel-border rounded-3xl panel-bg p-6 pt-10 mt-16">
-            <div className="absolute left-6 -top-[31px]">
-              <div className="relative inline-flex items-center justify-center px-8 py-1 border border-b-0 rounded-t-xl uppercase tracking-tight panel-bg panel-fg panel-border">
-                <span className="font-normal text-[24px] leading-[22px]">Loan request</span>
+            <div className="absolute left-14 -top-[31px]">
+              <div className="loan-request-tab relative inline-flex items-center justify-center px-8 py-1 border border-b-0 uppercase tracking-tight panel-bg panel-fg panel-border">
+                <span className="relative z-[2] font-normal text-[24px] leading-[22px]">
+                  Loan request
+                </span>
                 <span className="pointer-events-none absolute left-0 right-0 bottom-[-1px] h-[1px] panel-bg" />
               </div>
             </div>
 
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                <FormField
-                  label="Event Date"
-                  error={errors.request?.eventDate}
-                  required
-                  showError={!!touchedFields.request?.eventDate || isSubmitted}
-                >
-                  <DatePicker
-                    selected={eventDate}
-                    onChange={(date) =>
-                      setValue('request.eventDate', date?.toISOString().slice(0, 10) || '', {
-                        shouldTouch: true,
-                        shouldValidate: true,
-                      })
-                    }
-                    excludeDates={bookedDateObjs}
-                    dateFormat="yyyy-MM-dd"
-                    minDate={new Date()}
-                    customInput={<DateInput placeholder="Select event date" />}
-                  />
-                </FormField>
+                <div>
+                  <FormField
+                    label="Event Date"
+                    error={errors.request?.eventDate}
+                    required
+                    showError={!!touchedFields.request?.eventDate || isSubmitted}
+                  >
+                    <DatePicker
+                      selected={eventDate}
+                      onChange={(date) =>
+                        setValue('request.eventDate', date?.toISOString().slice(0, 10) || '', {
+                          shouldTouch: true,
+                          shouldValidate: true,
+                        })
+                      }
+                      excludeDates={bookedDateObjs}
+                      dateFormat="yyyy-MM-dd"
+                      minDate={new Date()}
+                      customInput={<DateInput placeholder="Select event date" />}
+                    />
+                  </FormField>
+                </div>
 
                 {selectedStartDate && (
                   <div className="min-h-[88px] px-4 rounded-xl border panel-border flex items-center justify-center text-center panel-bg invert-panel">
@@ -519,47 +615,51 @@ export default function PssoundCombinedForm({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  label="Pick-up Date (weekdays only)"
-                  error={errors.request?.pickupDate}
-                  required
-                  showError={!!touchedFields.request?.pickupDate || isSubmitted}
-                >
-                  <DatePicker
-                    selected={pickupDate}
-                    onChange={(date) =>
-                      setValue('request.pickupDate', date?.toISOString().slice(0, 10) || '', {
-                        shouldTouch: true,
-                        shouldValidate: true,
-                      })
-                    }
-                    excludeDates={bookedDateObjs}
-                    dateFormat="yyyy-MM-dd"
-                    minDate={new Date()}
-                    customInput={<DateInput placeholder="Select pick-up date" />}
-                  />
-                </FormField>
+                <div>
+                  <FormField
+                    label="Pick-up Date (weekdays only)"
+                    error={errors.request?.pickupDate}
+                    required
+                    showError={!!touchedFields.request?.pickupDate || isSubmitted}
+                  >
+                    <DatePicker
+                      selected={pickupDate}
+                      onChange={(date) =>
+                        setValue('request.pickupDate', date?.toISOString().slice(0, 10) || '', {
+                          shouldTouch: true,
+                          shouldValidate: true,
+                        })
+                      }
+                      excludeDates={bookedDateObjs}
+                      dateFormat="yyyy-MM-dd"
+                      minDate={new Date()}
+                      customInput={<DateInput placeholder="Select pick-up date" />}
+                    />
+                  </FormField>
+                </div>
 
-                <FormField
-                  label="Return Date (weekdays only)"
-                  error={errors.request?.returnDate}
-                  required
-                  showError={!!touchedFields.request?.returnDate || isSubmitted}
-                >
-                  <DatePicker
-                    selected={returnDate}
-                    onChange={(date) =>
-                      setValue('request.returnDate', date?.toISOString().slice(0, 10) || '', {
-                        shouldTouch: true,
-                        shouldValidate: true,
-                      })
-                    }
-                    excludeDates={bookedDateObjs}
-                    dateFormat="yyyy-MM-dd"
-                    minDate={new Date()}
-                    customInput={<DateInput placeholder="Select return date" />}
-                  />
-                </FormField>
+                <div>
+                  <FormField
+                    label="Return Date (weekdays only)"
+                    error={errors.request?.returnDate}
+                    required
+                    showError={!!touchedFields.request?.returnDate || isSubmitted}
+                  >
+                    <DatePicker
+                      selected={returnDate}
+                      onChange={(date) =>
+                        setValue('request.returnDate', date?.toISOString().slice(0, 10) || '', {
+                          shouldTouch: true,
+                          shouldValidate: true,
+                        })
+                      }
+                      excludeDates={bookedDateObjs}
+                      dateFormat="yyyy-MM-dd"
+                      minDate={new Date()}
+                      customInput={<DateInput placeholder="Select return date" />}
+                    />
+                  </FormField>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -604,7 +704,7 @@ export default function PssoundCombinedForm({
 
                 <FormField label="Is the event political?" error={undefined}>
                   <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-4 px-4 py-4">
+                    <div className="flex flex-col gap-2 px-4 py-3">
                       {['feminist', 'queer', 'racial', 'disability'].map((key) => (
                         <StyledCheckbox
                           key={key}
@@ -695,14 +795,14 @@ export default function PssoundCombinedForm({
                               `request.marginalizedArtists.${idx}.link` as const,
                             )}
                             placeholder="Link (URL or leave blank)"
-                            className={`${LINEUP_INPUT_CLASSNAME} pr-10`}
+                            className={`${LINEUP_INPUT_CLASSNAME} !pr-10`}
                           />
 
                           {fields.length > 1 && (
                             <button
                               type="button"
                               onClick={() => remove(idx)}
-                              className="absolute right-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center section-fg transition-opacity hover:opacity-70 cursor-pointer"
+                              className="absolute right-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center section-fg transition-opacity hover:opacity-70 cursor-pointer min-[69.375rem]:hidden"
                               aria-label="Remove artist"
                             >
                               <RiDeleteBack2Fill aria-hidden="true" />
@@ -755,6 +855,7 @@ export default function PssoundCombinedForm({
                     errors.request?.teamCert ||
                     errors.request?.charterCert
                   }
+                  required
                   showError={
                     !!touchedFields.request?.vehicleCert ||
                     !!touchedFields.request?.teamCert ||
@@ -784,7 +885,7 @@ export default function PssoundCombinedForm({
           </div>
         )}
 
-        {fileGroups.length > 0 && (
+        {isMember === true && fileGroups.length > 0 && (
           <div className="border panel-border p-6 rounded-xl mt-4">
             {fileGroups.map((group, groupIndex) => (
               <section
@@ -811,13 +912,18 @@ export default function PssoundCombinedForm({
           </div>
         )}
 
-        {submitError && <div className="text-red-600 text-center">{submitError}</div>}
+        {visibleSubmitError && (
+          <p className="panel-fg text-lg tracking-tight text-center">
+            <span className="mr-0.5 text-red-500">*</span>
+            {visibleSubmitError}
+          </p>
+        )}
 
         {/* Submit button */}
         <button
           type="submit"
           disabled={isSubmitting || isMember === null}
-          className="mt-16 section-bg invert-panel text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50"
+          className="mt-16 section-bg invert-panel text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>

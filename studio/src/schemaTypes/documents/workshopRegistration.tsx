@@ -4,24 +4,31 @@ export const workshopRegistration = defineType({
   name: 'workshopRegistration',
   title: 'Workshop Registration',
   type: 'document',
+  groups: [
+    {name: 'registration', title: 'Registration', default: true},
+    {name: 'internal', title: 'Internal'},
+  ],
   fields: [
     defineField({
       name: 'workshop',
       title: 'Workshop',
       type: 'reference',
       to: [{type: 'workshop'}],
+      group: 'registration',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'name',
       title: 'Full Name',
       type: 'string',
+      group: 'registration',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'email',
       title: 'Email Address',
       type: 'string',
+      group: 'registration',
       validation: (Rule) => Rule.required().email(),
     }),
     defineField({
@@ -30,12 +37,14 @@ export const workshopRegistration = defineType({
       description: 'Which workshop dates the participant registered for',
       type: 'array',
       of: [{type: 'date'}],
+      group: 'registration',
       validation: (Rule) => Rule.required().min(1),
     }),
     defineField({
       name: 'message',
       title: 'Message / Motivation',
       type: 'text',
+      group: 'registration',
     }),
     // defineField({
     //   name: 'approved',
@@ -47,6 +56,7 @@ export const workshopRegistration = defineType({
       name: 'status', // Changed from 'approved' to 'status'
       title: 'Registration Status',
       type: 'string',
+      group: 'registration',
       options: {
         list: [
           {title: 'Pending Review', value: 'pending'},
@@ -64,30 +74,38 @@ export const workshopRegistration = defineType({
       title: 'Internal Notes',
       description: 'Notes for editors (not visible to participants)',
       type: 'text',
+      group: 'internal',
     }),
     defineField({
       // Add this
       name: 'registrationDate',
       type: 'datetime',
+      group: 'internal',
       initialValue: () => new Date().toISOString(),
     }),
     defineField({
       name: 'confirmationEmailSentAt',
       title: 'Confirmation email sent at',
       type: 'datetime',
+      group: 'internal',
       readOnly: true,
+      hidden: ({document}) => !document?.confirmationEmailSentAt,
     }),
     defineField({
       name: 'approvalEmailSentAt',
       title: 'Approval email sent at',
       type: 'datetime',
+      group: 'internal',
       readOnly: true,
+      hidden: ({document}) => !document?.approvalEmailSentAt,
     }),
     defineField({
       name: 'emailDeliveryError',
       title: 'Email delivery error',
       type: 'text',
+      group: 'internal',
       readOnly: true,
+      hidden: ({document}) => !document?.emailDeliveryError,
     }),
   ],
   preview: {
@@ -117,7 +135,7 @@ const StatusIcon = ({status}: {status: string}) => {
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '14px',
-    fontWeight: 'bold',
+    fontWeight: 500,
   }
 
   switch (status) {

@@ -1,12 +1,13 @@
 'use client'
 
 import {useCallback, useEffect, useState, type CSSProperties, useContext} from 'react'
-import Link from 'next/link'
 import {useRouter} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
 import CmsContent from '@/components/CmsContent'
+import ModalMetaRows from '@/components/ModalMetaRows'
 import Tag from '@/components/Tag'
+import {MODAL_CLOSE_BUTTON_CLASS} from '@/lib/modalStyles'
 import {getTheme} from '@/lib/theme/sections'
 import {ThemeContext} from '@/app/ThemeProvider'
 
@@ -125,25 +126,7 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
 
         {/* Scrollable content */}
         <div className="px-8 pb-8 flex-1 min-h-0 overflow-y-auto no-scrollbar pr-2">
-          {(workshop.location || workshop.url) && (
-            <div className="mb-6 space-y-2 panel-fg text-base min-[69.375rem]:text-xl leading-snug">
-              {workshop.location && (
-                <p>
-                  <span className="uppercase">LOCATION:</span> <span>{workshop.location}</span>
-                </p>
-              )}
-              {workshop.url && (
-                <p>
-                  <Link
-                    href={workshop.url}
-                    className="underline underline-offset-2 break-all"
-                  >
-                    LINK
-                  </Link>
-                </p>
-              )}
-            </div>
-          )}
+          <ModalMetaRows location={workshop.location} url={workshop.url} className="panel-fg" />
 
           {/* Description */}
           <div className="mb-6 panel-fg text-lg leading-snug">
@@ -161,7 +144,12 @@ export default function WorkshopModal({workshop, isUpcoming = false}: WorkshopMo
 
         {/* Close button */}
         <div className="absolute bottom-4 right-1/2 translate-x-1/2 rounded-full invert-panel">
-          <button onClick={handleClose} className="text-3xl">
+          <button
+            onClick={handleClose}
+            className={`text-3xl ${MODAL_CLOSE_BUTTON_CLASS}`}
+            type="button"
+            aria-label="Close workshop modal"
+          >
             <IoMdClose className="h-12 w-12 mt-0 -mb-1 mx-0" aria-hidden="true" />
           </button>
         </div>

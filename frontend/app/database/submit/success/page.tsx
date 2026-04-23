@@ -1,10 +1,5 @@
-import {FormConfirmationPage} from '@/components/form/FormConfirmationPage'
+import {FormSuccessPage} from '@/components/form/FormSuccessPage'
 
 export default function DatabaseSubmitSuccessPage() {
-  return (
-    <FormConfirmationPage title="Database submission received.">
-      Thank you for adding to the database. Your submission is being reviewed and you will hear
-      back from us soon.
-    </FormConfirmationPage>
-  )
+  return <FormSuccessPage contentKey="databaseSubmitContent" />
 }

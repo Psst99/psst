@@ -7,6 +7,7 @@ import {zodResolver} from '@hookform/resolvers/zod'
 import {workshopRegistrationSchema, WorkshopRegistrationData} from '@/lib/schemas/workshop'
 import {FormField} from '@/components/form/FormField'
 import {TextInput} from '@/components/form/TextInput'
+import {IoMdClose} from 'react-icons/io'
 
 const EXPERIENCE_OPTIONS = [
   {value: '', label: 'Select...'},
@@ -34,10 +35,9 @@ interface WorkshopRegistrationFormProps {
 function formatDateLabel(dateStr: string) {
   const d = new Date(dateStr)
   if (Number.isNaN(d.getTime())) return dateStr
-  return d.toLocaleDateString('en-GB', {
-    weekday: 'short',
-    day: '2-digit',
-    month: '2-digit',
+  return d.toLocaleDateString('en-US', {
+    month: 'numeric',
+    day: 'numeric',
     year: 'numeric',
   })
 }
@@ -83,31 +83,17 @@ function DatesPicker({dates, value, maxSelected = 2, disabled, onChange}: DatesP
     onChange([...value, dateStr])
   }
 
-  const clearAll = () => {
-    if (disabled) return
-    onChange([])
+  if (dates.length === 0) {
+    return (
+      <div className="min-h-16 bg-white px-4 py-3 text-xl leading-tight text-[color:var(--section-bg)] min-[69.375rem]:text-3xl">
+        No dates available
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-baseline justify-between gap-3">
-        <div className="text-sm md:text-base opacity-80">
-          Pick up to <span className="font-medium">{maxSelected}</span> dates
-          <span className="mx-2">•</span>
-          Selected <span className="font-medium">{selectedCount}</span>/{maxSelected}
-        </div>
-
-        <button
-          type="button"
-          onClick={clearAll}
-          disabled={disabled || selectedCount === 0}
-          className="text-sm md:text-base underline underline-offset-4 disabled:opacity-40"
-        >
-          Clear
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div className="bg-white p-2 min-[69.375rem]:p-3">
+      <div className="flex min-h-14 flex-wrap items-center gap-2">
         {dates.map((dateStr) => {
           const selected = value.some((v) => isSameDay(v, dateStr))
           const blocked = !selected && atLimit
@@ -117,42 +103,28 @@ function DatesPicker({dates, value, maxSelected = 2, disabled, onChange}: DatesP
               key={dateStr}
               type="button"
               onClick={() => toggle(dateStr)}
-              disabled={disabled}
+              disabled={disabled || blocked}
               aria-pressed={selected}
+              aria-label={`${selected ? 'Remove' : 'Select'} ${formatDateLabel(dateStr)}`}
               className={[
-                'text-left rounded-2xl px-4 py-4 transition',
-                'border border-black/10',
-                'bg-white',
-                'focus:outline-none focus:ring-2 focus:ring-black/20',
-                selected ? 'bg-black text-white border-black' : '',
-                blocked ? 'opacity-40' : 'hover:bg-black/5',
-                disabled ? 'opacity-60 cursor-not-allowed' : '',
+                'inline-flex items-center px-2 py-0',
+                'bg-[color:var(--section-bg)] text-white',
+                'font-mono text-lg uppercase font-light leading-tight min-[69.375rem]:text-3xl',
+                'transition-opacity focus-visible:outline-none focus-visible:opacity-70',
+                selected ? 'gap-x-2' : '',
+                disabled || blocked
+                  ? 'cursor-not-allowed opacity-35'
+                  : 'cursor-pointer hover:opacity-70',
               ].join(' ')}
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-xl md:text-2xl tracking-tight font-medium">
-                  {formatDateLabel(dateStr)}
-                </div>
-
-                <div
-                  className={[
-                    'h-8 w-8 rounded-full grid place-items-center',
-                    selected ? 'bg-white text-black' : 'bg-black/5 text-black',
-                  ].join(' ')}
-                  aria-hidden="true"
-                >
-                  {selected ? '✓' : '+'}
-                </div>
-              </div>
-
-              {blocked && (
-                <div className="mt-2 text-sm opacity-80">
-                  Max {maxSelected} selected — unselect one to pick another
-                </div>
-              )}
+              {formatDateLabel(dateStr)}
+              {selected && <IoMdClose className="h-5 w-5" aria-hidden="true" />}
             </button>
           )
         })}
+      </div>
+      <div aria-live="polite" className="sr-only">
+        {selectedCount} of {maxSelected} dates selected
       </div>
     </div>
   )
@@ -264,13 +236,12 @@ export const WorkshopRegistrationForm: React.FC<WorkshopRegistrationFormProps> =
                 onChange={(event) => setSelectedWorkshopId(event.target.value)}
                 className={[
                   'w-full appearance-none',
-                  'rounded-t-none rounded-b-2xl md:rounded-tr-2xl',
                   'bg-white',
-                  'px-4 py-3 md:py-4',
-                  'text-2xl md:text-3xl tracking-tight font-medium',
-                  'border border-black/10',
-                  'outline-none focus:ring-2 focus:ring-black/20',
-                  'section-fg',
+                  'px-4 py-3',
+                  'text-xl min-[69.375rem]:text-3xl',
+                  'text-[color:var(--section-bg)]',
+                  'border-0 outline-0',
+                  'cursor-pointer',
                 ].join(' ')}
               >
                 {workshops.map((workshop) => (

@@ -4,6 +4,7 @@ import {useEffect, useState} from 'react'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
 import {useRouter} from 'next/navigation'
+import {MODAL_CLOSE_BUTTON_CLASS} from '@/lib/modalStyles'
 
 export default function WorkshopModalSkeleton() {
   const [isVisible, setIsVisible] = useState(false)
@@ -48,7 +49,8 @@ export default function WorkshopModalSkeleton() {
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-6 right-6 text-[color:var(--section-accent)] hover:opacity-70 transition-opacity z-10"
+          className={`absolute top-6 right-6 text-[color:var(--section-accent)] z-10 ${MODAL_CLOSE_BUTTON_CLASS}`}
+          type="button"
           aria-label="Close"
         >
           <IoMdClose className="w-8 h-8" />
