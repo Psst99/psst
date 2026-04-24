@@ -103,23 +103,22 @@ export function workshopEmailCard(data: {
   title: string
   description?: string | null
   location?: string | null
+  url?: string | null
   dates?: string[] | null
   selectedDates?: string[] | null
   tags?: TagLike[] | null
   publicUrl?: string
 }): EmailCard {
-  const links: Array<{label: string; url: string}> = []
+  const links = data.url ? [{label: data.url.replace(/^https?:\/\//, '').replace(/^www\./, ''), url: data.url}] : []
   const meta = [
     data.location ? {label: 'Location', value: data.location} : null,
-    data.dates?.length ? {label: 'Workshop dates', value: formatDateList(data.dates)} : null,
-    data.selectedDates?.length
-      ? {label: 'Selected dates', value: formatDateList(data.selectedDates)}
-      : null,
   ].filter((item): item is {label: string; value: string} => !!item)
 
   return {
+    kind: 'workshop',
     title: data.title,
     description: data.description || undefined,
+    dates: (data.selectedDates ?? data.dates ?? []).map(formatDate).filter(Boolean),
     tags: emailTags(data.tags),
     meta,
     actionUrl: data.publicUrl,

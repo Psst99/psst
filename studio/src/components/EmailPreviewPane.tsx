@@ -104,6 +104,8 @@ export default function EmailPreviewPane({document}: EmailPreviewPaneProps) {
     footer: interpolatePreviewText(message.footer, preview.variables),
     disclaimer: interpolatePreviewText(message.disclaimer, preview.variables),
   }
+  const hasNotice = rendered.notice.trim().length > 0
+  const hasFooter = rendered.footer.trim().length > 0
 
   return (
     <Box padding={4}>
@@ -138,12 +140,21 @@ export default function EmailPreviewPane({document}: EmailPreviewPaneProps) {
             </select>
 
             <a
+              href={`http://localhost:3000/email-preview/${routeId}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{fontSize: 13, color: '#556', textDecoration: 'underline'}}
+            >
+              Open Sanity-backed preview
+            </a>
+
+            <a
               href={`http://localhost:3001/preview/${routeId}`}
               target="_blank"
               rel="noreferrer"
               style={{fontSize: 13, color: '#556', textDecoration: 'underline'}}
             >
-              Open localhost preview
+              Open React Email preview
             </a>
           </div>
         </Flex>
@@ -383,25 +394,31 @@ export default function EmailPreviewPane({document}: EmailPreviewPaneProps) {
             </div>
           </div>
 
-          <div
-            style={{
-              marginTop: 16,
-              padding: 14,
-              borderRadius: 16,
-              borderLeft: `10px solid ${preview.theme.noticeBorder}`,
-              background: preview.theme.noticeBg,
-              color: preview.theme.noticeFg,
-              fontSize: 14,
-              lineHeight: 1.75,
-              whiteSpace: 'pre-line',
-            }}
-          >
-            {rendered.notice}
-          </div>
+          {hasNotice ? (
+            <div
+              style={{
+                marginTop: 16,
+                padding: 14,
+                borderRadius: 16,
+                borderLeft: `10px solid ${preview.theme.noticeBorder}`,
+                background: preview.theme.noticeBg,
+                color: preview.theme.noticeFg,
+                fontSize: 14,
+                lineHeight: 1.75,
+                whiteSpace: 'pre-line',
+              }}
+            >
+              {rendered.notice}
+            </div>
+          ) : null}
 
-          <div style={{margin: '18px 0 0', fontSize: 14, lineHeight: 1.7, whiteSpace: 'pre-line'}}>
-            {rendered.footer}
-          </div>
+          {hasFooter ? (
+            <div
+              style={{margin: '18px 0 0', fontSize: 14, lineHeight: 1.7, whiteSpace: 'pre-line'}}
+            >
+              {rendered.footer}
+            </div>
+          ) : null}
           <div
             style={{
               textAlign: 'center',

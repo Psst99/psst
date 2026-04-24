@@ -6,24 +6,16 @@ import {createEmailTheme} from './theme'
 const themeSettingsQuery =
   'coalesce(*[_id == "drafts.themeSettings"][0], *[_id == "themeSettings"][0]){sectionColors}'
 
-let themeOverridesPromise: Promise<ReturnType<typeof buildThemeOverrides>> | null = null
-
 const fetchThemeOverrides = async () => {
-  if (!themeOverridesPromise) {
-    themeOverridesPromise = (async () => {
-      if (!emailSanityClient) {
-        return buildThemeOverrides(null)
-      }
-
-      const settings = await emailSanityClient
-        .fetch<{sectionColors?: ThemeSectionColors} | null>(themeSettingsQuery)
-        .catch(() => null)
-
-      return buildThemeOverrides(settings?.sectionColors ?? null)
-    })()
+  if (!emailSanityClient) {
+    return buildThemeOverrides(null)
   }
 
-  return themeOverridesPromise
+  const settings = await emailSanityClient
+    .fetch<{sectionColors?: ThemeSectionColors} | null>(themeSettingsQuery)
+    .catch(() => null)
+
+  return buildThemeOverrides(settings?.sectionColors ?? null)
 }
 
 export async function getResolvedEmailTheme(key: EmailTemplateKey) {

@@ -394,6 +394,7 @@ async function handleWorkshopRegistration(id: string, baseUrl: string): Promise<
       slug?: {current?: string}
       dates?: string[]
       location?: string
+      url?: string
       tags?: {title?: string}[]
     }
   } | null>(
@@ -409,6 +410,7 @@ async function handleWorkshopRegistration(id: string, baseUrl: string): Promise<
         slug,
         dates,
         location,
+        url,
         tags[]->{title}
       }
     }`,
@@ -440,6 +442,7 @@ async function handleWorkshopRegistration(id: string, baseUrl: string): Promise<
       card: workshopEmailCard({
         title: doc.workshop.title,
         location: doc.workshop.location,
+        url: doc.workshop.url,
         dates: doc.workshop.dates,
         selectedDates: doc.selectedDates,
         tags: doc.workshop.tags,

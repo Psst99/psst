@@ -108,6 +108,7 @@ const PREVIEW_DEFINITIONS: PreviewRecord = {
       description:
         'A practical workshop for shared technical confidence, collective care and hands-on sound system setup.',
       location: 'PSST Studio',
+      url: 'https://psst.space/workshops/register',
       dates: ['2026-05-12', '2026-05-13'],
       selectedDates: ['2026-05-12', '2026-05-13'],
       tags: [{title: 'sound'}, {title: 'workshop'}],
@@ -189,8 +190,18 @@ function valueForPath(variables: EmailPreviewVariables, path: string) {
   return String(value)
 }
 
-export function interpolatePreviewText(value: string, variables: EmailPreviewVariables) {
-  return value.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, key: string) => valueForPath(variables, key))
+export function interpolatePreviewText(
+  value: string | null | undefined,
+  variables: EmailPreviewVariables,
+) {
+  const normalizedValue = typeof value === 'string' ? value : ''
+
+  if (!normalizedValue) return ''
+
+  return normalizedValue.replace(
+    /\{\{\s*([\w.]+)\s*\}\}/g,
+    (_, key: string) => valueForPath(variables, key),
+  )
 }
 
 export function buildEmailContentFromDefaults(
@@ -199,15 +210,26 @@ export function buildEmailContentFromDefaults(
   overrides?: {from?: string; replyTo?: string},
 ): EmailRenderContent {
   const message = DEFAULT_EMAIL_MESSAGES[key]
+  const isCardOnlyApproval =
+    key === 'databaseApproved' || key === 'resourceApproved' || key === 'workshopApproved'
+  const isSubmissionConfirmation =
+    key === 'databaseReceived' || key === 'resourceReceived' || key === 'workshopReceived'
+  const heading = isCardOnlyApproval ? '' : interpolatePreviewText(message.heading, variables)
+  const intro = isCardOnlyApproval ? '' : interpolatePreviewText(message.intro, variables)
+  const notice = isCardOnlyApproval ? '' : interpolatePreviewText(message.notice, variables)
+  const footer =
+    isCardOnlyApproval || isSubmissionConfirmation
+      ? ''
+      : interpolatePreviewText(message.footer, variables)
 
   return {
     enabled: message.enabled,
     subject: interpolatePreviewText(message.subject, variables),
     previewText: interpolatePreviewText(message.previewText, variables),
-    heading: interpolatePreviewText(message.heading, variables),
-    intro: interpolatePreviewText(message.intro, variables),
-    notice: interpolatePreviewText(message.notice, variables),
-    footer: interpolatePreviewText(message.footer, variables),
+    heading,
+    intro,
+    notice,
+    footer,
     disclaimer: interpolatePreviewText(message.disclaimer, variables),
     from: overrides?.from || 'PSST <info@psst.space>',
     replyTo: overrides?.replyTo || 'info@psst.space',
@@ -244,4 +266,9 @@ export function getPreviewEmailDataWithOverrides(
 
 export function getPreviewRouteId(key: EmailTemplateKey) {
   return getPreviewDefinition(key).routeId
+}
+
+export function getPreviewTemplateKeyByRouteId(routeId: string): EmailTemplateKey | null {
+  const match = EMAIL_TEMPLATE_KEYS.find((key) => PREVIEW_DEFINITIONS[key].routeId === routeId)
+  return match ?? null
 }

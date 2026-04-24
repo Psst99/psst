@@ -31,7 +31,7 @@ function GlyphBulletIcon() {
   return (
     <svg
       viewBox="0 0 177 176"
-      className="h-[0.68em] w-[0.68em]"
+      className="h-[0.58em] w-[0.58em] mt-[0.08em]"
       fill="currentColor"
       aria-hidden="true"
     >
@@ -143,7 +143,9 @@ const getHighlightedBlockComponents = (): PortableTextComponents => ({
       <p className="last:mb-0 text-base min-[69.375rem]:text-2xl leading-snug">{children}</p>
     ),
     h2: ({children}) => (
-      <h2 className="text-3xl min-[69.375rem]:text-3xl mb-6 text-center tracking-tight">{children}</h2>
+      <h2 className="text-3xl min-[69.375rem]:text-3xl mb-6 text-center tracking-tight">
+        {children}
+      </h2>
     ),
   },
   marks: {
@@ -157,12 +159,12 @@ const getHighlightedBlockComponents = (): PortableTextComponents => ({
 
       if (isInternal) {
         return (
-            <Link
-              href={href}
-              className={LINK_PILL_CLASS}
-              target={openInNewTab ? '_blank' : undefined}
-              rel={openInNewTab ? 'noopener noreferrer' : undefined}
-            >
+          <Link
+            href={href}
+            className={LINK_PILL_CLASS}
+            target={openInNewTab ? '_blank' : undefined}
+            rel={openInNewTab ? 'noopener noreferrer' : undefined}
+          >
             {children}
           </Link>
         )
@@ -265,12 +267,12 @@ const getComponents = (
 
       if (isInternal) {
         return (
-            <Link
-              href={href}
-              className={LINK_PILL_CLASS}
-              target={openInNewTab ? '_blank' : undefined}
-              rel={openInNewTab ? 'noopener noreferrer' : undefined}
-            >
+          <Link
+            href={href}
+            className={LINK_PILL_CLASS}
+            target={openInNewTab ? '_blank' : undefined}
+            rel={openInNewTab ? 'noopener noreferrer' : undefined}
+          >
             {children}
           </Link>
         )
@@ -326,10 +328,7 @@ const getComponents = (
             {showTab && heading?.text ? (
               <div className={tabPosClass}>
                 <div
-                  className={[
-                    'highlighted-heading-tab',
-                    'uppercase tracking-tight',
-                  ].join(' ')}
+                  className={['highlighted-heading-tab', 'uppercase tracking-tight'].join(' ')}
                   style={
                     {
                       '--highlight-tab-fill': bgColor,

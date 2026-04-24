@@ -23,7 +23,15 @@ import {resource} from './documents/resource'
 import archiveMedia from './documents/archiveMedia'
 import {archiveTag} from './documents/archiveTag'
 import {highlightedBox} from './objects/highlightedBox'
-import {emailMessage} from './objects/emailMessage'
+import {
+  databaseApprovedEmailMessage,
+  databaseReceivedEmailMessage,
+  emailMessage,
+  resourceApprovedEmailMessage,
+  resourceReceivedEmailMessage,
+  workshopApprovedEmailMessage,
+  workshopReceivedEmailMessage,
+} from './objects/emailMessage'
 import {pssoundMembership} from './documents/pssoundMembership'
 import {eventTag} from './documents/eventTag'
 import {membershipPage} from './singletons/membershipPage'
@@ -79,5 +87,11 @@ export const schemaTypes = [
   link,
   highlightedBox,
   emailMessage,
+  databaseReceivedEmailMessage,
+  databaseApprovedEmailMessage,
+  resourceReceivedEmailMessage,
+  resourceApprovedEmailMessage,
+  workshopReceivedEmailMessage,
+  workshopApprovedEmailMessage,
   pssoundMembership,
 ]

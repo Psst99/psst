@@ -36,15 +36,68 @@ function valueForPath(variables: EmailVariables, path: string) {
   return String(value)
 }
 
-export function interpolateEmailText(value: string, variables: EmailVariables) {
-  return value.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, key: string) => valueForPath(variables, key))
+function normalizeInterpolatedText(value?: string | null) {
+  return typeof value === 'string' ? value : ''
+}
+
+export function interpolateEmailText(value: string | null | undefined, variables: EmailVariables) {
+  const normalizedValue = normalizeInterpolatedText(value)
+
+  if (!normalizedValue) return ''
+
+  return normalizedValue.replace(
+    /\{\{\s*([\w.]+)\s*\}\}/g,
+    (_, key: string) => valueForPath(variables, key),
+  )
+}
+
+function resolveRequiredField(
+  remote: Partial<EmailMessage> | null | undefined,
+  key: keyof Pick<
+    EmailMessage,
+    'subject' | 'previewText' | 'heading' | 'intro' | 'disclaimer'
+  >,
+  fallback: string,
+) {
+  const value = remote?.[key]
+  return typeof value === 'string' ? value : fallback
+}
+
+function resolveOptionalField(
+  remote: Partial<EmailMessage> | null | undefined,
+  key: keyof Pick<EmailMessage, 'notice' | 'footer'>,
+  fallback: string,
+) {
+  if (!remote || !Object.prototype.hasOwnProperty.call(remote, key)) {
+    return fallback
+  }
+
+  const value = remote[key]
+  return typeof value === 'string' ? value : ''
 }
 
 function mergeMessage(key: EmailTemplateKey, remote?: Partial<EmailMessage> | null): EmailMessage {
+  const defaults = DEFAULT_EMAIL_MESSAGES[key]
+  const isCardOnlyApproval =
+    key === 'databaseApproved' || key === 'resourceApproved' || key === 'workshopApproved'
+  const isSubmissionConfirmation =
+    key === 'databaseReceived' || key === 'resourceReceived' || key === 'workshopReceived'
+  const forceBlankNotice = isCardOnlyApproval
+  const forceBlankFooter = isCardOnlyApproval || isSubmissionConfirmation
+  const forceBlankHeading = isCardOnlyApproval
+  const forceBlankIntro = isCardOnlyApproval
+
   return {
-    ...DEFAULT_EMAIL_MESSAGES[key],
+    ...defaults,
     ...(remote ?? {}),
-    enabled: remote?.enabled ?? DEFAULT_EMAIL_MESSAGES[key].enabled,
+    enabled: remote?.enabled ?? defaults.enabled,
+    subject: resolveRequiredField(remote, 'subject', defaults.subject),
+    previewText: resolveRequiredField(remote, 'previewText', defaults.previewText),
+    heading: forceBlankHeading ? '' : resolveRequiredField(remote, 'heading', defaults.heading),
+    intro: forceBlankIntro ? '' : resolveRequiredField(remote, 'intro', defaults.intro),
+    notice: forceBlankNotice ? '' : resolveOptionalField(remote, 'notice', defaults.notice),
+    footer: forceBlankFooter ? '' : resolveOptionalField(remote, 'footer', defaults.footer),
+    disclaimer: resolveRequiredField(remote, 'disclaimer', defaults.disclaimer),
   }
 }
 

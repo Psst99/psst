@@ -143,8 +143,100 @@ const KV = ({label, value, theme}: {label: string; value: string; theme: EmailTh
   </div>
 )
 
+const WorkshopMetaRow = ({
+  label,
+  value,
+  theme,
+}: {
+  label: string
+  value: string
+  theme: EmailTheme
+}) => (
+  <Text style={{...styles.workshopMetaRow, color: theme.panelFg}}>
+    <span style={styles.workshopMetaLabel}>{label}: </span>
+    {lines(value)}
+  </Text>
+)
+
+const WorkshopCardPreview = ({card, theme}: {card: EmailCard; theme: EmailTheme}) => (
+  <div>
+    <Heading as="h2" style={{...styles.workshopTitle, color: theme.panelFg}}>
+      {card.title}
+    </Heading>
+
+    {card.dates && card.dates.length > 0 ? (
+      <ChipRow style={{marginTop: 8, gap: 8}}>
+        {card.dates.map((date) => (
+          <Chip
+            key={date}
+            style={{
+              backgroundColor: theme.panelFg,
+              color: theme.panelBg,
+              borderRadius: 0,
+              padding: '2px 8px',
+              fontSize: 14,
+              lineHeight: 1.2,
+            }}
+          >
+            {date}
+          </Chip>
+        ))}
+      </ChipRow>
+    ) : null}
+
+    {card.meta && card.meta.length > 0 ? (
+      <div style={{marginTop: 18}}>
+        {card.meta.map((item) => (
+          <WorkshopMetaRow
+            key={`${item.label}-${item.value}`}
+            label={item.label}
+            value={item.value}
+            theme={theme}
+          />
+        ))}
+      </div>
+    ) : null}
+
+    {card.links && card.links.length > 0 ? (
+      <ChipRow style={{marginTop: 6, gap: 8}}>
+        {card.links.map((link) => (
+          <LinkItem key={link.url} label={link.label} url={link.url} theme={theme} />
+        ))}
+      </ChipRow>
+    ) : null}
+
+    {card.description ? (
+      <Text style={{...styles.workshopDescription, color: theme.panelFg}}>
+        {lines(card.description)}
+      </Text>
+    ) : null}
+
+    {card.tags && card.tags.length > 0 ? (
+      <ChipRow style={{marginTop: 24, gap: 0}}>
+        {card.tags.map((tag) => (
+          <Chip
+            key={tag.title}
+            style={{
+              backgroundColor: tag.bg,
+              color: tag.fg,
+              border: `2px solid ${tag.bd}`,
+              borderRadius: 0,
+              textTransform: 'lowercase',
+            }}
+          >
+            {tag.title}
+          </Chip>
+        ))}
+      </ChipRow>
+    ) : null}
+  </div>
+)
+
 const CardPreview = ({card, theme}: {card: EmailCard; theme: EmailTheme}) => (
-  <div style={{marginTop: 22}}>
+  card.kind === 'workshop' ? (
+    <WorkshopCardPreview card={card} theme={theme} />
+  ) : (
+  <div>
     <table
       role="presentation"
       width="100%"
@@ -206,7 +298,7 @@ const CardPreview = ({card, theme}: {card: EmailCard; theme: EmailTheme}) => (
     )}
 
     {card.tags && card.tags.length > 0 && (
-      <ChipRow style={{marginTop: 20}}>
+      <ChipRow style={{marginTop: 20, gap: 0}}>
         {card.tags.map((tag) => (
           <Chip
             key={tag.title}
@@ -214,7 +306,7 @@ const CardPreview = ({card, theme}: {card: EmailCard; theme: EmailTheme}) => (
               backgroundColor: tag.bg,
               color: tag.fg,
               border: `2px solid ${tag.bd}`,
-              borderRadius: 999,
+              borderRadius: 0,
               textTransform: 'lowercase',
             }}
           >
@@ -232,60 +324,72 @@ const CardPreview = ({card, theme}: {card: EmailCard; theme: EmailTheme}) => (
       </ChipRow>
     )}
   </div>
+  )
 )
 
 export const PsstFormEmail = ({
   content = defaultContent,
   card,
   theme = defaultTheme,
-}: PsstFormEmailProps) => (
-  <Html>
-    <Head />
-    <Preview>{content.previewText}</Preview>
+}: PsstFormEmailProps) => {
+  const hasNotice = content.notice.trim().length > 0
+  const hasFooter = content.footer.trim().length > 0
 
-    <Body style={{...styles.main, backgroundColor: theme.shellBg, color: theme.shellFg}}>
-      <Container style={styles.container}>
-        <Section
-          style={{
-            ...styles.panel,
-            backgroundColor: theme.panelBg,
-            boxShadow: theme.shadow,
-          }}
-        >
-          <Section style={styles.modalBody}>
-            {card ? (
-              <CardPreview card={card} theme={theme} />
-            ) : (
-              [
-                <Heading key="heading" as="h2" style={{...styles.modalTitle, color: theme.panelFg}}>
-                  {content.heading}
-                </Heading>,
-                <Text key="intro" style={{...styles.v, color: theme.panelFg}}>
-                  {lines(content.intro)}
-                </Text>,
-              ]
-            )}
+  return (
+    <Html>
+      <Head />
+      <Preview>{content.previewText}</Preview>
+
+      <Body style={{...styles.main, backgroundColor: theme.shellBg, color: theme.shellFg}}>
+        <Container style={styles.container}>
+          <Section
+            style={{
+              ...styles.panel,
+              backgroundColor: theme.panelBg,
+              boxShadow: theme.shadow,
+            }}
+          >
+            <Section style={styles.modalBody}>
+              {card ? (
+                <CardPreview card={card} theme={theme} />
+              ) : (
+                [
+                  <Heading key="heading" as="h2" style={{...styles.modalTitle, color: theme.panelFg}}>
+                    {content.heading}
+                  </Heading>,
+                  <Text key="intro" style={{...styles.v, color: theme.panelFg}}>
+                    {lines(content.intro)}
+                  </Text>,
+                ]
+              )}
+            </Section>
           </Section>
-        </Section>
 
-        <Section
-          style={{
-            ...styles.notice,
-            backgroundColor: theme.noticeBg,
-            borderLeft: `10px solid ${theme.noticeBorder}`,
-          }}
-        >
-          <Text style={{...styles.noticeText, color: theme.noticeFg}}>{lines(content.notice)}</Text>
-        </Section>
+          {hasNotice ? (
+            <Section
+              style={{
+                ...styles.notice,
+                backgroundColor: theme.noticeBg,
+                borderLeft: `10px solid ${theme.noticeBorder}`,
+              }}
+            >
+              <Text style={{...styles.noticeText, color: theme.noticeFg}}>
+                {lines(content.notice)}
+              </Text>
+            </Section>
+          ) : null}
 
-        <Text style={{...styles.footer, color: theme.shellFg}}>{lines(content.footer)}</Text>
-        <Text style={{...styles.disclaimer, color: theme.disclaimer}}>
-          {lines(content.disclaimer)}
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+          {hasFooter ? (
+            <Text style={{...styles.footer, color: theme.shellFg}}>{lines(content.footer)}</Text>
+          ) : null}
+          <Text style={{...styles.disclaimer, color: theme.disclaimer}}>
+            {lines(content.disclaimer)}
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export default function PreviewEmail() {
   return <PsstFormEmail content={defaultContent} card={defaultCard} theme={defaultTheme} />
@@ -322,6 +426,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 500,
     letterSpacing: -0.6,
   },
+  workshopTitle: {
+    margin: 0,
+    fontSize: 30,
+    fontWeight: 500,
+    letterSpacing: -0.6,
+    lineHeight: 1.1,
+  },
   cardImage: {
     marginTop: 20,
     width: '100%',
@@ -341,6 +452,19 @@ const styles: Record<string, React.CSSProperties> = {
     margin: '20px 0 0',
     fontSize: 15,
     lineHeight: 1.5,
+  },
+  workshopMetaRow: {
+    margin: '0 0 8px',
+    fontSize: 18,
+    lineHeight: 1.35,
+  },
+  workshopMetaLabel: {
+    fontWeight: 600,
+  },
+  workshopDescription: {
+    margin: '24px 0 0',
+    fontSize: 18,
+    lineHeight: 1.35,
   },
   link: {
     textDecoration: 'underline',

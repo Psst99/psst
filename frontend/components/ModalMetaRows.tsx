@@ -50,15 +50,14 @@ export default function ModalMetaRows({
       className={`mb-6 space-y-2 text-base leading-snug min-[69.375rem]:text-xl ${className}`.trim()}
     >
       {cleanLocation && (
-        <p className="flex items-start gap-2">
-          <LuMapPin className="mt-[0.16em] h-[1em] w-[1em] shrink-0" aria-hidden="true" />
+        <p className="flex items-center gap-2">
+          <LuMapPin className="h-[0.9em] w-[0.9em] shrink-0" aria-hidden="true" />
           <span>{cleanLocation}</span>
         </p>
       )}
 
       {cleanUrl && (
         <p className="flex items-start gap-2">
-          <LuLink className="mt-[0.16em] h-[1em] w-[1em] shrink-0" aria-hidden="true" />
           {cleanUrl.startsWith('/') ? (
             <Link href={cleanUrl} className={linkClassName} title={cleanUrl}>
               {linkText}

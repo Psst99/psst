@@ -78,9 +78,9 @@ export const EMAIL_MESSAGE_DEFAULTS: Record<EmailTemplateKey, EmailMessageDefaul
     heading: 'Your database card is live',
     intro:
       'The team reviewed and approved {{artistName}}. The card is now visible in the PSST database.',
-    notice: 'The card preview below matches the public entry. Reply if something needs updating.',
-    footer: 'With care,\nPSST',
-    disclaimer: 'Automated approval confirmation for {{email}}.',
+    notice: '',
+    footer: '',
+    disclaimer: 'Sent automatically for {{email}}.',
   },
   resourceReceived: {
     enabled: true,

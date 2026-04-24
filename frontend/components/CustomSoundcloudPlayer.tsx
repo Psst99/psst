@@ -26,6 +26,7 @@ type Point = {x: number; y: number}
 const DESKTOP_PLAYER_WIDTH = 360
 const DESKTOP_PLAYER_MARGIN = 16
 const DOCKED_PLAYER_SIZE = 48
+const DOCKED_PLAYER_RADIUS = 6
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n))
@@ -419,9 +420,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
         } ${
           isDetached
             ? 'rounded-md px-4 py-2 gap-3 shadow-md min-w-[200px]'
-            : dockEdge === 'right'
-              ? 'rounded-l-md w-12 h-12 shadow-md'
-              : 'rounded-r-md w-12 h-12 shadow-md'
+            : 'w-12 h-12 shadow-md'
         }`}
         style={{
           ...(isDetached
@@ -432,13 +431,12 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           bottom: pos.y,
           backgroundColor: theme.bg,
           color: theme.fg,
-          borderTopRightRadius: !isDetached && dockEdge === 'right' ? 0 : undefined,
-          borderBottomRightRadius: !isDetached && dockEdge === 'right' ? 0 : undefined,
-          borderRight: !isDetached && dockEdge === 'right' ? 'none' : undefined,
-
-          borderTopLeftRadius: !isDetached && dockEdge === 'left' ? 0 : undefined,
-          borderBottomLeftRadius: !isDetached && dockEdge === 'left' ? 0 : undefined,
-          borderLeft: !isDetached && dockEdge === 'left' ? 'none' : undefined,
+          borderRadius: isDetached
+            ? `${DOCKED_PLAYER_RADIUS}px`
+            : dockEdge === 'left'
+              ? `0 ${DOCKED_PLAYER_RADIUS}px ${DOCKED_PLAYER_RADIUS}px 0`
+              : `${DOCKED_PLAYER_RADIUS}px 0 0 ${DOCKED_PLAYER_RADIUS}px`,
+          overflow: 'hidden',
         }}
         title={isDetached ? 'Drag to move, or snap to edges' : 'Click to play and expand'}
       >

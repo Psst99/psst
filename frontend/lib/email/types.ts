@@ -19,10 +19,12 @@ export type EmailTag = {
 }
 
 export type EmailCard = {
+  kind?: 'default' | 'workshop'
   title: string
   description?: string
   imageUrl?: string
   categories?: string[]
+  dates?: string[]
   tags?: EmailTag[]
   actionUrl?: string
   links?: Array<{label: string; url: string}>
