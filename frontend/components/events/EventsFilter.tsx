@@ -9,28 +9,41 @@ export default function EventsFilter({
   activeFilters,
   onFilterToggle,
 }: EventsFilterProps) {
+  const buttonClassName = (filter: string) =>
+    [
+      'event-filter-button px-2 py-0 rounded-sm border transition-colors cursor-pointer',
+      activeFilters.includes(filter) ? 'is-active' : '',
+    ].join(' ')
+
   return (
-    <div className='flex gap-1 mb-4 justify-center mt-16'>
+    <div className="flex gap-1 mb-4 justify-center mt-16">
       <button
         onClick={() => onFilterToggle('upcoming')}
-        className={`px-2 py-0 rounded-sm border border-[#4E4E4E] transition-colors ${
-          activeFilters.includes('upcoming')
-            ? 'bg-[#4E4E4E] text-white'
-            : 'bg-white text-[#4E4E4E] hover:bg-[#4E4E4E] hover:text-white'
-        }`}
+        className={buttonClassName('upcoming')}
       >
         Upcoming
       </button>
       <button
         onClick={() => onFilterToggle('past')}
-        className={`px-2 py-0 rounded-sm border border-[#4E4E4E] transition-colors ${
-          activeFilters.includes('past')
-            ? 'bg-[#4E4E4E] text-white'
-            : 'bg-white text-[#4E4E4E] hover:bg-[#4E4E4E] hover:text-white'
-        }`}
+        className={buttonClassName('past')}
       >
         Past
       </button>
+
+      <style jsx>{`
+        .event-filter-button {
+          background: transparent;
+          border-color: var(--panel-fg);
+          color: var(--panel-fg);
+        }
+
+        .event-filter-button:hover,
+        .event-filter-button.is-active {
+          background: var(--panel-fg);
+          border-color: var(--panel-fg);
+          color: var(--panel-bg);
+        }
+      `}</style>
     </div>
   )
 }

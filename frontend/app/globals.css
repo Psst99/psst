@@ -533,19 +533,19 @@
   background: transparent !important;
 }
 
-/* Keep bottom nav fixed above root transition — left tabs stay visible (like vt-open) */
+/* Keep the old bottom nav under the sliding page so remaining tabs stay visible
+   until the page physically covers them. */
 :root.vt-section-switch::view-transition-group(section-page-nav-fixed) {
-  z-index: 2100 !important;
+  z-index: 1 !important;
 }
 
 :root.vt-section-switch::view-transition-new(section-page-nav-fixed) {
-  animation: none !important;
-  mix-blend-mode: normal;
+  opacity: 0 !important;
 }
 
-/* Hide old section's bottom-nav snapshot — new section's nav takes over */
 :root.vt-section-switch::view-transition-old(section-page-nav-fixed) {
-  opacity: 0 !important;
+  animation: none !important;
+  mix-blend-mode: normal;
 }
 
 /* Right-side + active tabs start hidden on the incoming page.
@@ -561,9 +561,52 @@
   transition: none !important;
 }
 
+/* The tab for the section we just left should also re-enter from below,
+   even when it becomes a left-side tab on the incoming page. */
+:root[data-returning-section='psst'].vt-section-switch
+  .section-page-nav-fixed
+  .intercalaire-tab[data-section-slug='psst'],
+:root[data-returning-section='database'].vt-section-switch
+  .section-page-nav-fixed
+  .intercalaire-tab[data-section-slug='database'],
+:root[data-returning-section='resources'].vt-section-switch
+  .section-page-nav-fixed
+  .intercalaire-tab[data-section-slug='resources'],
+:root[data-returning-section='pssound-system'].vt-section-switch
+  .section-page-nav-fixed
+  .intercalaire-tab[data-section-slug='pssound-system'],
+:root[data-returning-section='workshops'].vt-section-switch
+  .section-page-nav-fixed
+  .intercalaire-tab[data-section-slug='workshops'],
+:root[data-returning-section='events'].vt-section-switch
+  .section-page-nav-fixed
+  .intercalaire-tab[data-section-slug='events'],
+:root[data-returning-section='archive'].vt-section-switch
+  .section-page-nav-fixed
+  .intercalaire-tab[data-section-slug='archive'] {
+  transform: translateY(100%) !important;
+  transition: none !important;
+}
+
 /* Bottom-stack tabs slide up after the active divider lift completes. */
 .section-page-nav-fixed .intercalaire-tab {
-  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0ms;
+}
+
+:root.section-nav-reforming .section-page-nav-fixed .intercalaire-tab {
+  transition-duration: 500ms;
+}
+
+:root.section-nav-reforming .section-page-nav-fixed .intercalaire-tab[data-tab-side='active'] {
+  transition-delay: 0ms;
+}
+
+/* Right-side tabs stagger back up based on distance from the new active divider. */
+:root.section-nav-reforming .section-page-nav-fixed .intercalaire-tab[data-tab-side='right'] {
+  transition-delay: calc(
+    (var(--intercalaire-index, 0) - var(--active-section-index, 0)) * 100ms
+  );
 }
 
 /* During vt-close, keep the container stationary but push individual nav tabs down on the HOME page */
@@ -667,6 +710,7 @@
   --intercalaire-notch: 14px;
   --intercalaire-radius: var(--intercalaire-notch);
   --intercalaire-cover-opacity: 0;
+  --intercalaire-extension-overlap: 0px;
   --intercalaire-stagger-delay: calc(var(--intercalaire-index, 0) * 100ms);
   position: relative;
   isolation: isolate;
@@ -698,7 +742,7 @@
 .intercalaire-tab-extension {
   position: absolute;
   left: 0;
-  top: calc(100% - 1px); /* overlap 1px to eliminate sub-pixel gap */
+  top: calc(100% - var(--intercalaire-extension-overlap));
   /* Make the background extension stretch 5x screen width (simulating an infinite full-width sheet that's anchored to the tab left/right) so that no matter the tab width, it covers the remaining screen width fully on both sides */
   width: 500vw;
   /* Push it physically to the left so it definitely spans the full screen to the right */
@@ -765,11 +809,13 @@
 .intercalaire-tab--lifted {
   transform: translateY(-8px);
   --intercalaire-cover-opacity: 1;
+  --intercalaire-extension-overlap: 1px;
 }
 
 [data-committing] {
   transform: translateY(calc(-1 * var(--intercalaire-commit-lift, var(--home-nav-h))));
   --intercalaire-cover-opacity: 1;
+  --intercalaire-extension-overlap: 1px;
 }
 
 /* Allow natural z-index to manage visibility, but let's ensure the committing tab doesn't hide behind anything awkwardly while animating its body up.
@@ -779,6 +825,42 @@
 :root.intercalaire-committing .section-nav-fixed .intercalaire-row .intercalaire-tab {
   pointer-events: none;
   transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-intercalaire-transition-mode='section-switch'].intercalaire-committing
+  .section-nav-fixed
+  .intercalaire-row
+  .intercalaire-tab {
+  transition-duration: 500ms;
+}
+
+:root[data-intercalaire-transition-mode='section-switch'].intercalaire-committing
+  .section-nav-fixed
+  .intercalaire-row
+  [data-committing].intercalaire-tab {
+  transform: translateY(100%);
+  --intercalaire-cover-opacity: 0;
+  transition-delay: 0ms;
+}
+
+:root[data-intercalaire-transition-mode='section-switch'].intercalaire-committing
+  .section-nav-fixed
+  .intercalaire-row
+  [data-committing]
+  .intercalaire-tab-extension {
+  visibility: hidden;
+}
+
+:root[data-intercalaire-transition-mode='section-switch'].intercalaire-committing
+  .section-nav-fixed
+  .intercalaire-row
+  div:has([data-committing])
+  ~ div
+  .intercalaire-tab {
+  transform: translateY(100%);
+  transition-delay: calc(
+    (var(--intercalaire-index, 0) - var(--active-section-index, 0)) * 100ms
+  );
 }
 
 :root.intercalaire-committing

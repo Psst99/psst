@@ -8,6 +8,13 @@ import type {CSSProperties, MouseEvent, ReactNode} from 'react'
 
 const VT_DURATION_MS = 1000
 const FALLBACK_MS = 6000
+const INTERCALAIRE_SLIDE_DURATION_MS = 500
+const INTERCALAIRE_STAGGER_STEP_MS = 100
+
+const getSectionSwitchCommitMs = (activeIdx: number, totalTabs: number) => {
+  const maxRightDistance = activeIdx === -1 ? 0 : Math.max(0, totalTabs - activeIdx - 1)
+  return INTERCALAIRE_SLIDE_DURATION_MS + maxRightDistance * INTERCALAIRE_STAGGER_STEP_MS
+}
 
 type Props = {
   href: string
@@ -41,6 +48,15 @@ export default function CustomLink({
   const router = useTransitionRouter()
   const pathname = usePathname()
   const commitElRef = useRef<HTMLAnchorElement | null>(null)
+  const sectionNavReformTimeoutRef = useRef<number | null>(null)
+
+  const clearSectionNavReform = () => {
+    if (sectionNavReformTimeoutRef.current != null) {
+      window.clearTimeout(sectionNavReformTimeoutRef.current)
+      sectionNavReformTimeoutRef.current = null
+    }
+    document.documentElement.classList.remove('section-nav-reforming')
+  }
 
   const getCurrentLiftPx = (el: HTMLAnchorElement) => {
     const computed = window.getComputedStyle(el)
@@ -56,11 +72,13 @@ export default function CustomLink({
   const armIntercalaireCommit = (
     el: HTMLAnchorElement,
     {
+      dropLift = false,
       isolateGhost = false,
       transitionName,
       targetSection,
       transitionMode,
     }: {
+      dropLift?: boolean
       isolateGhost?: boolean
       transitionName?: string
       targetSection?: string
@@ -68,10 +86,7 @@ export default function CustomLink({
     } = {},
   ) => {
     const currentLiftPx = getCurrentLiftPx(el)
-
-    // We just keep the current hover lift, so the active tab stays perfectly still
-    // while the right-side tabs slide down. Then the VT smoothly slides it up.
-    const commitLiftPx = currentLiftPx
+    const commitLiftPx = dropLift ? 0 : currentLiftPx
     const rectTopPx = el.getBoundingClientRect().top
 
     // Clear any stale intercalaire-active-tab view-transition-names to prevent
@@ -115,6 +130,7 @@ export default function CustomLink({
     document.documentElement.style.removeProperty('--intercalaire-rect-top')
     delete document.documentElement.dataset.intercalaireTransitionSection
     delete document.documentElement.dataset.intercalaireTransitionMode
+    delete document.documentElement.dataset.returningSection
     if (!commitElRef.current) return
     delete commitElRef.current.dataset.committing
     commitElRef.current.style.removeProperty('--intercalaire-commit-lift')
@@ -150,6 +166,7 @@ export default function CustomLink({
   const navIdRef = useRef(0)
   const lastAnimRef = useRef<Animation | null>(null)
   const clearTransitionClasses = () => {
+    clearSectionNavReform()
     document.documentElement.classList.remove(
       'vt-close',
       'vt-close-prep',
@@ -188,6 +205,35 @@ export default function CustomLink({
         pseudoElement: '::view-transition-old(root)',
       },
     )
+    return lastAnimRef.current
+  }
+
+  const sectionSwitchAnimation = () => {
+    lastAnimRef.current?.cancel()
+
+    document.documentElement.animate(
+      [{transform: 'translateY(0)'}, {transform: 'translateY(100%)'}],
+      {
+        duration: VT_DURATION_MS,
+        easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
+        fill: 'both',
+        pseudoElement: '::view-transition-old(root)',
+      },
+    )
+
+    lastAnimRef.current = document.documentElement.animate(
+      [
+        {transform: 'translateY(var(--intercalaire-rect-top, 100vh))'},
+        {transform: 'translateY(0)'},
+      ],
+      {
+        duration: VT_DURATION_MS,
+        easing: 'cubic-bezier(0.76, 0, 0.24, 1)',
+        fill: 'both',
+        pseudoElement: '::view-transition-new(root)',
+      },
+    )
+
     return lastAnimRef.current
   }
 
@@ -361,8 +407,56 @@ export default function CustomLink({
       e.preventDefault()
       clearTransitionClasses()
 
-      // Simple cross-fade view transition using next-view-transitions default behavior
-      safePush(href)
+      document.documentElement.classList.add('intercalaire-entered')
+
+      const sectionOrder = [
+        'psst',
+        'database',
+        'resources',
+        'pssound-system',
+        'workshops',
+        'events',
+        'archive',
+      ]
+      const currentSection = pathname.split('/').filter(Boolean)[0] || ''
+      const targetSection = href.split('/').filter(Boolean)[0] || ''
+      const activeIdx = sectionOrder.indexOf(targetSection)
+      const sectionSwitchCommitMs = getSectionSwitchCommitMs(activeIdx, sectionOrder.length)
+      if (activeIdx !== -1) {
+        document.documentElement.style.setProperty('--active-section-index', String(activeIdx))
+      }
+      if (currentSection) {
+        document.documentElement.dataset.returningSection = currentSection
+      }
+
+      armIntercalaireCommit(e.currentTarget, {
+        dropLift: true,
+        targetSection,
+        transitionMode: 'section-switch',
+      })
+
+      setTimeout(() => {
+        safePush(href, (navId) => {
+          document.documentElement.classList.add('vt-section-switch')
+
+          const anim = sectionSwitchAnimation()
+          const cleanup = () => {
+            if (navIdRef.current !== navId) return
+            if (document.documentElement.classList.contains('vt-section-switch')) {
+              document.documentElement.classList.remove('vt-section-switch')
+            }
+            clearSectionNavReform()
+            document.documentElement.classList.add('section-nav-reforming')
+            sectionNavReformTimeoutRef.current = window.setTimeout(() => {
+              document.documentElement.classList.remove('section-nav-reforming')
+              sectionNavReformTimeoutRef.current = null
+            }, sectionSwitchCommitMs)
+            clearIntercalaireCommit()
+          }
+
+          anim?.finished?.then(cleanup).catch(cleanup)
+        })
+      }, sectionSwitchCommitMs)
       return
     }
   }
