@@ -189,7 +189,7 @@ const getComponents = (
 ): PortableTextComponents => ({
   block: {
     normal: ({children}) => (
-      <Reveal y={12} durationMs={480}>
+      <Reveal className="cms-block cms-block--paragraph" y={12} durationMs={480}>
         {hasRenderableText(children) ? (
           <p className="panel-fg text-base leading-tight min-[69.375rem]:text-2xl w-full min-[69.375rem]:max-w-[65vw] mx-auto break-inside-avoid">
             {children}
@@ -198,21 +198,21 @@ const getComponents = (
       </Reveal>
     ),
     h2: ({children}) => (
-      <Reveal y={12} durationMs={480}>
+      <Reveal className="cms-block cms-block--heading" y={12} durationMs={480}>
         <h2 className="panel-fg text-3xl min-[69.375rem]:text-3xl mb-6 text-center tracking-tight break-after-avoid break-inside-avoid">
           {children}
         </h2>
       </Reveal>
     ),
     largeParagraph: ({children}) => (
-      <Reveal y={14} durationMs={500}>
+      <Reveal className="cms-block cms-block--large-paragraph" y={14} durationMs={500}>
         <p className="panel-fg text-2xl min-[69.375rem]:text-3xl mb-16 text-left tracking-tight leading-[1.75rem] xl:leading-[2.25rem] break-inside-avoid">
           {children}
         </p>
       </Reveal>
     ),
     largeQuestion: ({children}) => (
-      <Reveal y={14} durationMs={500}>
+      <Reveal className="cms-block cms-block--large-question" y={14} durationMs={500}>
         <p className="panel-fg text-2xl min-[69.375rem]:text-3xl text-left tracking-tight mt-16 break-inside-avoid">
           {children}
         </p>
@@ -221,7 +221,7 @@ const getComponents = (
   },
 
   list: ({children}) => (
-    <Reveal y={12} durationMs={480}>
+    <Reveal className="cms-block cms-block--list" y={12} durationMs={480}>
       <ul className="list-none p-0 my-0 -mt-2 min-[69.375rem]:-mt-3 space-y-0.5">{children}</ul>
     </Reveal>
   ),
@@ -317,7 +317,7 @@ const getComponents = (
 
       return (
         <Reveal
-          className="mt-12 first:mt-0 mb-12 min-[69.375rem]:mt-16 first:min-[69.375rem]:mt-0 min-[69.375rem]:mb-16 break-inside-avoid"
+          className="cms-block cms-block--highlighted mt-12 first:mt-0 mb-12 min-[69.375rem]:mt-16 first:min-[69.375rem]:mt-0 min-[69.375rem]:mb-16 break-inside-avoid"
           y={18}
           durationMs={560}
         >
@@ -365,7 +365,7 @@ export default function CmsContent({value, className, bulletTone = 'panel'}: Cms
 
   return (
     <div className={className} style={style}>
-      <RevealStack className="space-y-6 min-[69.375rem]:space-y-10" staggerMs={120}>
+      <RevealStack className="cms-content-stack" staggerMs={120}>
         <PortableText value={value} components={getComponents(bulletTone)} />
       </RevealStack>
     </div>

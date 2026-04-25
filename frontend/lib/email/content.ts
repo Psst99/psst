@@ -6,6 +6,7 @@ import {
   type EmailSettings,
   type EmailTemplateKey,
 } from './defaults'
+import {getEmailFieldVisibility} from './display-rules'
 import {emailSanityClient} from './sanity-client'
 import type {EmailRenderContent} from './types'
 
@@ -78,14 +79,7 @@ function resolveOptionalField(
 
 function mergeMessage(key: EmailTemplateKey, remote?: Partial<EmailMessage> | null): EmailMessage {
   const defaults = DEFAULT_EMAIL_MESSAGES[key]
-  const isCardOnlyApproval =
-    key === 'databaseApproved' || key === 'resourceApproved' || key === 'workshopApproved'
-  const isSubmissionConfirmation =
-    key === 'databaseReceived' || key === 'resourceReceived' || key === 'workshopReceived'
-  const forceBlankNotice = isCardOnlyApproval
-  const forceBlankFooter = isCardOnlyApproval || isSubmissionConfirmation
-  const forceBlankHeading = isCardOnlyApproval
-  const forceBlankIntro = isCardOnlyApproval
+  const visibility = getEmailFieldVisibility(key)
 
   return {
     ...defaults,
@@ -93,10 +87,10 @@ function mergeMessage(key: EmailTemplateKey, remote?: Partial<EmailMessage> | nu
     enabled: remote?.enabled ?? defaults.enabled,
     subject: resolveRequiredField(remote, 'subject', defaults.subject),
     previewText: resolveRequiredField(remote, 'previewText', defaults.previewText),
-    heading: forceBlankHeading ? '' : resolveRequiredField(remote, 'heading', defaults.heading),
-    intro: forceBlankIntro ? '' : resolveRequiredField(remote, 'intro', defaults.intro),
-    notice: forceBlankNotice ? '' : resolveOptionalField(remote, 'notice', defaults.notice),
-    footer: forceBlankFooter ? '' : resolveOptionalField(remote, 'footer', defaults.footer),
+    heading: visibility.hideHeading ? '' : resolveRequiredField(remote, 'heading', defaults.heading),
+    intro: visibility.hideIntro ? '' : resolveRequiredField(remote, 'intro', defaults.intro),
+    notice: visibility.hideNotice ? '' : resolveOptionalField(remote, 'notice', defaults.notice),
+    footer: visibility.hideFooter ? '' : resolveOptionalField(remote, 'footer', defaults.footer),
     disclaimer: resolveRequiredField(remote, 'disclaimer', defaults.disclaimer),
   }
 }

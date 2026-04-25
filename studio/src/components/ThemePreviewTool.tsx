@@ -17,6 +17,7 @@ const SECTION_META: Array<{key: string; label: string; navLabel: string}> = [
   {key: 'pssoundSystem', label: 'PSSound System', navLabel: 'PSSOUND'},
   {key: 'resources', label: 'Resources', navLabel: 'RESOURCES'},
   {key: 'archive', label: 'Archive', navLabel: 'ARCHIVE'},
+  {key: 'newsletter', label: 'Newsletter / Support', navLabel: 'NEWSLETTER'},
 ]
 
 const DEFAULTS: Record<string, {background: string; foreground: string}> = {
@@ -28,6 +29,7 @@ const DEFAULTS: Record<string, {background: string; foreground: string}> = {
   pssoundSystem: {background: '#81520A', foreground: '#07F25B'},
   resources: {background: '#FE93E7', foreground: '#1D53FF'},
   archive: {background: '#81520A', foreground: '#FFCC00'},
+  newsletter: {background: '#D2D2D2', foreground: '#1D53FF'},
 }
 
 const query = `coalesce(*[_id == "drafts.themeSettings"][0], *[_id == "themeSettings"][0]){sectionColors}`

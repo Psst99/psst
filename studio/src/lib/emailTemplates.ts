@@ -134,20 +134,19 @@ export const EMAIL_MESSAGE_DEFAULTS: Record<EmailTemplateKey, EmailMessageDefaul
     heading: 'We received your sound system request',
     intro:
       'Thanks {{collectiveName}}. Your request for {{eventTitle}} has been received by the team.',
-    notice: 'Event date: {{eventDate}}. Pick-up: {{pickupDate}}. Return: {{returnDate}}.',
-    footer: 'With care,\nPSST',
+    notice: '',
+    footer: '',
     disclaimer: 'Automated confirmation for {{collectiveName}}.',
   },
   pssoundRequestApproved: {
     enabled: true,
-    subject: 'Your Pssound request is confirmed: {{eventTitle}}',
-    previewText: 'Your sound system loan request has been confirmed.',
+    subject: 'Your PSST sound system request is confirmed: {{eventTitle}}',
+    previewText: 'The system is reserved for {{eventTitle}} on {{eventDate}}.',
     heading: 'Your sound system request is confirmed',
     intro:
-      'Hi {{collectiveName}}, your Pssound loan request for {{eventTitle}} has been confirmed. The selected loan period is now reserved.',
-    notice:
-      'Event date: {{eventDate}}. Pick-up: {{pickupDate}}. Return: {{returnDate}}. Reply if any detail needs to change.',
-    footer: 'With care,\nPSST',
+      'Hello {{collectiveName}},\n\nYour request for {{eventTitle}} is confirmed.\n\nWe have reserved the system for {{eventDate}}, with pick-up on {{pickupDate}} and return on {{returnDate}}.\n\nEvent location: {{eventLocation}}\nLine-up: {{lineup}}\n\nIf anything shifts on your side, reply to this email and we will look at it together.',
+    notice: '',
+    footer: '',
     disclaimer: 'Automated confirmation for {{collectiveName}}.',
   },
   pssoundMembershipReceived: {
@@ -157,8 +156,8 @@ export const EMAIL_MESSAGE_DEFAULTS: Record<EmailTemplateKey, EmailMessageDefaul
     heading: 'We received your membership request',
     intro:
       'Thanks for applying for Pssound membership as {{collectiveName}}. The team will review the request.',
-    notice: 'You will receive another email when the membership is approved.',
-    footer: 'With care,\nPSST',
+    notice: '',
+    footer: '',
     disclaimer: 'Automated confirmation for {{email}}.',
   },
   pssoundMembershipApproved: {
@@ -168,8 +167,8 @@ export const EMAIL_MESSAGE_DEFAULTS: Record<EmailTemplateKey, EmailMessageDefaul
     heading: 'Your membership is approved',
     intro:
       '{{collectiveName}} is now approved for Pssound membership. You can use the calendar request flow for future loan requests.',
-    notice: 'Membership start date: {{startDate}}.',
-    footer: 'With care,\nPSST',
+    notice: '',
+    footer: '',
     disclaimer: 'Automated approval confirmation for {{email}}.',
   },
 }

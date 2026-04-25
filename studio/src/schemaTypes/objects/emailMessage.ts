@@ -116,3 +116,31 @@ export const workshopApprovedEmailMessage = defineType({
   type: 'object',
   fields: [...baseFields, disclaimerField],
 })
+
+export const pssoundRequestReceivedEmailMessage = defineType({
+  name: 'pssoundRequestReceivedEmailMessage',
+  title: 'Pssound request received email message',
+  type: 'object',
+  fields: [...baseFields, headingField, introField, disclaimerField],
+})
+
+export const pssoundRequestApprovedEmailMessage = defineType({
+  name: 'pssoundRequestApprovedEmailMessage',
+  title: 'Pssound request approved email message',
+  type: 'object',
+  fields: [...baseFields, headingField, introField, disclaimerField],
+})
+
+export const pssoundMembershipReceivedEmailMessage = defineType({
+  name: 'pssoundMembershipReceivedEmailMessage',
+  title: 'Pssound membership received email message',
+  type: 'object',
+  fields: [...baseFields, headingField, introField, disclaimerField],
+})
+
+export const pssoundMembershipApprovedEmailMessage = defineType({
+  name: 'pssoundMembershipApprovedEmailMessage',
+  title: 'Pssound membership approved email message',
+  type: 'object',
+  fields: [...baseFields, headingField, introField, disclaimerField],
+})

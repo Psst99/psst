@@ -1,10 +1,10 @@
 import {
   artistEmailCard,
   formatDateList,
-  pssoundRequestEmailCard,
   resourceEmailCard,
   workshopEmailCard,
 } from './cards'
+import {getEmailFieldVisibility} from './display-rules'
 import {DEFAULT_EMAIL_MESSAGES, EMAIL_TEMPLATE_KEYS, type EmailTemplateKey} from './defaults'
 import {createEmailTheme} from './theme'
 import type {ThemeOverrides} from '../theme/sections'
@@ -140,20 +140,6 @@ const PREVIEW_DEFINITIONS: PreviewRecord = {
       eventLocation: 'PSST Studio',
       lineup: 'DJ Sample, Live Artist',
     },
-    card: pssoundRequestEmailCard({
-      collectiveName: 'Sample Collective',
-      eventTitle: 'Community Fundraiser',
-      eventLink: 'https://psst.space/events/community-fundraiser',
-      eventLocation: 'PSST Studio',
-      eventDescription:
-        'A community fundraiser with a shared sound system setup and a collectively managed team.',
-      eventDate: '2026-05-24',
-      pickupDate: '2026-05-23',
-      returnDate: '2026-05-25',
-      lineup: 'DJ Sample, Live Artist',
-      wagePolicy: 'Transparent fee split across the artists and support team.',
-      politicalContext: 'Feminist, fundraiser',
-    }),
   },
   pssoundMembershipReceived: {
     templateKey: 'pssoundMembershipReceived',
@@ -210,17 +196,11 @@ export function buildEmailContentFromDefaults(
   overrides?: {from?: string; replyTo?: string},
 ): EmailRenderContent {
   const message = DEFAULT_EMAIL_MESSAGES[key]
-  const isCardOnlyApproval =
-    key === 'databaseApproved' || key === 'resourceApproved' || key === 'workshopApproved'
-  const isSubmissionConfirmation =
-    key === 'databaseReceived' || key === 'resourceReceived' || key === 'workshopReceived'
-  const heading = isCardOnlyApproval ? '' : interpolatePreviewText(message.heading, variables)
-  const intro = isCardOnlyApproval ? '' : interpolatePreviewText(message.intro, variables)
-  const notice = isCardOnlyApproval ? '' : interpolatePreviewText(message.notice, variables)
-  const footer =
-    isCardOnlyApproval || isSubmissionConfirmation
-      ? ''
-      : interpolatePreviewText(message.footer, variables)
+  const visibility = getEmailFieldVisibility(key)
+  const heading = visibility.hideHeading ? '' : interpolatePreviewText(message.heading, variables)
+  const intro = visibility.hideIntro ? '' : interpolatePreviewText(message.intro, variables)
+  const notice = visibility.hideNotice ? '' : interpolatePreviewText(message.notice, variables)
+  const footer = visibility.hideFooter ? '' : interpolatePreviewText(message.footer, variables)
 
   return {
     enabled: message.enabled,

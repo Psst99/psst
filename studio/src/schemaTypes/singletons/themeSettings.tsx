@@ -10,6 +10,7 @@ const DEFAULT_SECTION_COLORS = {
   pssoundSystem: {background: '#81520A', foreground: '#07F25B'},
   resources: {background: '#FE93E7', foreground: '#1D53FF'},
   archive: {background: '#81520A', foreground: '#FFCC00'},
+  newsletter: {background: '#D2D2D2', foreground: '#1D53FF'},
 } as const
 
 const makeColorField = (name: string, title: string, value: string, description: string) =>
@@ -64,6 +65,10 @@ export const themeSettings = defineType({
       archive: {
         background: DEFAULT_SECTION_COLORS.archive.background,
         foreground: DEFAULT_SECTION_COLORS.archive.foreground,
+      },
+      newsletter: {
+        background: DEFAULT_SECTION_COLORS.newsletter.background,
+        foreground: DEFAULT_SECTION_COLORS.newsletter.foreground,
       },
     },
   },
@@ -260,6 +265,29 @@ export const themeSettings = defineType({
               'Foreground',
               DEFAULT_SECTION_COLORS.archive.foreground,
               'Hex color (e.g. #FFCC00).',
+            ),
+          ],
+        }),
+        defineField({
+          name: 'newsletter',
+          title: 'Newsletter / Support',
+          type: 'object',
+          options: {
+            collapsible: true,
+            collapsed: false,
+          },
+          fields: [
+            makeColorField(
+              'background',
+              'Background',
+              DEFAULT_SECTION_COLORS.newsletter.background,
+              'Hex color (e.g. #D2D2D2).',
+            ),
+            makeColorField(
+              'foreground',
+              'Foreground',
+              DEFAULT_SECTION_COLORS.newsletter.foreground,
+              'Hex color (e.g. #1D53FF).',
             ),
           ],
         }),

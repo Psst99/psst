@@ -1,11 +1,17 @@
 'use client'
 
 import {PortableText, type PortableTextComponents} from '@portabletext/react'
-import {useCallback, useContext, useEffect, useState, type FormEvent} from 'react'
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from 'react'
 import {usePathname, useRouter, useSearchParams} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
-import {SiMinutemailer} from 'react-icons/si'
 import {GiLetterBomb} from 'react-icons/gi'
 import {useForm} from 'react-hook-form'
 import {ThemeContext} from '@/app/ThemeProvider'
@@ -45,6 +51,8 @@ const SUPPORT_PARAM = 'support'
 const SUPPORT_TAB_PARAM = 'supportTab'
 const DONATION_STATUS_PARAM = 'donation'
 const OPEN_VALUE = 'open'
+
+type CSSVars = CSSProperties & Record<`--${string}`, string>
 
 const richTextComponents: PortableTextComponents = {
   block: {
@@ -189,9 +197,21 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [closeModal, isOpen])
 
-  const theme = getTheme('home', mode, ctx?.themeOverrides)
+  const supportTheme = getTheme('newsletter', mode, ctx?.themeOverrides)
   const successTheme = getTheme('pssound-system', mode, ctx?.themeOverrides)
   const failedTheme = getTheme('workshops', mode, ctx?.themeOverrides)
+  const modalTheme = showDonationResultScreen
+    ? {
+        bg: donationSuccess ? successTheme.bg : failedTheme.bg,
+        fg: donationSuccess ? '#111111' : failedTheme.fg,
+      }
+    : supportTheme
+  const modalVars: CSSVars = {
+    '--panel-bg': modalTheme.bg,
+    '--panel-fg': modalTheme.fg,
+    '--section-bg': modalTheme.bg,
+    '--section-fg': modalTheme.fg,
+  }
 
   const {
     register: registerNewsletter,
@@ -321,8 +341,8 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         style={{
           right: 0,
           bottom: 'clamp(88px, 12vw, 136px)',
-          backgroundColor: isOpen ? theme.fg : theme.bg,
-          color: isOpen ? theme.bg : theme.fg,
+          backgroundColor: isOpen ? supportTheme.fg : supportTheme.bg,
+          color: isOpen ? supportTheme.bg : supportTheme.fg,
         }}
         onClick={onFloatingClick}
         aria-label="Open newsletter modal"
@@ -339,7 +359,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           className={`absolute inset-0 transition-opacity duration-300 ${
             isVisible ? 'opacity-50' : 'opacity-0 pointer-events-none'
           }`}
-          style={{backgroundColor: 'var(--panel-fg)'}}
+          style={{backgroundColor: supportTheme.fg}}
           onClick={closeModal}
         />
 
@@ -347,14 +367,11 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           className={`relative panel-bg panel-fg w-full max-w-3xl rounded-3xl p-6 pt-14 min-[69.375rem]:p-8 min-[69.375rem]:pt-8 max-h-[85vh] overflow-y-auto no-scrollbar transition-transform duration-300 ease-out ${
             isVisible ? 'translate-y-0' : 'translate-y-[100vh]'
           } ${isOpen ? '' : 'pointer-events-none'}`}
-          style={
-            showDonationResultScreen
-              ? {
-                  backgroundColor: donationSuccess ? successTheme.bg : failedTheme.bg,
-                  color: donationSuccess ? '#111111' : failedTheme.fg,
-                }
-              : undefined
-          }
+          style={{
+            ...modalVars,
+            backgroundColor: modalTheme.bg,
+            color: modalTheme.fg,
+          }}
         >
           <button
             onClick={closeModal}
@@ -410,7 +427,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                   <form
                     key="donation-form"
                     onSubmit={onDonationSubmit}
-                    className="space-y-4 pb-14 min-[69.375rem]:pb-16 flex flex-col"
+                    className="space-y-4 pb-14 min-[69.375rem]:pb-8 flex flex-col"
                   >
                     {content?.donationIntro?.length ? (
                       <div className="space-y-2 mb-4">
@@ -418,28 +435,11 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                       </div>
                     ) : null}
 
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {[5, 10, 20, 50].map((preset) => (
-                        <button
-                          key={preset}
-                          type="button"
-                          onClick={() => setDonationAmount(preset.toString())}
-                          className={`flex items-center justify-center w-12 h-12 text-lg min-[69.375rem]:w-12 min-[69.375rem]:h-12 min-[69.375rem]:text-lg rounded-full text-center transition-colors cursor-pointer ${
-                            donationAmount === preset.toString()
-                              ? 'invert-panel'
-                              : 'bg-[#ECECEC] text-[var(--panel-fg)] hover:bg-[#d2d2d2]'
-                          }`}
-                        >
-                          €{preset}
-                        </button>
-                      ))}
-                    </div>
-
                     <FormField
                       label="Amount"
                       required
                       bgClassName="invert-panel"
-                      fgClassName="text-white"
+                      fgClassName="text-[var(--panel-bg)]"
                       containerClassName="border-0 section-border"
                       contentClassName="bg-[#ECECEC]"
                     >
@@ -450,14 +450,14 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                         value={donationAmount}
                         onChange={(e) => setDonationAmount(e.target.value)}
                         placeholder="Amount in EUR"
-                        className="bg-transparent"
+                        className="bg-transparent support-modal-input"
                       />
                     </FormField>
 
                     <FormField
                       label="Name"
                       bgClassName="invert-panel"
-                      fgClassName="text-white"
+                      fgClassName="text-[var(--panel-bg)]"
                       containerClassName="border-0 section-border"
                       contentClassName="bg-[#ECECEC]"
                     >
@@ -466,14 +466,14 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                         value={donationName}
                         onChange={(e) => setDonationName(e.target.value)}
                         placeholder="Name (optional)"
-                        className="bg-transparent"
+                        className="bg-transparent support-modal-input"
                       />
                     </FormField>
 
                     <FormField
                       label="E-mail"
                       bgClassName="invert-panel"
-                      fgClassName="text-white"
+                      fgClassName="text-[var(--panel-bg)]"
                       containerClassName="border-0 section-border"
                       contentClassName="bg-[#ECECEC]"
                     >
@@ -482,14 +482,14 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                         value={donationEmail}
                         onChange={(e) => setDonationEmail(e.target.value)}
                         placeholder="Email (optional)"
-                        className="bg-transparent"
+                        className="bg-transparent support-modal-input"
                       />
                     </FormField>
 
                     <FormField
                       label="Message"
                       bgClassName="invert-panel"
-                      fgClassName="text-white"
+                      fgClassName="text-[var(--panel-bg)]"
                       containerClassName="border-0 section-border"
                       contentClassName="bg-[#ECECEC]"
                     >
@@ -499,7 +499,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                         onChange={(e) => setDonationMessage(e.target.value)}
                         placeholder="Message (optional)"
                         maxLength={500}
-                        className="bg-transparent h-24"
+                        className="bg-transparent h-24 support-modal-input"
                       />
                     </FormField>
 
@@ -508,7 +508,8 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                     <button
                       type="submit"
                       disabled={isDonationSubmitting}
-                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[69.375rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[69.375rem]:w-64 min-[69.375rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
+                      className="mt-12 text-3xl min-[69.375rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[69.375rem]:w-64 min-[69.375rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
+                      style={{backgroundColor: supportTheme.fg, color: supportTheme.bg}}
                     >
                       {isDonationSubmitting ? 'Redirecting...' : donationSubmitLabel}
                     </button>
@@ -517,7 +518,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                   <form
                     key="newsletter-form"
                     onSubmit={handleNewsletterSubmit(onNewsletterSubmit)}
-                    className="space-y-4 pb-14 min-[69.375rem]:pb-16 flex flex-col"
+                    className="space-y-4 pb-14 min-[69.375rem]:pb-8 flex flex-col"
                   >
                     {content?.newsletterIntro?.length ? (
                       <div className="space-y-2 mb-4">
@@ -530,14 +531,14 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                       error={newsletterFormErrors.newsletterName}
                       showError={!!newsletterTouchedFields.newsletterName || isNewsletterSubmitted}
                       bgClassName="invert-panel"
-                      fgClassName="text-white"
+                      fgClassName="text-[var(--panel-bg)]"
                       containerClassName="border-0 section-border"
                       contentClassName="bg-[#ECECEC]"
                     >
                       <TextInput
                         registration={registerNewsletter('newsletterName')}
                         placeholder="Name (optional)"
-                        className="bg-transparent"
+                        className="bg-transparent support-modal-input"
                       />
                     </FormField>
 
@@ -547,7 +548,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                       error={newsletterFormErrors.newsletterEmail}
                       showError={!!newsletterTouchedFields.newsletterEmail || isNewsletterSubmitted}
                       bgClassName="invert-panel"
-                      fgClassName="text-white"
+                      fgClassName="text-[var(--panel-bg)]"
                       containerClassName="border-0 section-border"
                       contentClassName="bg-[#ECECEC]"
                     >
@@ -557,7 +558,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                         })}
                         type="email"
                         placeholder="Email"
-                        className="bg-transparent"
+                        className="bg-transparent support-modal-input"
                       />
                     </FormField>
 
@@ -574,7 +575,8 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                     <button
                       type="submit"
                       disabled={isNewsletterSubmitting}
-                      className="mt-12 bg-(--panel-fg) text-(--panel-bg) text-3xl min-[69.375rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[69.375rem]:w-64 min-[69.375rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
+                      className="mt-12 text-3xl min-[69.375rem]:text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-40 h-40 min-[69.375rem]:w-64 min-[69.375rem]:h-64 rounded-full text-center mx-auto block disabled:opacity-50 cursor-pointer"
+                      style={{backgroundColor: supportTheme.fg, color: supportTheme.bg}}
                     >
                       {isNewsletterSubmitting ? 'Submitting...' : newsletterSubmitLabel}
                     </button>

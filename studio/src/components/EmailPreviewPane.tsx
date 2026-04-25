@@ -13,6 +13,7 @@ import {
   getPreviewRouteId,
   interpolatePreviewText,
 } from '../../../frontend/lib/email/preview'
+import {getEmailFieldVisibility} from '../../../frontend/lib/email/display-rules'
 import {createEmailTheme} from '../../../frontend/lib/email/theme'
 import {buildThemeOverrides} from '../../../frontend/lib/theme/overrides'
 
@@ -94,14 +95,15 @@ export default function EmailPreviewPane({document}: EmailPreviewPaneProps) {
   const fromName = doc.fromName || 'PSST'
   const fromEmail = doc.fromEmail || 'info@psst.space'
   const routeId = getPreviewRouteId(selectedKey)
+  const visibility = getEmailFieldVisibility(selectedKey)
 
   const rendered = {
     subject: interpolatePreviewText(message.subject, preview.variables),
     previewText: interpolatePreviewText(message.previewText, preview.variables),
-    heading: interpolatePreviewText(message.heading, preview.variables),
-    intro: interpolatePreviewText(message.intro, preview.variables),
-    notice: interpolatePreviewText(message.notice, preview.variables),
-    footer: interpolatePreviewText(message.footer, preview.variables),
+    heading: visibility.hideHeading ? '' : interpolatePreviewText(message.heading, preview.variables),
+    intro: visibility.hideIntro ? '' : interpolatePreviewText(message.intro, preview.variables),
+    notice: visibility.hideNotice ? '' : interpolatePreviewText(message.notice, preview.variables),
+    footer: visibility.hideFooter ? '' : interpolatePreviewText(message.footer, preview.variables),
     disclaimer: interpolatePreviewText(message.disclaimer, preview.variables),
   }
   const hasNotice = rendered.notice.trim().length > 0

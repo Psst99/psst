@@ -37,24 +37,24 @@ const EMAIL_TEMPLATE_FIELD_TITLES: Record<EmailTemplateKey, string> = {
   pssoundMembershipApproved: 'Membership: approved',
 }
 
+const EMAIL_TEMPLATE_FIELD_TYPES: Partial<Record<EmailTemplateKey, string>> = {
+  databaseReceived: 'databaseReceivedEmailMessage',
+  databaseApproved: 'databaseApprovedEmailMessage',
+  resourceReceived: 'resourceReceivedEmailMessage',
+  resourceApproved: 'resourceApprovedEmailMessage',
+  workshopReceived: 'workshopReceivedEmailMessage',
+  workshopApproved: 'workshopApprovedEmailMessage',
+  pssoundRequestReceived: 'pssoundRequestReceivedEmailMessage',
+  pssoundRequestApproved: 'pssoundRequestApprovedEmailMessage',
+  pssoundMembershipReceived: 'pssoundMembershipReceivedEmailMessage',
+  pssoundMembershipApproved: 'pssoundMembershipApprovedEmailMessage',
+}
+
 const templateField = (name: EmailTemplateKey) =>
   defineField({
     name,
     title: EMAIL_TEMPLATE_FIELD_TITLES[name],
-    type:
-      name === 'databaseReceived'
-        ? 'databaseReceivedEmailMessage'
-        : name === 'databaseApproved'
-          ? 'databaseApprovedEmailMessage'
-          : name === 'resourceReceived'
-            ? 'resourceReceivedEmailMessage'
-            : name === 'resourceApproved'
-              ? 'resourceApprovedEmailMessage'
-              : name === 'workshopReceived'
-                ? 'workshopReceivedEmailMessage'
-                : name === 'workshopApproved'
-                  ? 'workshopApprovedEmailMessage'
-                : 'emailMessage',
+    type: EMAIL_TEMPLATE_FIELD_TYPES[name] ?? 'emailMessage',
     group: EMAIL_TEMPLATE_GROUPS[name],
     initialValue: EMAIL_MESSAGE_DEFAULTS[name],
     description: `Variables: ${EMAIL_TEMPLATE_VARIABLES[name].map((variable) => `{{${variable}}}`).join(', ')}`,

@@ -7,6 +7,7 @@ export const SECTION_COLORS = {
   'pssound-system': {a: '#07F25B', b: '#81520A'},
   resources: {a: '#FE93E7', b: '#1D53FF'},
   archive: {a: '#81520A', b: '#FFCC00'},
+  newsletter: {a: '#D2D2D2', b: '#1D53FF'},
 } as const
 
 export const ACCESSIBLE_COLORS = {
@@ -20,6 +21,7 @@ export const ACCESSIBLE_COLORS = {
   'pssound-system': {a: '#BCBCBC', b: '#111111'},
   resources: {a: '#B1B1B1', b: '#111111'},
   archive: {a: '#A6A6A6', b: '#111111'},
+  newsletter: {a: '#9B9B9B', b: '#111111'},
 } as const
 
 export const MAIN_SECTIONS = [
@@ -81,6 +83,7 @@ export const SECTIONS: Record<
   },
   resources: {label: 'RESOURCES', slug: 'resources'},
   archive: {label: 'ARCHIVE', slug: 'archive'},
+  newsletter: {label: 'NEWSLETTER', slug: 'newsletter'},
 }
 
 export type ThemeMode = 'brand' | 'accessible'

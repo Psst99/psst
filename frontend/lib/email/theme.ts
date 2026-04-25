@@ -15,6 +15,19 @@ const TEMPLATE_SECTION: Record<EmailTemplateKey, SectionSlug> = {
   pssoundMembershipApproved: 'pssound-system',
 }
 
+const TEMPLATE_ACCENT_SOURCE: Record<EmailTemplateKey, 'bg' | 'fg'> = {
+  databaseReceived: 'bg',
+  databaseApproved: 'bg',
+  resourceReceived: 'bg',
+  resourceApproved: 'bg',
+  workshopReceived: 'bg',
+  workshopApproved: 'bg',
+  pssoundRequestReceived: 'fg',
+  pssoundRequestApproved: 'fg',
+  pssoundMembershipReceived: 'fg',
+  pssoundMembershipApproved: 'fg',
+}
+
 const WHITE = '#FFFFFF'
 
 function clampChannel(value: number) {
@@ -64,22 +77,23 @@ export function getEmailSection(key: EmailTemplateKey): SectionSlug {
 }
 
 export function createEmailTheme(key: EmailTemplateKey, overrides?: ThemeOverrides): EmailTheme {
-  const {bg} = getTheme(getEmailSection(key), 'brand', overrides)
+  const sectionTheme = getTheme(getEmailSection(key), 'brand', overrides)
+  const accent = TEMPLATE_ACCENT_SOURCE[key] === 'fg' ? sectionTheme.fg : sectionTheme.bg
 
   return {
-    shellBg: bg,
+    shellBg: accent,
     shellFg: WHITE,
     panelBg: WHITE,
-    panelFg: bg,
-    categoryBg: bg,
+    panelFg: accent,
+    categoryBg: accent,
     categoryFg: WHITE,
-    categoryBorder: bg,
+    categoryBorder: accent,
     linkBg: WHITE,
-    linkFg: bg,
-    linkBorder: bg,
-    noticeBg: mixHex(bg, WHITE, 0.92),
-    noticeFg: bg,
-    noticeBorder: bg,
+    linkFg: accent,
+    linkBorder: accent,
+    noticeBg: mixHex(accent, WHITE, 0.92),
+    noticeFg: accent,
+    noticeBorder: accent,
     disclaimer: 'rgba(255,255,255,0.9)',
     shadow: '0 18px 60px rgba(0,0,0,0.18)',
   }

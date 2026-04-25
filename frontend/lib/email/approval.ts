@@ -8,7 +8,6 @@ import {
   artistEmailCard,
   formatDate,
   formatDateList,
-  pssoundRequestEmailCard,
   resourceEmailCard,
   workshopEmailCard,
 } from './cards'
@@ -458,15 +457,6 @@ async function handleWorkshopRegistration(id: string, baseUrl: string): Promise<
   }
 }
 
-const PSSOUND_POLITICAL_LABELS: Record<string, string> = {
-  feminist: 'Feminist',
-  queer: 'Queer',
-  racial: 'Racial',
-  disability: 'Disability',
-  fundraiser: 'Fundraiser',
-  other: 'Other',
-}
-
 function formatPssoundLineup(artists?: Array<{name?: string | null; link?: string | null}> | null) {
   return (
     artists
@@ -479,22 +469,6 @@ function formatPssoundLineup(artists?: Array<{name?: string | null; link?: strin
       .filter((value): value is string => !!value)
       .join('\n') || ''
   )
-}
-
-function formatPssoundPoliticalContext(value?: Record<string, unknown> | null) {
-  if (!value) return ''
-
-  return Object.entries(PSSOUND_POLITICAL_LABELS)
-    .map(([key, label]) => {
-      const item = value[key]
-      if (item === true) return label
-      if (typeof item !== 'string' || item.length === 0) return null
-
-      const trimmed = item.trim()
-      return trimmed ? `${label}: ${trimmed}` : label
-    })
-    .filter((item): item is string => !!item)
-    .join('\n')
 }
 
 function pssoundCalendarIdForRequest(id: string) {
@@ -683,7 +657,6 @@ async function handlePssoundRequest(id: string): Promise<ApprovalResult> {
   }
 
   const lineup = formatPssoundLineup(doc.marginalizedArtists)
-  const politicalContext = formatPssoundPoliticalContext(doc.isPolitical)
   const variables = {
     collectiveName: doc.collective || 'your collective',
     eventTitle: doc.eventTitle,
@@ -699,19 +672,6 @@ async function handlePssoundRequest(id: string): Promise<ApprovalResult> {
       to: email,
       templateKey: 'pssoundRequestApproved',
       variables,
-      card: pssoundRequestEmailCard({
-        collectiveName: doc.collective,
-        eventTitle: doc.eventTitle,
-        eventLink: doc.eventLink,
-        eventLocation: doc.eventLocation,
-        eventDescription: doc.eventDescription,
-        eventDate: doc.eventDate,
-        pickupDate: doc.pickupDate,
-        returnDate: doc.returnDate,
-        lineup,
-        wagePolicy: doc.wagePolicy,
-        politicalContext,
-      }),
     })
 
     if (result.sent) await patchSuccess(doc._id)
