@@ -250,9 +250,7 @@ export default function DynamicLayout({
             contentOverflowClasses,
             'panel-bg panel-fg panel-border',
             paddingClasses,
-            hasDesktopSubNav
-              ? 'no-scrollbar min-[69.375rem]:rounded-tr-3xl min-[69.375rem]:rounded-tl-xl'
-              : '',
+            hasDesktopSubNav ? 'no-scrollbar min-[69.375rem]:rounded-tr-3xl' : '',
             'min-[69.375rem]:fixed min-[69.375rem]:left-0 min-[69.375rem]:right-0 min-[69.375rem]:bottom-0',
             desktopSheetTopClass,
           ].join(' ')}
