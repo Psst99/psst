@@ -472,8 +472,8 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           </button>
 
           {showDonationResultScreen ? (
-            <div className="min-h-[320px] pb-16 flex flex-col justify-center px-4">
-              <div className="mx-auto max-w-3xl space-y-12">
+            <div className="min-h-[320px] pb-16 flex flex-col items-center justify-center text-center px-4">
+              <div className="w-full max-w-3xl space-y-4">
                 <SupportConfirmationText
                   value={donationSuccess ? donationSuccessMessage : donationFailedMessage}
                 />

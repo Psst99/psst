@@ -33,6 +33,7 @@ const richConfirmationContent = [
       {title: 'Paragraph', value: 'normal'},
       {title: 'Heading', value: 'h2'},
     ],
+    lists: [],
     marks: {
       decorators: [
         {title: 'Strong', value: 'strong'},
