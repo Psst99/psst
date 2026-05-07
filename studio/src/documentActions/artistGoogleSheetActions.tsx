@@ -32,6 +32,7 @@ type ArtistActionResponse = {
 }
 
 const LOCAL_FRONTEND_ORIGIN = 'http://localhost:3000'
+const PRODUCTION_FRONTEND_ORIGIN = 'https://psst-frontend.vercel.app'
 const PREVIEW_ORIGIN = (process.env.SANITY_STUDIO_PREVIEW_URL || LOCAL_FRONTEND_ORIGIN).replace(
   /\/$/,
   '',
@@ -102,7 +103,7 @@ function getSyncApiOrigin() {
     return LOCAL_FRONTEND_ORIGIN
   }
 
-  return PREVIEW_ORIGIN
+  return PREVIEW_ORIGIN === LOCAL_FRONTEND_ORIGIN ? PRODUCTION_FRONTEND_ORIGIN : PREVIEW_ORIGIN
 }
 
 function buildSuccessMessage(result: ArtistActionResult) {
@@ -185,6 +186,7 @@ function notifyManualSyncResult(message: string) {
 async function syncArtist(documentId: string) {
   const response = await fetch(`${getSyncApiOrigin()}/api/google-sheets/artist-sync`, {
     method: 'POST',
+    headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({documentId, force: true}),
   })
 
@@ -204,6 +206,7 @@ async function syncArtist(documentId: string) {
 async function approveDocument(documentId: string, documentType: string) {
   const response = await fetch(`${getSyncApiOrigin()}/api/email/approval`, {
     method: 'POST',
+    headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({documentId, documentType}),
   })
 

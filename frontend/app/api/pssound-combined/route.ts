@@ -134,11 +134,18 @@ export async function POST(req: NextRequest) {
     const collectiveName = validatedData.selectedCollective
 
     if (collectiveName) {
-      const member = await client.fetch<{email?: string} | null>(
-        `*[_type == "pssoundMembership" && approved == true && collectiveName == $collectiveName][0]{email}`,
+      const member = await client.fetch<{_id: string; email?: string} | null>(
+        `*[
+          _type == "pssoundMembership" &&
+          approved == true &&
+          collectiveName == $collectiveName &&
+          defined(email) &&
+          email != ""
+        ][0]{_id, email}`,
         {collectiveName},
       )
       contactEmail = member?.email
+      membershipId = member?._id ?? membershipId
     }
 
     // Always submit request

@@ -566,7 +566,13 @@ async function resolvePssoundRequestEmail(doc: {
   if (!doc.collective) return undefined
 
   const member = await writeClient.fetch<{email?: string} | null>(
-    `*[_type == "pssoundMembership" && approved == true && collectiveName == $collectiveName][0]{email}`,
+    `*[
+      _type == "pssoundMembership" &&
+      approved == true &&
+      collectiveName == $collectiveName &&
+      defined(email) &&
+      email != ""
+    ][0]{email}`,
     {collectiveName: doc.collective},
   )
 

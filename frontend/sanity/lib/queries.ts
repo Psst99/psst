@@ -417,7 +417,12 @@ export const allBlockedDatesQuery = `
   }
 `
 export const allApprovedCollectivesQuery = `
-  *[_type == "pssoundMembership" && approved == true]{
+  *[
+    _type == "pssoundMembership" &&
+    approved == true &&
+    defined(email) &&
+    email != ""
+  ]{
     _id,
     collectiveName
   }

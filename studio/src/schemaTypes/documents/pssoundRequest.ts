@@ -194,8 +194,9 @@ export const pssoundRequest = defineType({
       title: 'Contact email',
       type: 'string',
       group: 'system',
-      readOnly: true,
-      description: 'Resolved from the approved collective membership when available.',
+      description:
+        'Resolved from the approved collective membership when available. Edit this if an older request is missing the email.',
+      validation: (Rule) => Rule.email(),
     }),
     defineField({
       name: 'membership',

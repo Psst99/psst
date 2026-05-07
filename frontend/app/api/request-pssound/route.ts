@@ -46,8 +46,14 @@ export async function POST(req: NextRequest) {
 
     const collectiveName = data.collective || ''
     const member = collectiveName
-      ? await client.fetch<{email?: string} | null>(
-          `*[_type == "pssoundMembership" && approved == true && collectiveName == $collectiveName][0]{email}`,
+      ? await client.fetch<{_id: string; email?: string} | null>(
+          `*[
+            _type == "pssoundMembership" &&
+            approved == true &&
+            collectiveName == $collectiveName &&
+            defined(email) &&
+            email != ""
+          ][0]{_id, email}`,
           {collectiveName},
         )
       : null
@@ -70,6 +76,7 @@ export async function POST(req: NextRequest) {
       membershipCert: !!data.membershipCert,
       collective: collectiveName,
       contactEmail: member?.email,
+      membership: member?._id ? {_type: 'reference', _ref: member._id} : undefined,
       status: 'pending',
     }
 

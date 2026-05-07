@@ -487,7 +487,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                 <button
                   type="button"
                   onClick={() => openModal('donation')}
-                  className={`border panel-border rounded-md w-full px-4 py-1 text-sm min-[69.375rem]:text-base cursor-pointer ${
+                  className={`border panel-border rounded-sm w-full px-4 py-1 text-sm min-[69.375rem]:text-base cursor-pointer ${
                     activeTab === 'donation' ? 'invert-panel' : ''
                   }`}
                 >
@@ -496,7 +496,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                 <button
                   type="button"
                   onClick={() => openModal('newsletter')}
-                  className={`border panel-border rounded-md w-full px-4 py-1 text-sm min-[69.375rem]:text-base cursor-pointer ${
+                  className={`border panel-border rounded-sm w-full px-4 py-1 text-sm min-[69.375rem]:text-base cursor-pointer ${
                     activeTab === 'newsletter' ? 'invert-panel' : ''
                   }`}
                 >

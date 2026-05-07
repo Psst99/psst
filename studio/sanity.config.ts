@@ -28,8 +28,14 @@ import {artistDocumentActions} from './src/documentActions/artistGoogleSheetActi
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
 const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
 
-// URL for preview functionality, defaults to localhost:3000 if not set
-const SANITY_STUDIO_PREVIEW_URL = process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:3000'
+const LOCAL_FRONTEND_ORIGIN = 'http://localhost:3000'
+const PRODUCTION_FRONTEND_ORIGIN = 'https://psst-frontend.vercel.app'
+
+// URL for preview functionality, defaults to localhost in dev and the current production frontend
+// in deployed Studio builds.
+const SANITY_STUDIO_PREVIEW_URL =
+  process.env.SANITY_STUDIO_PREVIEW_URL ||
+  (process.env.NODE_ENV === 'production' ? PRODUCTION_FRONTEND_ORIGIN : LOCAL_FRONTEND_ORIGIN)
 
 // Define the home location for the presentation tool
 const homeLocation = {
