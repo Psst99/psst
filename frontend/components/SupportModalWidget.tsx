@@ -34,6 +34,7 @@ type SupportContent = {
   donationSubmitLabel?: string
   newsletterSubmitLabel?: string
   donationSuccessMessage?: string
+  donationFailedMessage?: string
   newsletterSuccessMessage?: string
 } | null
 
@@ -146,6 +147,10 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const newsletterTabLabel = content?.newsletterTabLabel?.trim() || 'Newsletter'
   const donationSubmitLabel = content?.donationSubmitLabel?.trim() || 'Pay'
   const newsletterSubmitLabel = content?.newsletterSubmitLabel?.trim() || 'Subscribe'
+  const donationSuccessMessage =
+    content?.donationSuccessMessage?.trim() || 'We have received your donation.'
+  const donationFailedMessage =
+    content?.donationFailedMessage?.trim() || 'There was an issue processing your payment.'
   const newsletterSuccessMessage =
     content?.newsletterSuccessMessage?.trim() || 'Thanks, you are subscribed.'
 
@@ -222,14 +227,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   }, [closeModal, isOpen])
 
   const supportTheme = getTheme('newsletter', mode, ctx?.themeOverrides)
-  const successTheme = getTheme('pssound-system', mode, ctx?.themeOverrides)
-  const failedTheme = getTheme('workshops', mode, ctx?.themeOverrides)
-  const modalTheme = showDonationResultScreen
-    ? {
-        bg: donationSuccess ? successTheme.bg : failedTheme.bg,
-        fg: donationSuccess ? '#111111' : failedTheme.fg,
-      }
-    : supportTheme
+  const modalTheme = supportTheme
   const modalVars: CSSVars = {
     '--panel-bg': modalTheme.bg,
     '--panel-fg': modalTheme.fg,
@@ -411,16 +409,8 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
             <div className="min-h-[320px] pb-16 flex flex-col items-center justify-center text-center px-4">
               <h2 className="text-4xl tracking-tight">Thank you</h2>
               <p className="mt-4 text-xl font-light">
-                {donationSuccess
-                  ? 'We have received your donation.'
-                  : 'There was an issue processing your payment.'}
+                {donationSuccess ? donationSuccessMessage : donationFailedMessage}
               </p>
-              <button
-                onClick={closeModal}
-                className="mt-12 rounded-full border border-current px-8 py-3 text-lg hover:bg-current hover:text-[var(--panel-bg)] transition-colors cursor-pointer"
-              >
-                Close
-              </button>
             </div>
           ) : (
             <>
@@ -590,7 +580,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                     {newsletterState !== 'idle' && (
                       <p
                         className={`text-sm ${
-                          newsletterState === 'success' ? 'text-green-700' : 'text-red-600'
+                          newsletterState === 'success' ? 'text-[var(--panel-fg)]' : 'text-red-600'
                         }`}
                       >
                         {newsletterMessage}

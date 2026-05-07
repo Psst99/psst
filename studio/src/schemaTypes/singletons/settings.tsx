@@ -370,6 +370,12 @@ export const settings = defineType({
           initialValue: 'Donation payment completed. Thank you for supporting PSST.',
         }),
         defineField({
+          name: 'donationFailedMessage',
+          title: 'Donation failure message',
+          type: 'string',
+          initialValue: 'There was an issue processing your payment.',
+        }),
+        defineField({
           name: 'newsletterSuccessMessage',
           title: 'Newsletter success message',
           type: 'string',
