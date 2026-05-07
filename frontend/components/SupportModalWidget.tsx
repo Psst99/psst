@@ -33,9 +33,9 @@ type SupportContent = {
   newsletterIntro?: any[]
   donationSubmitLabel?: string
   newsletterSubmitLabel?: string
-  donationSuccessMessage?: string
-  donationFailedMessage?: string
-  newsletterSuccessMessage?: string
+  donationSuccessMessage?: any[] | string
+  donationFailedMessage?: any[] | string
+  newsletterSuccessMessage?: any[] | string
 } | null
 
 interface SupportModalWidgetProps {
@@ -90,11 +90,20 @@ const richTextComponents: PortableTextComponents = {
   },
   marks: {
     link: ({children, value}) => {
-      const {linkType, href, openInNewTab} = value || {}
-      if (linkType === 'href' && href) {
+      const {linkType, href, internalLink, page, post, openInNewTab} = value || {}
+      const resolvedHref =
+        linkType === 'internal' && internalLink
+          ? internalLink
+          : linkType === 'page' && page
+            ? `/${page}`
+            : linkType === 'post' && post
+              ? `/posts/${post}`
+              : href
+
+      if (resolvedHref) {
         return (
           <a
-            href={href}
+            href={resolvedHref}
             target={openInNewTab ? '_blank' : '_self'}
             rel={openInNewTab ? 'noopener noreferrer' : undefined}
             className={LINK_PILL_CLASS}
@@ -108,9 +117,60 @@ const richTextComponents: PortableTextComponents = {
   },
 }
 
+const confirmationTextComponents: PortableTextComponents = {
+  block: {
+    normal: ({children}) => (
+      <p className="text-center text-xl min-[69.375rem]:text-2xl leading-snug font-light">
+        {children}
+      </p>
+    ),
+    h2: ({children}) => (
+      <h2 className="text-center text-4xl min-[69.375rem]:text-5xl tracking-tight leading-tight">
+        {children}
+      </h2>
+    ),
+  },
+  marks: richTextComponents.marks,
+}
+
 function SupportRichText({value}: {value?: any[]}) {
   if (!value || value.length === 0) return null
   return <PortableText value={value} components={richTextComponents} />
+}
+
+function SupportConfirmationText({value}: {value?: any[]}) {
+  if (!value || value.length === 0) return null
+  return <PortableText value={value} components={confirmationTextComponents} />
+}
+
+function fallbackRichText(text: string) {
+  const key = text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+
+  return [
+    {
+      _key: `${key}-fallback`,
+      _type: 'block',
+      style: 'normal',
+      markDefs: [],
+      children: [
+        {
+          _key: `${key}-fallback-span`,
+          _type: 'span',
+          marks: [],
+          text,
+        },
+      ],
+    },
+  ]
+}
+
+function resolveRichTextMessage(value: any[] | string | undefined, fallback: string) {
+  if (Array.isArray(value) && value.length > 0) return value
+  if (typeof value === 'string' && value.trim().length > 0) return fallbackRichText(value.trim())
+  return fallbackRichText(fallback)
 }
 
 export default function SupportModalWidget({content = null}: SupportModalWidgetProps) {
@@ -147,12 +207,18 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const newsletterTabLabel = content?.newsletterTabLabel?.trim() || 'Newsletter'
   const donationSubmitLabel = content?.donationSubmitLabel?.trim() || 'Pay'
   const newsletterSubmitLabel = content?.newsletterSubmitLabel?.trim() || 'Subscribe'
-  const donationSuccessMessage =
-    content?.donationSuccessMessage?.trim() || 'We have received your donation.'
-  const donationFailedMessage =
-    content?.donationFailedMessage?.trim() || 'There was an issue processing your payment.'
-  const newsletterSuccessMessage =
-    content?.newsletterSuccessMessage?.trim() || 'Thanks, you are subscribed.'
+  const donationSuccessMessage = resolveRichTextMessage(
+    content?.donationSuccessMessage,
+    'We have received your donation.',
+  )
+  const donationFailedMessage = resolveRichTextMessage(
+    content?.donationFailedMessage,
+    'There was an issue processing your payment.',
+  )
+  const newsletterSuccessMessage = resolveRichTextMessage(
+    content?.newsletterSuccessMessage,
+    'Thanks, you are subscribed.',
+  )
 
   useEffect(() => {
     setIsMounted(true)
@@ -335,7 +401,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         }
 
         setNewsletterState('success')
-        setNewsletterMessage(newsletterSuccessMessage)
+        setNewsletterMessage('success')
         resetNewsletterForm()
       } catch (error) {
         setNewsletterState('error')
@@ -346,7 +412,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         setIsNewsletterSubmitting(false)
       }
     },
-    [newsletterSuccessMessage, pathname, resetNewsletterForm],
+    [pathname, resetNewsletterForm],
   )
 
   const onFloatingClick = useCallback(() => {
@@ -406,11 +472,12 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           </button>
 
           {showDonationResultScreen ? (
-            <div className="min-h-[320px] pb-16 flex flex-col items-center justify-center text-center px-4">
-              <h2 className="text-4xl tracking-tight">Thank you</h2>
-              <p className="mt-4 text-xl font-light">
-                {donationSuccess ? donationSuccessMessage : donationFailedMessage}
-              </p>
+            <div className="min-h-[320px] pb-16 flex flex-col justify-center px-4">
+              <div className="mx-auto max-w-3xl space-y-12">
+                <SupportConfirmationText
+                  value={donationSuccess ? donationSuccessMessage : donationFailedMessage}
+                />
+              </div>
             </div>
           ) : (
             <>
@@ -577,14 +644,14 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                       />
                     </FormField>
 
-                    {newsletterState !== 'idle' && (
-                      <p
-                        className={`text-sm ${
-                          newsletterState === 'success' ? 'text-[var(--panel-fg)]' : 'text-red-600'
-                        }`}
-                      >
-                        {newsletterMessage}
-                      </p>
+                    {newsletterState === 'success' && (
+                      <div className="text-[var(--panel-fg)]">
+                        <SupportConfirmationText value={newsletterSuccessMessage} />
+                      </div>
+                    )}
+
+                    {newsletterState === 'error' && (
+                      <p className="text-sm text-red-600">{newsletterMessage}</p>
                     )}
 
                     <button

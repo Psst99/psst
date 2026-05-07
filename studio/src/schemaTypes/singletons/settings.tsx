@@ -26,6 +26,100 @@ const makeColorField = (name: string, title: string, value: string, description:
     },
   })
 
+const richConfirmationContent = [
+  defineArrayMember({
+    type: 'block',
+    styles: [
+      {title: 'Paragraph', value: 'normal'},
+      {title: 'Heading', value: 'h2'},
+    ],
+    marks: {
+      decorators: [
+        {title: 'Strong', value: 'strong'},
+        {title: 'Emphasis', value: 'em'},
+      ],
+      annotations: [
+        {
+          name: 'link',
+          type: 'object',
+          title: 'Link',
+          fields: [
+            {
+              name: 'linkType',
+              type: 'string',
+              title: 'Link Type',
+              options: {
+                list: [
+                  {title: 'Internal Page', value: 'internal'},
+                  {title: 'External URL', value: 'external'},
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'internal',
+            },
+            {
+              name: 'internalLink',
+              type: 'string',
+              title: 'Internal Page',
+              description: 'e.g., /database, /resources, /workshops, /pssound-system',
+              hidden: ({parent}) => parent?.linkType !== 'internal',
+            },
+            {
+              name: 'href',
+              type: 'url',
+              title: 'External URL',
+              hidden: ({parent}) => parent?.linkType !== 'external',
+              validation: (Rule) =>
+                Rule.uri({
+                  scheme: ['http', 'https', 'mailto', 'tel'],
+                }),
+            },
+            {
+              name: 'openInNewTab',
+              type: 'boolean',
+              title: 'Open in new tab',
+              initialValue: false,
+            },
+          ],
+        },
+      ],
+    },
+  }),
+]
+
+const confirmationInitialValue = (text: string) => {
+  const key = text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+
+  return [
+    {
+      _key: `${key}-initial`,
+      _type: 'block',
+      style: 'normal',
+      markDefs: [],
+      children: [
+        {
+          _key: `${key}-initial-span`,
+          _type: 'span',
+          marks: [],
+          text,
+        },
+      ],
+    },
+  ]
+}
+
+const confirmationField = (name: string, title: string, initialText: string) =>
+  defineField({
+    name,
+    title,
+    type: 'array',
+    of: richConfirmationContent,
+    initialValue: confirmationInitialValue(initialText),
+  })
+
 /**
  * Settings schema Singleton.  Singletons are single documents that are displayed not in a collection, handy for things like site settings and other global configurations.
  * Learn more: https://www.sanity.io/docs/create-a-link-to-a-single-edit-page-in-your-main-document-type-list
@@ -363,24 +457,21 @@ export const settings = defineType({
           type: 'string',
           initialValue: 'Subscribe',
         }),
-        defineField({
-          name: 'donationSuccessMessage',
-          title: 'Donation success message',
-          type: 'string',
-          initialValue: 'Donation payment completed. Thank you for supporting PSST.',
-        }),
-        defineField({
-          name: 'donationFailedMessage',
-          title: 'Donation failure message',
-          type: 'string',
-          initialValue: 'There was an issue processing your payment.',
-        }),
-        defineField({
-          name: 'newsletterSuccessMessage',
-          title: 'Newsletter success message',
-          type: 'string',
-          initialValue: 'Thanks, you are subscribed.',
-        }),
+        confirmationField(
+          'donationSuccessMessage',
+          'Donation success message',
+          'Donation payment completed. Thank you for supporting PSST.',
+        ),
+        confirmationField(
+          'donationFailedMessage',
+          'Donation failure message',
+          'There was an issue processing your payment.',
+        ),
+        confirmationField(
+          'newsletterSuccessMessage',
+          'Newsletter success message',
+          'Thanks, you are subscribed.',
+        ),
       ],
     }),
   ],
