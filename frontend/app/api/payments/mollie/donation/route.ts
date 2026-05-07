@@ -47,16 +47,7 @@ export async function POST(req: NextRequest) {
     const mollieConfig = getMollieApiConfig()
 
     if (!mollieConfig.ok) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: mollieConfig.error,
-          mollieMode: mollieConfig.mode,
-          mollieKeyKind: mollieConfig.apiKeyKind,
-          vercelEnv: mollieConfig.vercelEnv,
-        },
-        {status: 500},
-      )
+      return NextResponse.json({success: false, error: mollieConfig.error}, {status: 500})
     }
 
     const baseUrl = resolveBaseUrl(req)
@@ -104,24 +95,9 @@ export async function POST(req: NextRequest) {
 
     const payment = (await response.json()) as {
       id?: string
-      mode?: string
       _links?: {checkout?: {href?: string}}
     }
     const checkoutUrl = payment?._links?.checkout?.href
-
-    if (mollieConfig.mode === 'live' && payment.mode === 'test') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Mollie created a test payment despite live API configuration',
-          mollieMode: mollieConfig.mode,
-          mollieKeyKind: mollieConfig.apiKeyKind,
-          molliePaymentMode: payment.mode,
-          vercelEnv: mollieConfig.vercelEnv,
-        },
-        {status: 502},
-      )
-    }
 
     if (!checkoutUrl) {
       return NextResponse.json(
@@ -130,15 +106,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      checkoutUrl,
-      paymentId: payment.id,
-      mollieMode: mollieConfig.mode,
-      mollieKeyKind: mollieConfig.apiKeyKind,
-      molliePaymentMode: payment.mode,
-      vercelEnv: mollieConfig.vercelEnv,
-    })
+    return NextResponse.json({success: true, checkoutUrl, paymentId: payment.id})
   } catch (error) {
     console.error('Donation payment error:', error)
 
