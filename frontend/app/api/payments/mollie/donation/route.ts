@@ -72,10 +72,7 @@ export async function POST(req: NextRequest) {
           ? `${baseUrl}/api/payments/mollie/webhook`
           : undefined
 
-    const molliePaymentsUrl = new URL('https://api.mollie.com/v2/payments')
-    molliePaymentsUrl.searchParams.set('testmode', mollieConfig.mode === 'live' ? 'false' : 'true')
-
-    const response = await fetch(molliePaymentsUrl, {
+    const response = await fetch('https://api.mollie.com/v2/payments', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${mollieConfig.apiKey}`,
@@ -111,6 +108,20 @@ export async function POST(req: NextRequest) {
       _links?: {checkout?: {href?: string}}
     }
     const checkoutUrl = payment?._links?.checkout?.href
+
+    if (mollieConfig.mode === 'live' && payment.mode === 'test') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Mollie created a test payment despite live API configuration',
+          mollieMode: mollieConfig.mode,
+          mollieKeyKind: mollieConfig.apiKeyKind,
+          molliePaymentMode: payment.mode,
+          vercelEnv: mollieConfig.vercelEnv,
+        },
+        {status: 502},
+      )
+    }
 
     if (!checkoutUrl) {
       return NextResponse.json(
