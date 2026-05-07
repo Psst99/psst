@@ -6,7 +6,8 @@ type MollieApiConfig =
 
 export function getMollieApiConfig(): MollieApiConfig {
   const rawMode = process.env.MOLLIE_API_MODE?.trim().toLowerCase()
-  const mode: MollieApiMode = rawMode === 'test' ? 'test' : 'live'
+  const isProductionDeployment = process.env.VERCEL_ENV === 'production'
+  const mode: MollieApiMode = isProductionDeployment ? 'live' : rawMode === 'test' ? 'test' : 'live'
 
   if (rawMode && rawMode !== 'live' && rawMode !== 'test') {
     return {ok: false, error: 'Invalid MOLLIE_API_MODE configuration'}
