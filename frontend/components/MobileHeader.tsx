@@ -1,12 +1,13 @@
 'use client'
 
-import {useState} from 'react'
+import {useContext, useState} from 'react'
 import {usePathname} from 'next/navigation'
 import Link from 'next/link'
 import {motion, AnimatePresence} from 'framer-motion'
 
 import CustomLink from './CustomLink'
 import SectionScope from './SectionScope'
+import {ThemeContext} from '@/app/ThemeProvider'
 import {resolveActiveSubNavHref} from './SubNavigation'
 import {getSectionConfig, type DynamicSubNavItemsBySection} from '@/lib/route-utils'
 import type {SectionSlug, MainSectionSlug} from '@/lib/theme/sections'
@@ -33,6 +34,7 @@ type Props = {
 }
 
 export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
+  const ctx = useContext(ThemeContext)
   const mobileHeaderRowHeight = 30
   const mobileHeaderTopOffset = `${mobileHeaderRowHeight}px`
   const mobileHeaderStackWithSubmenu = `${mobileHeaderRowHeight * 3}px`
@@ -43,6 +45,8 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
   const pathname = usePathname()
   const activeSection: SectionSlug = getActiveSectionSlug(pathname)
   const isHome = activeSection === 'home'
+  const menuTextClass = ctx?.mode === 'accessible' ? 'text-[#111111]' : 'text-[#1D53FF]'
+  const menuButtonClass = `bg-[#D2D2D2] ${menuTextClass} px-4 pt-1 flex-1 text-center text-lg pb-1 w-full z-0 relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center cursor-pointer`
 
   const {subNavItems} = getSectionConfig(pathname, dynamicSubNavItemsBySection)
   const hasSubMenu = Array.isArray(subNavItems) && subNavItems.length > 0
@@ -115,15 +119,13 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
               </CustomLink>
             </SectionScope>
 
-            <SectionScope section="newsletter" variant="tab" asChild>
-              <button
-                onClick={toggleMenu}
-                className="section-bg section-fg px-4 pt-1 flex-1 text-center text-lg pb-1 w-full z-0 relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center cursor-pointer"
-                style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
-              >
-                {isMenuOpen ? 'CLOSE' : 'MENU'}
-              </button>
-            </SectionScope>
+            <button
+              onClick={toggleMenu}
+              className={menuButtonClass}
+              style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
+            >
+              {isMenuOpen ? 'CLOSE' : 'MENU'}
+            </button>
           </div>
 
           {isMenuOpen && (
@@ -191,15 +193,13 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
           </CustomLink>
         </SectionScope>
 
-        <SectionScope section="newsletter" variant="tab" asChild>
-          <button
-            onClick={toggleMenu}
-            className="section-bg section-fg px-4 pt-1 flex-1 text-center text-lg z-0 pb-1 w-full relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center cursor-pointer"
-            style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
-          >
-            {isMenuOpen ? 'CLOSE' : 'MENU'}
-          </button>
-        </SectionScope>
+        <button
+          onClick={toggleMenu}
+          className={menuButtonClass}
+          style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
+        >
+          {isMenuOpen ? 'CLOSE' : 'MENU'}
+        </button>
       </div>
 
       {/* Special PSST bridge row (keep your structure) */}
