@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from 'next/server'
 import {donationCheckoutSchema} from '@/lib/schemas/support'
+import {getMollieApiConfig} from '@/lib/payments/mollie'
 
 function stripEmpty(value?: string) {
   if (!value) return undefined
@@ -43,13 +44,10 @@ export async function POST(req: NextRequest) {
   try {
     const rawData = await req.json()
     const parsed = donationCheckoutSchema.parse(rawData)
-    const mollieApiKey = process.env.MOLLIE_API_KEY
+    const mollieConfig = getMollieApiConfig()
 
-    if (!mollieApiKey) {
-      return NextResponse.json(
-        {success: false, error: 'Missing MOLLIE_API_KEY configuration'},
-        {status: 500},
-      )
+    if (!mollieConfig.ok) {
+      return NextResponse.json({success: false, error: mollieConfig.error}, {status: 500})
     }
 
     const baseUrl = resolveBaseUrl(req)
@@ -68,7 +66,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch('https://api.mollie.com/v2/payments', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${mollieApiKey}`,
+        Authorization: `Bearer ${mollieConfig.apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

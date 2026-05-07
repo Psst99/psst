@@ -115,14 +115,15 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
               </CustomLink>
             </SectionScope>
 
-            {/* MENU button: legacy fixed colors */}
-            <button
-              onClick={toggleMenu}
-              className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-1 flex-1 text-center text-lg pb-1 w-full z-0 relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center cursor-pointer"
-              style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
-            >
-              {isMenuOpen ? 'CLOSE' : 'MENU'}
-            </button>
+            <SectionScope section="newsletter" variant="tab" asChild>
+              <button
+                onClick={toggleMenu}
+                className="section-bg section-fg px-4 pt-1 flex-1 text-center text-lg pb-1 w-full z-0 relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center cursor-pointer"
+                style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
+              >
+                {isMenuOpen ? 'CLOSE' : 'MENU'}
+              </button>
+            </SectionScope>
           </div>
 
           {isMenuOpen && (
@@ -190,14 +191,15 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
           </CustomLink>
         </SectionScope>
 
-        {/* MENU button: legacy fixed colors */}
-        <button
-          onClick={toggleMenu}
-          className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-1 flex-1 text-center text-lg z-0 pb-1 w-full relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center cursor-pointer"
-          style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
-        >
-          {isMenuOpen ? 'CLOSE' : 'MENU'}
-        </button>
+        <SectionScope section="newsletter" variant="tab" asChild>
+          <button
+            onClick={toggleMenu}
+            className="section-bg section-fg px-4 pt-1 flex-1 text-center text-lg z-0 pb-1 w-full relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center cursor-pointer"
+            style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
+          >
+            {isMenuOpen ? 'CLOSE' : 'MENU'}
+          </button>
+        </SectionScope>
       </div>
 
       {/* Special PSST bridge row (keep your structure) */}

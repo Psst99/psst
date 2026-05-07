@@ -2,6 +2,7 @@ import {NextRequest, NextResponse} from 'next/server'
 import {Resend} from 'resend'
 import {client} from '@/sanity/lib/client'
 import {writeToken} from '@/sanity/lib/token'
+import {getMollieApiConfig} from '@/lib/payments/mollie'
 
 type MolliePayment = {
   id: string
@@ -54,15 +55,15 @@ export async function POST(req: NextRequest) {
     const paymentId = await parsePaymentId(req)
     if (!paymentId) return NextResponse.json({received: true})
 
-    const mollieApiKey = process.env.MOLLIE_API_KEY
-    if (!mollieApiKey) {
-      console.error('Missing MOLLIE_API_KEY for webhook processing')
+    const mollieConfig = getMollieApiConfig()
+    if (!mollieConfig.ok) {
+      console.error(mollieConfig.error)
       return NextResponse.json({received: true})
     }
 
     const paymentResponse = await fetch(`https://api.mollie.com/v2/payments/${paymentId}`, {
       headers: {
-        Authorization: `Bearer ${mollieApiKey}`,
+        Authorization: `Bearer ${mollieConfig.apiKey}`,
       },
       cache: 'no-store',
     })
