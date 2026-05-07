@@ -47,7 +47,16 @@ export async function POST(req: NextRequest) {
     const mollieConfig = getMollieApiConfig()
 
     if (!mollieConfig.ok) {
-      return NextResponse.json({success: false, error: mollieConfig.error}, {status: 500})
+      return NextResponse.json(
+        {
+          success: false,
+          error: mollieConfig.error,
+          mollieMode: mollieConfig.mode,
+          mollieKeyKind: mollieConfig.apiKeyKind,
+          vercelEnv: mollieConfig.vercelEnv,
+        },
+        {status: 500},
+      )
     }
 
     const baseUrl = resolveBaseUrl(req)
@@ -106,7 +115,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    return NextResponse.json({success: true, checkoutUrl, paymentId: payment.id})
+    return NextResponse.json({
+      success: true,
+      checkoutUrl,
+      paymentId: payment.id,
+      mollieMode: mollieConfig.mode,
+      mollieKeyKind: mollieConfig.apiKeyKind,
+      vercelEnv: mollieConfig.vercelEnv,
+    })
   } catch (error) {
     console.error('Donation payment error:', error)
 
