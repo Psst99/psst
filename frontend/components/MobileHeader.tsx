@@ -118,7 +118,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
             {/* MENU button: legacy fixed colors */}
             <button
               onClick={toggleMenu}
-              className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-1 flex-1 text-center text-lg pb-1 w-full z-0 relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center"
+              className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-1 flex-1 text-center text-lg pb-1 w-full z-0 relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center cursor-pointer"
               style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
             >
               {isMenuOpen ? 'CLOSE' : 'MENU'}
@@ -193,7 +193,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
         {/* MENU button: legacy fixed colors */}
         <button
           onClick={toggleMenu}
-          className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-1 flex-1 text-center text-lg z-0 pb-1 w-full relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center"
+          className="bg-[#D2D2D2] text-[#1D53FF] px-4 pt-1 flex-1 text-center text-lg z-0 pb-1 w-full relative -ml-[14px] pl-[calc(1rem+14px)] flex items-center justify-center cursor-pointer"
           style={{borderTopRightRadius: '0', borderTopLeftRadius: '0'}}
         >
           {isMenuOpen ? 'CLOSE' : 'MENU'}

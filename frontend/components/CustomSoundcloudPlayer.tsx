@@ -415,7 +415,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
         onPointerMove={onDragMove}
         onPointerUp={onDragEnd}
         onPointerCancel={onDragEnd}
-        className={`soundcloud-player-fixed hidden md:flex fixed z-50 items-center justify-center cursor-grab active:cursor-grabbing ${
+        className={`soundcloud-player-fixed hidden min-[69.375rem]:flex fixed z-50 items-center justify-center cursor-grab active:cursor-grabbing ${
           !isDragging ? 'transition-all duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]' : ''
         } ${
           isDetached
@@ -530,18 +530,23 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
       {/* Mobile sliding drawer */}
       <div
         ref={mobileContainerRef}
-        className="md:hidden fixed right-0 z-50"
+        className="soundcloud-player-fixed min-[69.375rem]:hidden fixed right-0 z-50"
         style={{bottom: mobileBottom}}
       >
         <div
           className={`
-            rounded-l-md
             transition-transform duration-300 ease-in-out
             ${isExpanded ? 'translate-x-0' : 'translate-x-[calc(100%-40px)]'}
-            flex items-center
+            flex h-10 items-center
             max-w-[calc(100vw-8px)]
+            shadow-md
           `}
-          style={{backgroundColor: theme.bg, color: theme.fg}}
+          style={{
+            backgroundColor: theme.bg,
+            color: theme.fg,
+            borderRadius: `${DOCKED_PLAYER_RADIUS}px 0 0 ${DOCKED_PLAYER_RADIUS}px`,
+            overflow: 'hidden',
+          }}
         >
           {/* Toggle button (always visible) */}
           <button
@@ -550,15 +555,15 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
             onPointerMove={onMobileTogglePointerMove}
             onPointerUp={onMobileTogglePointerUp}
             onPointerCancel={onMobileTogglePointerUp}
-            className="w-10 h-10 flex items-center justify-center text-lg border-r-0 rounded-l-md flex-shrink-0 touch-none select-none"
+            className="w-10 h-10 flex items-center justify-center border-r-0 flex-shrink-0 touch-none select-none transition-transform active:scale-95"
             style={{backgroundColor: theme.bg, borderColor: theme.fg, color: theme.fg}}
             aria-label={isExpanded ? 'Collapse player' : 'Expand player'}
           >
-            ♪
+            {isPlaying ? <MdPause size={22} /> : <MdPlayArrow size={22} />}
           </button>
 
           {/* Player content (slides in/out) */}
-          <div className="flex items-center gap-1.5 px-2 py-1.5 min-w-0 max-w-[220px] overflow-hidden">
+          <div className="flex h-10 items-center gap-1.5 px-2 py-0 min-w-0 max-w-[220px] overflow-hidden">
             {loading ? (
               <span className="animate-pulse text-sm whitespace-nowrap" style={{color: theme.fg}}>
                 Loading...
@@ -581,7 +586,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
                     style={{color: theme.fg}}
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                   >
-                    {isPlaying ? <MdPause size={20} /> : <MdPlayArrow size={20} />}
+                    {isPlaying ? <MdPause size={22} /> : <MdPlayArrow size={22} />}
                   </button>
                   <button
                     onClick={next}

@@ -12,7 +12,6 @@ import {
 import {usePathname, useRouter, useSearchParams} from 'next/navigation'
 import {createPortal} from 'react-dom'
 import {IoMdClose} from 'react-icons/io'
-import {GiLetterBomb} from 'react-icons/gi'
 import {useForm} from 'react-hook-form'
 import {ThemeContext} from '@/app/ThemeProvider'
 import {FormField} from '@/components/form/FormField'
@@ -53,6 +52,31 @@ const DONATION_STATUS_PARAM = 'donation'
 const OPEN_VALUE = 'open'
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>
+
+function NewsletterIcon({className}: {className?: string}) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 740 420"
+      className={className}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <g fillRule="evenodd" stroke="none">
+        <polygon fill="currentColor" points="10,10 713,14 523,96" />
+        <polygon
+          fill="color-mix(in oklab, currentColor 62%, var(--newsletter-icon-base))"
+          points="10,10 523,96 540,304 450,163"
+        />
+        <polygon fill="currentColor" points="10,10 450,163 243,410" />
+        <polygon
+          fill="color-mix(in oklab, currentColor 28%, var(--newsletter-icon-base))"
+          points="450,163 540,304 380,247"
+        />
+      </g>
+    </svg>
+  )
+}
 
 const richTextComponents: PortableTextComponents = {
   block: {
@@ -212,6 +236,12 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     '--section-bg': modalTheme.bg,
     '--section-fg': modalTheme.fg,
   }
+  const floatingButtonVars: CSSVars = {
+    '--newsletter-icon-base': isOpen ? supportTheme.fg : supportTheme.bg,
+    right: '0',
+    backgroundColor: isOpen ? supportTheme.fg : supportTheme.bg,
+    color: isOpen ? supportTheme.bg : supportTheme.fg,
+  }
 
   const {
     register: registerNewsletter,
@@ -337,17 +367,12 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
       />
 
       <button
-        className="support-widget-fixed fixed z-[10002] flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-l-md shadow-[0_2px_12px_rgba(0,0,0,0.15)] cursor-pointer select-none transition-colors duration-300"
-        style={{
-          right: 0,
-          bottom: 'clamp(88px, 12vw, 136px)',
-          backgroundColor: isOpen ? supportTheme.fg : supportTheme.bg,
-          color: isOpen ? supportTheme.bg : supportTheme.fg,
-        }}
+        className="support-widget-fixed fixed right-0 bottom-[88px] z-[10002] flex h-10 w-10 min-[69.375rem]:bottom-[clamp(88px,12vw,136px)] min-[69.375rem]:h-12 min-[69.375rem]:w-12 items-center justify-center rounded-l-md shadow-[0_2px_12px_rgba(0,0,0,0.15)] cursor-pointer select-none transition-colors duration-300"
+        style={floatingButtonVars}
         onClick={onFloatingClick}
         aria-label="Open newsletter modal"
       >
-        <GiLetterBomb className="h-[22px] w-[22px] md:h-7 md:w-7" />
+        <NewsletterIcon className="h-[22px] w-[22px] min-[69.375rem]:h-7 min-[69.375rem]:w-7" />
       </button>
 
       <div
