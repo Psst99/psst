@@ -61,6 +61,19 @@ const defaultTheme: EmailTheme = {
   shadow: '0 18px 60px rgba(0,0,0,0.18)',
 }
 
+const emailClientStyles = `
+  a {
+    color: inherit !important;
+  }
+
+  a[x-apple-data-detectors],
+  .unstyle-auto-detected-links a,
+  #MessageViewBody a {
+    color: inherit !important;
+    text-decoration-color: currentColor !important;
+  }
+`
+
 function lines(value: string) {
   const parts = value.split('\n')
 
@@ -232,100 +245,99 @@ const WorkshopCardPreview = ({card, theme}: {card: EmailCard; theme: EmailTheme}
   </div>
 )
 
-const CardPreview = ({card, theme}: {card: EmailCard; theme: EmailTheme}) => (
+const CardPreview = ({card, theme}: {card: EmailCard; theme: EmailTheme}) =>
   card.kind === 'workshop' ? (
     <WorkshopCardPreview card={card} theme={theme} />
   ) : (
-  <div>
-    <table
-      role="presentation"
-      width="100%"
-      cellPadding="0"
-      cellSpacing="0"
-      style={{borderCollapse: 'collapse'}}
-    >
-      <tbody>
-        <tr>
-          <td style={{padding: 0, verticalAlign: 'top'}}>
-            <Heading as="h2" style={{...styles.modalTitle, color: theme.panelFg}}>
-              {card.title}
-            </Heading>
-          </td>
-          <td style={{padding: 0, verticalAlign: 'top', textAlign: 'right', width: 36}}>
-            {card.actionUrl ? <CardAction href={card.actionUrl} theme={theme} /> : null}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div>
+      <table
+        role="presentation"
+        width="100%"
+        cellPadding="0"
+        cellSpacing="0"
+        style={{borderCollapse: 'collapse'}}
+      >
+        <tbody>
+          <tr>
+            <td style={{padding: 0, verticalAlign: 'top'}}>
+              <Heading as="h2" style={{...styles.modalTitle, color: theme.panelFg}}>
+                {card.title}
+              </Heading>
+            </td>
+            <td style={{padding: 0, verticalAlign: 'top', textAlign: 'right', width: 36}}>
+              {card.actionUrl ? <CardAction href={card.actionUrl} theme={theme} /> : null}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-    {card.categories && card.categories.length > 0 && (
-      <ChipRow>
-        {card.categories.map((category) => (
-          <Chip
-            key={category}
-            style={{
-              backgroundColor: theme.categoryBg,
-              color: theme.categoryFg,
-              border: `2px solid ${theme.categoryBorder}`,
-              borderRadius: 0,
-              textTransform: 'uppercase',
-              fontSize: 16,
-              padding: '2px 2px',
-            }}
-          >
-            {category}
-          </Chip>
-        ))}
-      </ChipRow>
-    )}
+      {card.categories && card.categories.length > 0 && (
+        <ChipRow>
+          {card.categories.map((category) => (
+            <Chip
+              key={category}
+              style={{
+                backgroundColor: theme.categoryBg,
+                color: theme.categoryFg,
+                border: `2px solid ${theme.categoryBorder}`,
+                borderRadius: 0,
+                textTransform: 'uppercase',
+                fontSize: 16,
+                padding: '2px 2px',
+              }}
+            >
+              {category}
+            </Chip>
+          ))}
+        </ChipRow>
+      )}
 
-    {card.imageUrl && <Img src={card.imageUrl} alt="" width="640" style={styles.cardImage} />}
+      {card.imageUrl && <Img src={card.imageUrl} alt="" width="640" style={styles.cardImage} />}
 
-    {card.description && (
-      <Text style={{...styles.v, color: theme.panelFg}}>{lines(card.description)}</Text>
-    )}
-    {card.meta && card.meta.length > 0 && (
-      <div style={{marginTop: 12}}>
-        {card.meta.map((item) => (
-          <KV
-            key={`${item.label}-${item.value}`}
-            label={item.label}
-            value={item.value}
-            theme={theme}
-          />
-        ))}
-      </div>
-    )}
+      {card.description && (
+        <Text style={{...styles.v, color: theme.panelFg}}>{lines(card.description)}</Text>
+      )}
+      {card.meta && card.meta.length > 0 && (
+        <div style={{marginTop: 12}}>
+          {card.meta.map((item) => (
+            <KV
+              key={`${item.label}-${item.value}`}
+              label={item.label}
+              value={item.value}
+              theme={theme}
+            />
+          ))}
+        </div>
+      )}
 
-    {card.tags && card.tags.length > 0 && (
-      <ChipRow style={{marginTop: 20, gap: 0}}>
-        {card.tags.map((tag) => (
-          <Chip
-            key={tag.title}
-            style={{
-              backgroundColor: tag.bg,
-              color: tag.fg,
-              border: `2px solid ${tag.bd}`,
-              borderRadius: 0,
-              textTransform: 'lowercase',
-            }}
-          >
-            {tag.title}
-          </Chip>
-        ))}
-      </ChipRow>
-    )}
+      {card.tags && card.tags.length > 0 && (
+        <ChipRow style={{marginTop: 20, gap: 0}}>
+          {card.tags.map((tag) => (
+            <Chip
+              key={tag.title}
+              style={{
+                backgroundColor: tag.bg,
+                color: tag.fg,
+                border: `2px solid ${tag.bd}`,
+                borderRadius: 0,
+                textTransform: 'lowercase',
+              }}
+            >
+              {tag.title}
+            </Chip>
+          ))}
+        </ChipRow>
+      )}
 
-    {card.links && card.links.length > 0 && (
-      <ChipRow style={{marginTop: 20}}>
-        {card.links.map((link) => (
-          <LinkItem key={link.url} label={link.label} url={link.url} theme={theme} />
-        ))}
-      </ChipRow>
-    )}
-  </div>
+      {card.links && card.links.length > 0 && (
+        <ChipRow style={{marginTop: 20}}>
+          {card.links.map((link) => (
+            <LinkItem key={link.url} label={link.label} url={link.url} theme={theme} />
+          ))}
+        </ChipRow>
+      )}
+    </div>
   )
-)
 
 export const PsstFormEmail = ({
   content = defaultContent,
@@ -334,10 +346,13 @@ export const PsstFormEmail = ({
 }: PsstFormEmailProps) => {
   const hasNotice = content.notice.trim().length > 0
   const hasFooter = content.footer.trim().length > 0
+  const hasDisclaimer = content.disclaimer.trim().length > 0
 
   return (
     <Html>
-      <Head />
+      <Head>
+        <style>{emailClientStyles}</style>
+      </Head>
       <Preview>{content.previewText}</Preview>
 
       <Body style={{...styles.main, backgroundColor: theme.shellBg, color: theme.shellFg}}>
@@ -354,7 +369,11 @@ export const PsstFormEmail = ({
                 <CardPreview card={card} theme={theme} />
               ) : (
                 [
-                  <Heading key="heading" as="h2" style={{...styles.modalTitle, color: theme.panelFg}}>
+                  <Heading
+                    key="heading"
+                    as="h2"
+                    style={{...styles.modalTitle, color: theme.panelFg}}
+                  >
                     {content.heading}
                   </Heading>,
                   <Text key="intro" style={{...styles.v, color: theme.panelFg}}>
@@ -382,9 +401,11 @@ export const PsstFormEmail = ({
           {hasFooter ? (
             <Text style={{...styles.footer, color: theme.shellFg}}>{lines(content.footer)}</Text>
           ) : null}
-          <Text style={{...styles.disclaimer, color: theme.disclaimer}}>
-            {lines(content.disclaimer)}
-          </Text>
+          {hasDisclaimer ? (
+            <Text style={{...styles.disclaimer, color: theme.disclaimer}}>
+              {lines(content.disclaimer)}
+            </Text>
+          ) : null}
         </Container>
       </Body>
     </Html>

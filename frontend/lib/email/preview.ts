@@ -204,6 +204,9 @@ export function buildEmailContentFromDefaults(
   const intro = visibility.hideIntro ? '' : interpolatePreviewText(message.intro, variables)
   const notice = visibility.hideNotice ? '' : interpolatePreviewText(message.notice, variables)
   const footer = visibility.hideFooter ? '' : interpolatePreviewText(message.footer, variables)
+  const disclaimer = visibility.hideDisclaimer
+    ? ''
+    : interpolatePreviewText(message.disclaimer, variables)
 
   return {
     enabled: message.enabled,
@@ -213,7 +216,7 @@ export function buildEmailContentFromDefaults(
     intro,
     notice,
     footer,
-    disclaimer: interpolatePreviewText(message.disclaimer, variables),
+    disclaimer,
     from: overrides?.from || 'PSST <info@psst.space>',
     replyTo: overrides?.replyTo || 'info@psst.space',
   }

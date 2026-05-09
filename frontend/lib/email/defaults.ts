@@ -103,14 +103,12 @@ export const DEFAULT_EMAIL_MESSAGES: Record<EmailTemplateKey, EmailMessage> = {
   newsletterReceived: {
     enabled: true,
     subject: 'You are on the PSST newsletter list',
-    previewText: 'We saved your newsletter signup while the mailing setup is being finalized.',
+    previewText: 'Thanks for signing up to the PSST newsletter.',
     heading: 'You are on the list',
-    intro:
-      'Thanks for signing up to the PSST newsletter. We have saved your email and will add you to the live mailing list as soon as the Infomaniak setup is ready.',
-    notice:
-      'No extra action is needed from you. This confirmation means your signup was received on {{sourcePath}} and safely stored while we finish the newsletter handoff.',
-    footer: 'With care,\nPSST',
-    disclaimer: 'Automated newsletter confirmation for {{email}}.',
+    intro: 'Thanks for signing up to the PSST newsletter. We have saved your email.',
+    notice: '',
+    footer: '',
+    disclaimer: '',
   },
   pssoundRequestReceived: {
     enabled: true,

@@ -89,7 +89,9 @@ function mergeMessage(key: EmailTemplateKey, remote?: Partial<EmailMessage> | nu
     intro: visibility.hideIntro ? '' : resolveRequiredField(remote, 'intro', defaults.intro),
     notice: visibility.hideNotice ? '' : resolveOptionalField(remote, 'notice', defaults.notice),
     footer: visibility.hideFooter ? '' : resolveOptionalField(remote, 'footer', defaults.footer),
-    disclaimer: resolveRequiredField(remote, 'disclaimer', defaults.disclaimer),
+    disclaimer: visibility.hideDisclaimer
+      ? ''
+      : resolveRequiredField(remote, 'disclaimer', defaults.disclaimer),
   }
 }
 

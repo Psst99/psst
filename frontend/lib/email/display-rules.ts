@@ -8,6 +8,7 @@ const CARD_ONLY_TEMPLATES = new Set<EmailTemplateKey>([
 
 const NOTICELESS_TEMPLATES = new Set<EmailTemplateKey>([
   ...CARD_ONLY_TEMPLATES,
+  'newsletterReceived',
   'pssoundRequestReceived',
   'pssoundRequestApproved',
   'pssoundMembershipReceived',
@@ -19,11 +20,14 @@ const FOOTERLESS_TEMPLATES = new Set<EmailTemplateKey>([
   'databaseReceived',
   'resourceReceived',
   'workshopReceived',
+  'newsletterReceived',
   'pssoundRequestReceived',
   'pssoundRequestApproved',
   'pssoundMembershipReceived',
   'pssoundMembershipApproved',
 ])
+
+const DISCLAIMERLESS_TEMPLATES = new Set<EmailTemplateKey>(['newsletterReceived'])
 
 export function getEmailFieldVisibility(key: EmailTemplateKey) {
   const isCardOnly = CARD_ONLY_TEMPLATES.has(key)
@@ -33,5 +37,6 @@ export function getEmailFieldVisibility(key: EmailTemplateKey) {
     hideIntro: isCardOnly,
     hideNotice: NOTICELESS_TEMPLATES.has(key),
     hideFooter: FOOTERLESS_TEMPLATES.has(key),
+    hideDisclaimer: DISCLAIMERLESS_TEMPLATES.has(key),
   }
 }

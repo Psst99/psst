@@ -10,7 +10,7 @@ import {
 
 const EMAIL_TEMPLATE_GROUPS: Record<
   EmailTemplateKey,
-  'database' | 'resources' | 'workshops' | 'pssound'
+  'database' | 'resources' | 'workshops' | 'newsletter' | 'pssound'
 > = {
   databaseReceived: 'database',
   databaseApproved: 'database',
@@ -18,6 +18,7 @@ const EMAIL_TEMPLATE_GROUPS: Record<
   resourceApproved: 'resources',
   workshopReceived: 'workshops',
   workshopApproved: 'workshops',
+  newsletterReceived: 'newsletter',
   pssoundRequestReceived: 'pssound',
   pssoundRequestApproved: 'pssound',
   pssoundMembershipReceived: 'pssound',
@@ -31,6 +32,7 @@ const EMAIL_TEMPLATE_FIELD_TITLES: Record<EmailTemplateKey, string> = {
   resourceApproved: 'Approved',
   workshopReceived: 'Received',
   workshopApproved: 'Approved',
+  newsletterReceived: 'Confirmation',
   pssoundRequestReceived: 'Loan request: received',
   pssoundRequestApproved: 'Loan request: confirmed',
   pssoundMembershipReceived: 'Membership: received',
@@ -44,6 +46,7 @@ const EMAIL_TEMPLATE_FIELD_TYPES: Partial<Record<EmailTemplateKey, string>> = {
   resourceApproved: 'resourceApprovedEmailMessage',
   workshopReceived: 'workshopReceivedEmailMessage',
   workshopApproved: 'workshopApprovedEmailMessage',
+  newsletterReceived: 'newsletterReceivedEmailMessage',
   pssoundRequestReceived: 'pssoundRequestReceivedEmailMessage',
   pssoundRequestApproved: 'pssoundRequestApprovedEmailMessage',
   pssoundMembershipReceived: 'pssoundMembershipReceivedEmailMessage',
@@ -70,6 +73,7 @@ export const emailSettings = defineType({
     {name: 'database', title: 'Database'},
     {name: 'resources', title: 'Resources'},
     {name: 'workshops', title: 'Workshops'},
+    {name: 'newsletter', title: 'Newsletter'},
     {name: 'pssound', title: 'PSƧOUND'},
   ],
   initialValue: EMAIL_SETTINGS_DEFAULTS,

@@ -100,14 +100,19 @@ export default function EmailPreviewPane({document}: EmailPreviewPaneProps) {
   const rendered = {
     subject: interpolatePreviewText(message.subject, preview.variables),
     previewText: interpolatePreviewText(message.previewText, preview.variables),
-    heading: visibility.hideHeading ? '' : interpolatePreviewText(message.heading, preview.variables),
+    heading: visibility.hideHeading
+      ? ''
+      : interpolatePreviewText(message.heading, preview.variables),
     intro: visibility.hideIntro ? '' : interpolatePreviewText(message.intro, preview.variables),
     notice: visibility.hideNotice ? '' : interpolatePreviewText(message.notice, preview.variables),
     footer: visibility.hideFooter ? '' : interpolatePreviewText(message.footer, preview.variables),
-    disclaimer: interpolatePreviewText(message.disclaimer, preview.variables),
+    disclaimer: visibility.hideDisclaimer
+      ? ''
+      : interpolatePreviewText(message.disclaimer, preview.variables),
   }
   const hasNotice = rendered.notice.trim().length > 0
   const hasFooter = rendered.footer.trim().length > 0
+  const hasDisclaimer = rendered.disclaimer.trim().length > 0
 
   return (
     <Box padding={4}>
@@ -421,18 +426,20 @@ export default function EmailPreviewPane({document}: EmailPreviewPaneProps) {
               {rendered.footer}
             </div>
           ) : null}
-          <div
-            style={{
-              textAlign: 'center',
-              margin: '16px 0 0',
-              fontSize: 12,
-              lineHeight: 1.6,
-              color: preview.theme.disclaimer,
-              whiteSpace: 'pre-line',
-            }}
-          >
-            {rendered.disclaimer}
-          </div>
+          {hasDisclaimer ? (
+            <div
+              style={{
+                textAlign: 'center',
+                margin: '16px 0 0',
+                fontSize: 12,
+                lineHeight: 1.6,
+                color: preview.theme.disclaimer,
+                whiteSpace: 'pre-line',
+              }}
+            >
+              {rendered.disclaimer}
+            </div>
+          ) : null}
         </div>
       </Stack>
     </Box>

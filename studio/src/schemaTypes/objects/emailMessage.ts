@@ -65,14 +65,7 @@ export const emailMessage = defineType({
   name: 'emailMessage',
   title: 'Email message',
   type: 'object',
-  fields: [
-    ...baseFields,
-    headingField,
-    introField,
-    noticeField,
-    footerField,
-    disclaimerField,
-  ],
+  fields: [...baseFields, headingField, introField, noticeField, footerField, disclaimerField],
 })
 
 export const databaseReceivedEmailMessage = defineType({
@@ -115,6 +108,13 @@ export const workshopApprovedEmailMessage = defineType({
   title: 'Workshop approved email message',
   type: 'object',
   fields: [...baseFields, disclaimerField],
+})
+
+export const newsletterReceivedEmailMessage = defineType({
+  name: 'newsletterReceivedEmailMessage',
+  title: 'Newsletter confirmation email message',
+  type: 'object',
+  fields: [...baseFields, headingField, introField],
 })
 
 export const pssoundRequestReceivedEmailMessage = defineType({

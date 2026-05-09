@@ -11,12 +11,7 @@ import {
   CheckmarkIcon,
   FolderIcon,
 } from '@sanity/icons'
-import {
-  BsFillSpeakerFill,
-  BsFillInboxFill,
-  BsPlusCircle,
-  BsFillInfoCircleFill,
-} from 'react-icons/bs'
+import {BsFillSpeakerFill, BsFillInboxFill, BsFillInfoCircleFill, BsSendFill} from 'react-icons/bs'
 import {LuLibrary, LuLightbulb} from 'react-icons/lu'
 import {CgUnavailable} from 'react-icons/cg'
 import {MdOutlineAlternateEmail, MdOutlineInvertColors} from 'react-icons/md'
@@ -36,6 +31,47 @@ import type {StructureBuilder, StructureResolver} from 'sanity/structure'
 
 // const DISABLED_TYPES = ['settings', 'psstPage', 'assist.instruction.context']
 const STUDIO_API_VERSION = '2024-10-28'
+
+const newsletterListItem = (S: StructureBuilder) =>
+  S.listItem()
+    .title('Newsletter')
+    .icon(BsSendFill)
+    .child(
+      S.list()
+        .title('Newsletter')
+        .items([
+          S.listItem()
+            .title('Pending import')
+            .icon(ClockIcon)
+            .child(
+              S.documentList()
+                .title('Pending newsletter signups')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter('_type == "newsletterSubscription" && status == "pending"')
+                .defaultOrdering([{field: 'lastSubmittedAt', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('Synced to Infomaniak')
+            .icon(CheckmarkIcon)
+            .child(
+              S.documentList()
+                .title('Synced newsletter signups')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter('_type == "newsletterSubscription" && status == "synced"')
+                .defaultOrdering([{field: 'syncedAt', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('All signups')
+            .icon(ListIcon)
+            .child(
+              S.documentList()
+                .title('All newsletter signups')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter('_type == "newsletterSubscription"')
+                .defaultOrdering([{field: 'lastSubmittedAt', direction: 'desc'}]),
+            ),
+        ]),
+    )
 
 export const structure: StructureResolver = (S: StructureBuilder, context) =>
   S.list()
@@ -563,48 +599,6 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
             ]),
         ),
 
-      S.listItem()
-        .title('Newsletter signups')
-        .icon(MdOutlineAlternateEmail)
-        .child(
-          S.list()
-            .title('Newsletter signups')
-            .items([
-              S.listItem()
-                .title('Pending import')
-                .icon(ClockIcon)
-                .child(
-                  S.documentList()
-                    .title('Pending newsletter signups')
-                    .apiVersion(STUDIO_API_VERSION)
-                    .filter('_type == "newsletterSubscription" && status == "pending"')
-                    .defaultOrdering([{field: 'lastSubmittedAt', direction: 'desc'}]),
-                ),
-              S.listItem()
-                .title('Synced to Infomaniak')
-                .icon(CheckmarkIcon)
-                .child(
-                  S.documentList()
-                    .title('Synced newsletter signups')
-                    .apiVersion(STUDIO_API_VERSION)
-                    .filter('_type == "newsletterSubscription" && status == "synced"')
-                    .defaultOrdering([{field: 'syncedAt', direction: 'desc'}]),
-                ),
-              S.listItem()
-                .title('All signups')
-                .icon(ListIcon)
-                .child(
-                  S.documentList()
-                    .title('All newsletter signups')
-                    .apiVersion(STUDIO_API_VERSION)
-                    .filter('_type == "newsletterSubscription"')
-                    .defaultOrdering([{field: 'lastSubmittedAt', direction: 'desc'}]),
-                ),
-            ]),
-        ),
-
-      S.divider(),
-
       // ...S.documentTypeListItems()
       //   // Remove the "assist.instruction.context" and "settings" content  from the list of content types
       //   .apiVersion(STUDIO_API_VERSION).filter((listItem: any) => !DISABLED_TYPES.includes(listItem.getId()))
@@ -639,6 +633,8 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
               S.view.component(EmailPreviewPane).title('Preview').id('email-preview'),
             ]),
         ),
+
+      newsletterListItem(S),
 
       S.listItem()
         .title('Form success pages')
