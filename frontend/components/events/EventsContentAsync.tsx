@@ -2,6 +2,7 @@ import {eventsPageQuery} from '@/sanity/lib/queries'
 import {sanityFetch} from '@/sanity/lib/live'
 import CmsContent from '@/components/CmsContent'
 import EventsGrid from '@/components/events/EventsGrid'
+import {formatEventDateLabel, isEventUpcoming} from '@/lib/eventDates'
 
 export default async function EventsContentAsync() {
   const {data: page} = await sanityFetch({query: eventsPageQuery})
@@ -10,16 +11,13 @@ export default async function EventsContentAsync() {
   const items =
     events?.map((event: any) => {
       const now = new Date()
-      const dateObj = event.date ? new Date(event.date) : null
-      const isUpcoming = dateObj ? dateObj >= now : false
 
       return {
         _id: event._id,
         title: event.title,
         slug: event.slug?.current,
-        date: event.date ? new Date(event.date).toLocaleDateString() : undefined,
-        dateObj,
-        isUpcoming,
+        dateLabel: formatEventDateLabel(event),
+        isUpcoming: isEventUpcoming(event, now),
         tags: event.tags || [],
       }
     }) || []

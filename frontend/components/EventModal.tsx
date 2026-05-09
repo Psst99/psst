@@ -7,6 +7,7 @@ import {IoMdClose} from 'react-icons/io'
 import CmsContent from '@/components/CmsContent'
 import ModalMetaRows from '@/components/ModalMetaRows'
 import Tag from '@/components/Tag'
+import {formatEventDateLabels} from '@/lib/eventDates'
 import {MODAL_CLOSE_BUTTON_CLASS} from '@/lib/modalStyles'
 import {urlForImage} from '@/sanity/lib/utils'
 
@@ -17,7 +18,7 @@ interface EventModalProps {
 export default function EventModal({event}: EventModalProps) {
   const [isVisible, setIsVisible] = useState(false)
   const router = useRouter()
-  const eventDates = Array.isArray(event.dates) ? event.dates : event.date ? [event.date] : []
+  const eventDateLabels = formatEventDateLabels(event)
   const coverImage = event.image || event.coverImage
 
   // fade-in transition + lock scroll
@@ -66,18 +67,14 @@ export default function EventModal({event}: EventModalProps) {
           <div className="min-w-0">
             <h1 className="text-2xl min-[69.375rem]:text-3xl tracking-tight">{event.title}</h1>
 
-            {eventDates.length > 0 && (
+            {eventDateLabels.length > 0 && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                {eventDates.map((date: string, idx: number) => (
+                {eventDateLabels.map((dateLabel: string, idx: number) => (
                   <span
                     key={idx}
                     className="bg-[#00ffdd] text-white py-0 font-mono font-normal px-2 text-sm min-[69.375rem]:text-lg"
                   >
-                    {new Date(date).toLocaleDateString('en-US', {
-                      month: 'numeric',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
+                    {dateLabel}
                   </span>
                 ))}
               </div>

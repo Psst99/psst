@@ -8,8 +8,7 @@ import Tag from '../Tag'
 interface Event {
   _id: string
   title: string
-  date?: string
-  dateObj: Date | null
+  dateLabel?: string
   isUpcoming: boolean
   slug?: string
   tags: any[]
@@ -82,9 +81,9 @@ export default function EventsGrid({events}: EventsGridProps) {
           >
             <h2 className="text-4xl md:text-3xl mb-2 text-[#4E4E4E] capitalize">{item.title}</h2>
 
-            {item.date && (
+            {item.dateLabel && (
               <span className="mt-1 bg-[#4E4E4E] text-white px-1 py-0 text-sm font-mono block w-fit">
-                {item.date}
+                {item.dateLabel}
               </span>
             )}
 
