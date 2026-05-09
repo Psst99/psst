@@ -38,8 +38,13 @@ export const TextInput: React.FC<TextInputProps> = ({
   inputClassName = '',
   fieldClassName = '',
 }) => {
-  const baseClasses =
-    'w-full text-[color:var(--section-fg)] px-4 py-3 text-xl min-[69.375rem]:text-3xl border-0 outline-0'
+  const hasColorOverride = /(?:^|\s)(?:text|caret)-\[(?:color:)?|(?:^|\s)(?:text|caret)-\(/.test(
+    inputClassName,
+  )
+  const colorClasses = hasColorOverride
+    ? ''
+    : 'text-[color:var(--section-bg)] caret-[color:var(--section-bg)]'
+  const baseClasses = `w-full ${colorClasses} px-4 py-3 text-xl min-[69.375rem]:text-3xl border-0 outline-0`
   const finalClassName = className.includes('bg-') ? className : `bg-white ${className}`
   const mergedClassName = `${baseClasses} ${finalClassName} ${inputClassName}`.trim()
   const resolvedName = registration?.name ?? name

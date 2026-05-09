@@ -29,7 +29,7 @@ const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
 const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
 
 const LOCAL_FRONTEND_ORIGIN = 'http://localhost:3000'
-const PRODUCTION_FRONTEND_ORIGIN = 'https://psst-frontend.vercel.app'
+const PRODUCTION_FRONTEND_ORIGIN = 'https://psst.space'
 
 // URL for preview functionality, defaults to localhost in dev and the current production frontend
 // in deployed Studio builds.

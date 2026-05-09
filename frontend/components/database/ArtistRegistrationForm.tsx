@@ -111,7 +111,10 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
 
   return (
     <div className="p-6 h-full w-full min-[69.375rem]:max-w-[65vw] mx-auto min-[69.375rem]:p-4">
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 form-scroll-bottom-space">
+      <form
+        onSubmit={handleSubmit(handleFormSubmit)}
+        className="space-y-4 form-scroll-bottom-space"
+      >
         <FormField
           label="Name"
           error={errors.artistName}
@@ -204,14 +207,12 @@ export const ArtistRegistrationForm: React.FC<ArtistRegistrationFormProps> = ({
           <TextInput registration={register('description')} isTextArea rows={4} />
         </FormField>
 
-        {submitStatus.type && (
-          <div className="text-red-600">{submitStatus.message}</div>
-        )}
+        {submitStatus.type && <div className="text-red-600">{submitStatus.message}</div>}
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-16 section-bg section-fg text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block disabled:opacity-50"
+          className="mt-16 section-bg section-fg text-5xl tracking-tighter font-medium hover:opacity-90 transition-opacity w-64 h-64 rounded-full text-center mx-auto block cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>

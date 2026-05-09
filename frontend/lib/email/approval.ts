@@ -2,7 +2,10 @@ import 'server-only'
 
 import {client} from '@/sanity/lib/client'
 import {writeToken} from '@/sanity/lib/token'
-import {syncArtistDocumentToGoogleSheet} from '../google-sheets/artist-sync'
+import {
+  syncArtistDocumentToGoogleSheet,
+  type ArtistSheetSyncResult,
+} from '../google-sheets/artist-sync'
 import {sendPsstEmail} from './send'
 import {
   artistEmailCard,
@@ -25,9 +28,11 @@ type ApprovalResult =
       handled: true
       sent: boolean
       reason?: string
+      synced?: boolean
       updated?: boolean
       sheetName?: string
       rowNumber?: number
+      sheetSyncError?: string
       blockedDatesUpdated?: boolean
       blockedDatesId?: string
     }
@@ -70,6 +75,48 @@ async function patchError(id: string, error: unknown) {
     .catch(() => undefined)
 }
 
+async function patchArtistSheetError(id: string, error: unknown) {
+  await writeClient
+    .patch(id)
+    .set({
+      googleSheetsSyncError:
+        error instanceof Error ? error.message : 'Unknown Google Sheets sync error',
+    })
+    .commit()
+    .catch(() => undefined)
+}
+
+async function syncArtistForApproval(id: string) {
+  try {
+    const result = await syncArtistDocumentToGoogleSheet(id, {
+      mode: 'approval',
+      force: true,
+    })
+
+    return {
+      result,
+      sheetSyncError: result.synced ? undefined : result.reason,
+    }
+  } catch (error) {
+    await patchArtistSheetError(id, error)
+
+    return {
+      result: undefined,
+      sheetSyncError: error instanceof Error ? error.message : 'Unknown Google Sheets sync error',
+    }
+  }
+}
+
+function buildArtistSyncFields(syncResult?: ArtistSheetSyncResult, sheetSyncError?: string) {
+  return {
+    synced: syncResult?.synced ?? false,
+    updated: syncResult?.updated ?? false,
+    sheetName: syncResult?.sheetName,
+    rowNumber: syncResult?.rowNumber,
+    sheetSyncError,
+  }
+}
+
 async function handleArtist(id: string, baseUrl: string): Promise<ApprovalResult> {
   const doc = await writeClient.fetch<{
     _id: string
@@ -101,19 +148,15 @@ async function handleArtist(id: string, baseUrl: string): Promise<ApprovalResult
   if (!doc?.approved) return {handled: false, reason: 'artist is not approved'}
   if (!doc.artistName) return {handled: false, reason: 'artist name missing'}
 
-  const syncResult = await syncArtistDocumentToGoogleSheet(doc._id, {
-    mode: 'approval',
-    force: true,
-  })
+  const {result: syncResult, sheetSyncError} = await syncArtistForApproval(doc._id)
+  const syncFields = buildArtistSyncFields(syncResult, sheetSyncError)
 
   if (doc.approvalEmailSentAt) {
     return {
       handled: true,
       sent: false,
       reason: 'already sent',
-      updated: syncResult.updated,
-      sheetName: syncResult.sheetName,
-      rowNumber: syncResult.rowNumber,
+      ...syncFields,
     }
   }
 
@@ -122,9 +165,7 @@ async function handleArtist(id: string, baseUrl: string): Promise<ApprovalResult
       handled: true,
       sent: false,
       reason: 'artist email missing',
-      updated: syncResult.updated,
-      sheetName: syncResult.sheetName,
-      rowNumber: syncResult.rowNumber,
+      ...syncFields,
     }
   }
 
@@ -151,15 +192,15 @@ async function handleArtist(id: string, baseUrl: string): Promise<ApprovalResult
 
     if (result.sent) {
       await patchSuccess(doc._id)
+    } else {
+      await patchError(doc._id, new Error(result.reason || 'Approval email was not sent'))
     }
 
     return {
       handled: true,
       sent: result.sent,
       reason: result.sent ? undefined : result.reason,
-      updated: syncResult.updated,
-      sheetName: syncResult.sheetName,
-      rowNumber: syncResult.rowNumber,
+      ...syncFields,
     }
   } catch (error) {
     await patchError(doc._id, error)
