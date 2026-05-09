@@ -444,12 +444,30 @@ async function getSpreadsheet(forceRefresh = false) {
   return spreadsheetPromise
 }
 
+async function writeImportedSheetHeaders() {
+  const sheetsApi = await getSheetsApi()
+
+  await sheetsApi.spreadsheets.values.update({
+    spreadsheetId: getSpreadsheetId(),
+    range: `${quoteSheetTitle(IMPORTED_SHEET_TITLE)}!A1:J2`,
+    valueInputOption: 'USER_ENTERED',
+    requestBody: {
+      values: [[IMPORTED_SHEET_TITLE], IMPORTED_SHEET_HEADERS],
+    },
+  })
+
+  headerMapCache.delete(IMPORTED_SHEET_TITLE)
+}
+
 async function ensureImportedSheetExists() {
   const spreadsheet = await getSpreadsheet()
   const existingSheet = spreadsheet.sheets?.find(
     (sheet) => sheet.properties?.title === IMPORTED_SHEET_TITLE,
   )
-  if (existingSheet) return
+  if (existingSheet) {
+    await writeImportedSheetHeaders()
+    return
+  }
 
   const sheetsApi = await getSheetsApi()
   await sheetsApi.spreadsheets.batchUpdate({
@@ -470,17 +488,9 @@ async function ensureImportedSheetExists() {
     },
   })
 
-  await sheetsApi.spreadsheets.values.update({
-    spreadsheetId: getSpreadsheetId(),
-    range: `${quoteSheetTitle(IMPORTED_SHEET_TITLE)}!A1:J2`,
-    valueInputOption: 'USER_ENTERED',
-    requestBody: {
-      values: [[IMPORTED_SHEET_TITLE], IMPORTED_SHEET_HEADERS],
-    },
-  })
+  await writeImportedSheetHeaders()
 
   spreadsheetPromise = undefined
-  headerMapCache.delete(IMPORTED_SHEET_TITLE)
 }
 
 async function resolveSheetName(
@@ -537,6 +547,33 @@ async function getHeaderMap(sheetName: string) {
 
   headerMapCache.set(sheetName, headerMap)
   return headerMap
+}
+
+async function resolveWritableSheet(
+  artist: ArtistSheetDocument,
+  mode: ArtistSheetSyncMode,
+  options: {allowSheetCreation?: boolean} = {},
+) {
+  const allowSheetCreation = options.allowSheetCreation ?? true
+  const preferredSheetName = await resolveSheetName(artist, mode, options)
+
+  try {
+    return {
+      sheetName: preferredSheetName,
+      headerMap: await getHeaderMap(preferredSheetName),
+    }
+  } catch (error) {
+    if (preferredSheetName === IMPORTED_SHEET_TITLE || !allowSheetCreation) {
+      throw error
+    }
+
+    await ensureImportedSheetExists()
+
+    return {
+      sheetName: IMPORTED_SHEET_TITLE,
+      headerMap: await getHeaderMap(IMPORTED_SHEET_TITLE),
+    }
+  }
 }
 
 function buildSheetRow(artist: ArtistSheetDocument, headerMap: Map<SheetFieldKey, number>) {
@@ -678,14 +715,14 @@ export async function syncArtistDocumentToGoogleSheet(
     }
   }
 
-  const headerMap = await getHeaderMap(sheetName)
-  const row = buildSheetRow(artist, headerMap)
-
   try {
+    const {sheetName: writableSheetName, headerMap} = await resolveWritableSheet(artist, mode)
+    const row = buildSheetRow(artist, headerMap)
     const result =
-      typeof artist.googleSheetsRowNumber === 'number' && artist.googleSheetsSheetName === sheetName
-        ? await updateSheetRow(sheetName, artist.googleSheetsRowNumber, row)
-        : await appendSheetRow(sheetName, row)
+      typeof artist.googleSheetsRowNumber === 'number' &&
+      artist.googleSheetsSheetName === writableSheetName
+        ? await updateSheetRow(writableSheetName, artist.googleSheetsRowNumber, row)
+        : await appendSheetRow(writableSheetName, row)
 
     await patchArtistSyncSuccess(artist._id, result)
 

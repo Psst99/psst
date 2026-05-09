@@ -188,6 +188,12 @@
     padding-bottom: 3rem;
   }
 
+  .form-text-input {
+    --form-autofill-fg: var(--section-bg);
+    color: var(--form-autofill-fg);
+    caret-color: var(--form-autofill-fg);
+  }
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
@@ -198,8 +204,8 @@
   select:-webkit-autofill:hover,
   select:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0 1000px var(--form-autofill-bg, #ffffff) inset !important;
-    -webkit-text-fill-color: currentColor !important;
-    caret-color: currentColor;
+    -webkit-text-fill-color: var(--form-autofill-fg, var(--section-bg)) !important;
+    caret-color: var(--form-autofill-fg, var(--section-bg));
     transition: background-color 999999s ease-out 0s;
   }
 
@@ -1225,6 +1231,7 @@
 
 .support-modal-input {
   --form-autofill-bg: #ececec;
+  --form-autofill-fg: var(--section-fg);
   color: var(--section-fg) !important;
   caret-color: var(--section-fg);
 }
