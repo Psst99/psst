@@ -5,6 +5,7 @@ export const EMAIL_TEMPLATE_KEYS = [
   'resourceApproved',
   'workshopReceived',
   'workshopApproved',
+  'newsletterReceived',
   'pssoundRequestReceived',
   'pssoundRequestApproved',
   'pssoundMembershipReceived',
@@ -98,6 +99,18 @@ export const DEFAULT_EMAIL_MESSAGES: Record<EmailTemplateKey, EmailMessage> = {
     notice: 'Selected date(s): {{selectedDates}}. Reply if you need to change anything.',
     footer: 'With care,\nPSST',
     disclaimer: 'Automated approval confirmation for {{email}}.',
+  },
+  newsletterReceived: {
+    enabled: true,
+    subject: 'You are on the PSST newsletter list',
+    previewText: 'We saved your newsletter signup while the mailing setup is being finalized.',
+    heading: 'You are on the list',
+    intro:
+      'Thanks for signing up to the PSST newsletter. We have saved your email and will add you to the live mailing list as soon as the Infomaniak setup is ready.',
+    notice:
+      'No extra action is needed from you. This confirmation means your signup was received on {{sourcePath}} and safely stored while we finish the newsletter handoff.',
+    footer: 'With care,\nPSST',
+    disclaimer: 'Automated newsletter confirmation for {{email}}.',
   },
   pssoundRequestReceived: {
     enabled: true,

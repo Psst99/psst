@@ -562,6 +562,46 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
             ]),
         ),
 
+      S.listItem()
+        .title('Newsletter signups')
+        .icon(MdOutlineAlternateEmail)
+        .child(
+          S.list()
+            .title('Newsletter signups')
+            .items([
+              S.listItem()
+                .title('Pending import')
+                .icon(ClockIcon)
+                .child(
+                  S.documentList()
+                    .title('Pending newsletter signups')
+                    .apiVersion(STUDIO_API_VERSION)
+                    .filter('_type == "newsletterSubscription" && status == "pending"')
+                    .defaultOrdering([{field: 'lastSubmittedAt', direction: 'desc'}]),
+                ),
+              S.listItem()
+                .title('Synced to Infomaniak')
+                .icon(CheckmarkIcon)
+                .child(
+                  S.documentList()
+                    .title('Synced newsletter signups')
+                    .apiVersion(STUDIO_API_VERSION)
+                    .filter('_type == "newsletterSubscription" && status == "synced"')
+                    .defaultOrdering([{field: 'syncedAt', direction: 'desc'}]),
+                ),
+              S.listItem()
+                .title('All signups')
+                .icon(ListIcon)
+                .child(
+                  S.documentList()
+                    .title('All newsletter signups')
+                    .apiVersion(STUDIO_API_VERSION)
+                    .filter('_type == "newsletterSubscription"')
+                    .defaultOrdering([{field: 'lastSubmittedAt', direction: 'desc'}]),
+                ),
+            ]),
+        ),
+
       S.divider(),
 
       // ...S.documentTypeListItems()

@@ -1,9 +1,4 @@
-import {
-  artistEmailCard,
-  formatDateList,
-  resourceEmailCard,
-  workshopEmailCard,
-} from './cards'
+import {artistEmailCard, formatDateList, resourceEmailCard, workshopEmailCard} from './cards'
 import {getEmailFieldVisibility} from './display-rules'
 import {DEFAULT_EMAIL_MESSAGES, EMAIL_TEMPLATE_KEYS, type EmailTemplateKey} from './defaults'
 import {createEmailTheme} from './theme'
@@ -115,6 +110,15 @@ const PREVIEW_DEFINITIONS: PreviewRecord = {
       publicUrl: 'https://psst.space/workshops/w/introduction-to-live-sound',
     }),
   },
+  newsletterReceived: {
+    templateKey: 'newsletterReceived',
+    routeId: 'newsletter-confirmation',
+    label: 'Newsletter confirmation',
+    variables: {
+      email: 'submitter@example.com',
+      sourcePath: '/events',
+    },
+  },
   pssoundRequestReceived: {
     templateKey: 'pssoundRequestReceived',
     routeId: 'pssound-request-confirmation',
@@ -184,9 +188,8 @@ export function interpolatePreviewText(
 
   if (!normalizedValue) return ''
 
-  return normalizedValue.replace(
-    /\{\{\s*([\w.]+)\s*\}\}/g,
-    (_, key: string) => valueForPath(variables, key),
+  return normalizedValue.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, key: string) =>
+    valueForPath(variables, key),
   )
 }
 

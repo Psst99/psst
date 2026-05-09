@@ -46,18 +46,14 @@ export function interpolateEmailText(value: string | null | undefined, variables
 
   if (!normalizedValue) return ''
 
-  return normalizedValue.replace(
-    /\{\{\s*([\w.]+)\s*\}\}/g,
-    (_, key: string) => valueForPath(variables, key),
+  return normalizedValue.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, key: string) =>
+    valueForPath(variables, key),
   )
 }
 
 function resolveRequiredField(
   remote: Partial<EmailMessage> | null | undefined,
-  key: keyof Pick<
-    EmailMessage,
-    'subject' | 'previewText' | 'heading' | 'intro' | 'disclaimer'
-  >,
+  key: keyof Pick<EmailMessage, 'subject' | 'previewText' | 'heading' | 'intro' | 'disclaimer'>,
   fallback: string,
 ) {
   const value = remote?.[key]
@@ -87,7 +83,9 @@ function mergeMessage(key: EmailTemplateKey, remote?: Partial<EmailMessage> | nu
     enabled: remote?.enabled ?? defaults.enabled,
     subject: resolveRequiredField(remote, 'subject', defaults.subject),
     previewText: resolveRequiredField(remote, 'previewText', defaults.previewText),
-    heading: visibility.hideHeading ? '' : resolveRequiredField(remote, 'heading', defaults.heading),
+    heading: visibility.hideHeading
+      ? ''
+      : resolveRequiredField(remote, 'heading', defaults.heading),
     intro: visibility.hideIntro ? '' : resolveRequiredField(remote, 'intro', defaults.intro),
     notice: visibility.hideNotice ? '' : resolveOptionalField(remote, 'notice', defaults.notice),
     footer: visibility.hideFooter ? '' : resolveOptionalField(remote, 'footer', defaults.footer),
@@ -114,6 +112,7 @@ async function fetchEmailSettings(): Promise<EmailSettings> {
     resourceApproved: mergeMessage('resourceApproved', settings.resourceApproved),
     workshopReceived: mergeMessage('workshopReceived', settings.workshopReceived),
     workshopApproved: mergeMessage('workshopApproved', settings.workshopApproved),
+    newsletterReceived: mergeMessage('newsletterReceived', settings.newsletterReceived),
     pssoundRequestReceived: mergeMessage('pssoundRequestReceived', settings.pssoundRequestReceived),
     pssoundRequestApproved: mergeMessage('pssoundRequestApproved', settings.pssoundRequestApproved),
     pssoundMembershipReceived: mergeMessage(
