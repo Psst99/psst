@@ -50,6 +50,7 @@ type NewsletterFormValues = {
 const SUPPORT_PARAM = 'support'
 const SUPPORT_TAB_PARAM = 'supportTab'
 const DONATION_STATUS_PARAM = 'donation'
+const NEWSLETTER_STATUS_PARAM = 'newsletter'
 const OPEN_VALUE = 'open'
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>
@@ -188,12 +189,13 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
   const [donationMessage, setDonationMessage] = useState('')
   const [donationError, setDonationError] = useState<string | null>(null)
   const [isDonationSubmitting, setIsDonationSubmitting] = useState(false)
-  const [newsletterState, setNewsletterState] = useState<'idle' | 'success' | 'error'>('idle')
+  const [newsletterState, setNewsletterState] = useState<'idle' | 'error'>('idle')
   const [newsletterMessage, setNewsletterMessage] = useState('')
   const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false)
 
   const isOpen = searchParams.get(SUPPORT_PARAM) === OPEN_VALUE
   const donationStatus = searchParams.get(DONATION_STATUS_PARAM)
+  const newsletterStatus = searchParams.get(NEWSLETTER_STATUS_PARAM)
   const tabFromUrl = searchParams.get(SUPPORT_TAB_PARAM)
   const donationSuccess = donationStatus === 'success'
   const donationFailed =
@@ -202,6 +204,8 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
     donationStatus === 'cancelled' ||
     donationStatus === 'expired'
   const showDonationResultScreen = donationSuccess || donationFailed
+  const newsletterSuccess = newsletterStatus === 'success'
+  const showResultScreen = showDonationResultScreen || newsletterSuccess
   const modalTitle = content?.modalTitle?.trim() || 'Support PSST'
   const donationTabLabel = content?.donationTabLabel?.trim() || 'Make a donation'
   const newsletterTabLabel = content?.newsletterTabLabel?.trim() || 'Newsletter'
@@ -265,6 +269,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         next.set(SUPPORT_PARAM, OPEN_VALUE)
         next.set(SUPPORT_TAB_PARAM, tab)
         next.delete(DONATION_STATUS_PARAM)
+        next.delete(NEWSLETTER_STATUS_PARAM)
       })
     },
     [updateSearchParams],
@@ -277,6 +282,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         next.delete(SUPPORT_PARAM)
         next.delete(SUPPORT_TAB_PARAM)
         next.delete(DONATION_STATUS_PARAM)
+        next.delete(NEWSLETTER_STATUS_PARAM)
       })
     }, 300)
   }, [updateSearchParams])
@@ -400,9 +406,16 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
           return
         }
 
-        setNewsletterState('success')
-        setNewsletterMessage('success')
+        setNewsletterState('idle')
+        setNewsletterMessage('')
         resetNewsletterForm()
+        setActiveTab('newsletter')
+        updateSearchParams((next) => {
+          next.set(SUPPORT_PARAM, OPEN_VALUE)
+          next.set(SUPPORT_TAB_PARAM, 'newsletter')
+          next.set(NEWSLETTER_STATUS_PARAM, 'success')
+          next.delete(DONATION_STATUS_PARAM)
+        })
       } catch (error) {
         setNewsletterState('error')
         setNewsletterMessage(
@@ -412,7 +425,7 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
         setIsNewsletterSubmitting(false)
       }
     },
-    [pathname, resetNewsletterForm],
+    [pathname, resetNewsletterForm, updateSearchParams],
   )
 
   const onFloatingClick = useCallback(() => {
@@ -471,11 +484,17 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
             <IoMdClose className="h-7 w-7" aria-hidden="true" />
           </button>
 
-          {showDonationResultScreen ? (
+          {showResultScreen ? (
             <div className="min-h-[320px] pb-16 flex flex-col items-center justify-center text-center px-4">
               <div className="w-full max-w-3xl space-y-4">
                 <SupportConfirmationText
-                  value={donationSuccess ? donationSuccessMessage : donationFailedMessage}
+                  value={
+                    newsletterSuccess
+                      ? newsletterSuccessMessage
+                      : donationSuccess
+                        ? donationSuccessMessage
+                        : donationFailedMessage
+                  }
                 />
               </div>
             </div>
@@ -643,12 +662,6 @@ export default function SupportModalWidget({content = null}: SupportModalWidgetP
                         className="bg-transparent support-modal-input"
                       />
                     </FormField>
-
-                    {newsletterState === 'success' && (
-                      <div className="text-[var(--panel-fg)]">
-                        <SupportConfirmationText value={newsletterSuccessMessage} />
-                      </div>
-                    )}
 
                     {newsletterState === 'error' && (
                       <p className="text-sm text-red-600">{newsletterMessage}</p>
