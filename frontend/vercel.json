@@ -1,3 +1,55 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "redirects": [
+    {
+      "source": "/news",
+      "destination": "/events",
+      "permanent": true
+    },
+    {
+      "source": "/news/:path*",
+      "destination": "/events",
+      "permanent": true
+    },
+    {
+      "source": "/archives",
+      "destination": "/archive",
+      "permanent": true
+    },
+    {
+      "source": "/archives/:path*",
+      "destination": "/archive",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{"type": "host", "value": "www.psst.space"}],
+      "destination": "https://psst.space/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{"type": "host", "value": "psstmlle.space"}],
+      "destination": "https://psst.space/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{"type": "host", "value": "www.psstmlle.space"}],
+      "destination": "https://psst.space/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{"type": "host", "value": "pstmlle.space"}],
+      "destination": "https://psst.space/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{"type": "host", "value": "www.pstmlle.space"}],
+      "destination": "https://psst.space/:path*",
+      "permanent": true
+    }
+  ]
 }

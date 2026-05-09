@@ -1,7 +1,22 @@
 import CmsContent from '@/components/CmsContent'
+import {buildPageMetadata} from '@/lib/seo'
 import {sanityFetch} from '@/sanity/lib/live'
 import {pssoundFirstSectionQuery} from '@/sanity/lib/queries'
 import {notFound} from 'next/navigation'
+
+export async function generateMetadata() {
+  const {data} = await sanityFetch({
+    query: pssoundFirstSectionQuery,
+    stega: false,
+  })
+
+  return buildPageMetadata({
+    title: data?.title || 'PSƧOUND System',
+    description: data?.content,
+    seo: data?.seo,
+    path: '/pssound-system',
+  })
+}
 
 export default function PssoundSystemPage() {
   return <PssoundSystemPageAsync />

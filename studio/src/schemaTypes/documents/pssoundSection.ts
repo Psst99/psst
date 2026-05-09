@@ -23,6 +23,11 @@ export default defineType({
         }),
     }),
     defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+    }),
+    defineField({
       name: 'layout',
       title: 'Layout',
       type: 'string',

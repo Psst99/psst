@@ -112,6 +112,11 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                 .title('Guidelines')
                 .icon(BookIcon)
                 .child(S.document().schemaType('guidelines').documentId('database-guidelines')),
+
+              S.listItem()
+                .title('Settings')
+                .icon(CogIcon)
+                .child(S.document().schemaType('pageSettings').documentId('database-pageSettings')),
             ]),
         ),
 
@@ -173,6 +178,13 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                 .title('Guidelines')
                 .icon(BookIcon)
                 .child(S.document().schemaType('guidelines').documentId('resources-guidelines')),
+
+              S.listItem()
+                .title('Settings')
+                .icon(CogIcon)
+                .child(
+                  S.document().schemaType('pageSettings').documentId('resources-pageSettings'),
+                ),
             ]),
         ),
 
@@ -211,6 +223,13 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                             .title('Accepted Memberships')
                             .apiVersion(STUDIO_API_VERSION)
                             .filter('_type == "pssoundMembership" && approved == true'),
+                        ),
+                      S.divider(),
+                      S.listItem()
+                        .title('Settings')
+                        .icon(CogIcon)
+                        .child(
+                          S.document().schemaType('membershipPage').documentId('membershipPage'),
                         ),
                     ]),
                 ),
@@ -254,6 +273,15 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                             .apiVersion(STUDIO_API_VERSION)
                             .filter('_type == "pssoundCalendar"'),
                         ),
+                      S.divider(),
+                      S.listItem()
+                        .title('Settings')
+                        .icon(CogIcon)
+                        .child(
+                          S.document()
+                            .schemaType('pageSettings')
+                            .documentId('pssound-request-pageSettings'),
+                        ),
                     ]),
                 ),
 
@@ -276,7 +304,7 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                             .defaultOrdering([{field: 'date', direction: 'desc'}]),
                         ),
                       S.listItem()
-                        .title('Page settings')
+                        .title('Settings')
                         .icon(CogIcon)
                         .child(
                           S.document()
@@ -499,7 +527,7 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
               S.documentTypeListItem('eventTag').title('Tags').icon(TagIcon),
               S.divider(),
               S.listItem()
-                .title('Page settings')
+                .title('Settings')
                 .icon(CogIcon)
                 .child(S.document().schemaType('pageSettings').documentId('events-pageSettings')),
             ]),
@@ -526,9 +554,9 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
 
               S.divider(),
 
-              // 3. Archive Page Settings (singleton)
+              // 3. Archive Settings (singleton)
               S.listItem()
-                .title('Page settings')
+                .title('Settings')
                 .icon(CogIcon)
                 .child(S.document().schemaType('pageSettings').documentId('archive-pageSettings')),
             ]),

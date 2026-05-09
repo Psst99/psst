@@ -1,8 +1,19 @@
 import {defineField, defineType} from 'sanity'
 
+const SEO_ONLY_PAGE_SETTINGS_IDS = new Set([
+  'database-pageSettings',
+  'resources-pageSettings',
+  'pssound-request-pageSettings',
+])
+
+function isSeoOnlyPageSettings(document: any) {
+  const id = document?._id?.replace(/^drafts\./, '')
+  return SEO_ONLY_PAGE_SETTINGS_IDS.has(id)
+}
+
 export const pageSettings = defineType({
   name: 'pageSettings',
-  title: 'Page settings',
+  title: 'Settings',
   type: 'document',
   fields: [
     defineField({
@@ -10,6 +21,11 @@ export const pageSettings = defineType({
       title: 'Title',
       type: 'string',
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
     }),
     defineField({
       name: 'layout',
@@ -23,12 +39,14 @@ export const pageSettings = defineType({
         layout: 'radio',
       },
       initialValue: 'default',
+      hidden: ({document}) => isSeoOnlyPageSettings(document),
     }),
 
     defineField({
       name: 'description',
       title: 'Page description',
       type: 'array',
+      hidden: ({document}) => isSeoOnlyPageSettings(document),
       of: [
         {
           type: 'block',
@@ -97,7 +115,7 @@ export const pageSettings = defineType({
   preview: {
     prepare() {
       return {
-        title: 'Page settings',
+        title: 'Settings',
       }
     },
   },

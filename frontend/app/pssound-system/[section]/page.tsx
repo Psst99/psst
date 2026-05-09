@@ -1,7 +1,24 @@
 import CmsContent from '@/components/CmsContent'
+import {buildPageMetadata} from '@/lib/seo'
 import {sanityFetch} from '@/sanity/lib/live'
 import {pssoundSectionBySlugQuery} from '@/sanity/lib/queries'
 import {notFound} from 'next/navigation'
+
+export async function generateMetadata({params}: {params: Promise<{section: string}>}) {
+  const {section} = await params
+  const {data} = await sanityFetch({
+    query: pssoundSectionBySlugQuery,
+    params: {slug: section},
+    stega: false,
+  })
+
+  return buildPageMetadata({
+    title: data?.title,
+    description: data?.content,
+    seo: data?.seo,
+    path: `/pssound-system/${section}`,
+  })
+}
 
 export default async function PssoundSystemSectionPage({
   params,

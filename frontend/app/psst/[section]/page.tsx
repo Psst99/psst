@@ -1,7 +1,24 @@
 import CmsContent from '@/components/CmsContent'
+import {buildPageMetadata} from '@/lib/seo'
 import {sanityFetch} from '@/sanity/lib/live'
 import {psstSectionBySlugQuery} from '@/sanity/lib/queries'
 import {notFound} from 'next/navigation'
+
+export async function generateMetadata({params}: {params: Promise<{section: string}>}) {
+  const {section} = await params
+  const {data} = await sanityFetch({
+    query: psstSectionBySlugQuery,
+    params: {slug: section},
+    stega: false,
+  })
+
+  return buildPageMetadata({
+    title: data?.title,
+    description: data?.content,
+    seo: data?.seo,
+    path: `/psst/${section}`,
+  })
+}
 
 export default async function PsstSectionPage({params}: {params: Promise<{section: string}>}) {
   const {section} = await params

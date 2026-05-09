@@ -12,6 +12,11 @@ export const membershipPage = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+    }),
+    defineField({
       name: 'description',
       title: 'Page description',
       type: 'array',

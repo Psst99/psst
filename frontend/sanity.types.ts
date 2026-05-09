@@ -13,58 +13,174 @@
  */
 
 // Source: schema.json
-export type PssoundMembership = {
-  _id: string
-  _type: 'pssoundMembership'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  collectiveName?: string
-  isPolitical?: Array<string>
-  otherPolitical?: string
-  caribbeanOrAfro?: boolean
-  qualifiedSoundEngineer?: 'yes' | 'no_commit'
-  annualContribution?: string
-  charterSigned?: boolean
-  approved?: boolean
-  startDate?: string
+export type PssoundMembershipApprovedEmailMessage = {
+  _type: 'pssoundMembershipApprovedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  heading?: string
+  intro?: string
+  disclaimer?: string
+}
+
+export type PssoundMembershipReceivedEmailMessage = {
+  _type: 'pssoundMembershipReceivedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  heading?: string
+  intro?: string
+  disclaimer?: string
+}
+
+export type PssoundRequestApprovedEmailMessage = {
+  _type: 'pssoundRequestApprovedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  heading?: string
+  intro?: string
+  disclaimer?: string
+}
+
+export type PssoundRequestReceivedEmailMessage = {
+  _type: 'pssoundRequestReceivedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  heading?: string
+  intro?: string
+  disclaimer?: string
+}
+
+export type WorkshopApprovedEmailMessage = {
+  _type: 'workshopApprovedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  disclaimer?: string
+}
+
+export type WorkshopReceivedEmailMessage = {
+  _type: 'workshopReceivedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  heading?: string
+  intro?: string
+  disclaimer?: string
+}
+
+export type ResourceApprovedEmailMessage = {
+  _type: 'resourceApprovedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  disclaimer?: string
+}
+
+export type ResourceReceivedEmailMessage = {
+  _type: 'resourceReceivedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  heading?: string
+  intro?: string
+  disclaimer?: string
+}
+
+export type DatabaseApprovedEmailMessage = {
+  _type: 'databaseApprovedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  disclaimer?: string
+}
+
+export type DatabaseReceivedEmailMessage = {
+  _type: 'databaseReceivedEmailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  heading?: string
+  intro?: string
+  disclaimer?: string
+}
+
+export type EmailMessage = {
+  _type: 'emailMessage'
+  enabled?: boolean
+  subject?: string
+  previewText?: string
+  heading?: string
+  intro?: string
+  notice?: string
+  footer?: string
+  disclaimer?: string
+}
+
+export type Seo = {
+  _type: 'seo'
+  metaTitle?: string
+  metaDescription?: string
+  ogImage?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  noIndex?: boolean
 }
 
 export type HighlightedBox = {
   _type: 'highlightedBox'
-  content?: Array<{
-    children?: Array<{
-      marks?: Array<string>
-      text?: string
-      _type: 'span'
-      _key: string
-    }>
-    style?: 'h2' | 'normal'
-    listItem?: 'bullet' | 'number'
-    markDefs?: Array<
-      | ({
+  content?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
           _key: string
-        } & TextColor)
-      | ({
-          _key: string
-        } & HighlightColor)
-    >
-    level?: number
-    _type: 'block'
-    _key: string
-  }>
+        }>
+        style?: 'normal' | 'h2'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+  showHeadingAsTab?: boolean
+  tabPosition?: 'left' | 'right'
   useCustomBgColor?: boolean
   customBgColor?: string
   useCustomTextColor?: boolean
   customTextColor?: string
-}
-
-export type CallToAction = {
-  _type: 'callToAction'
-  heading?: string
-  text?: string
-  buttonText?: string
-  link?: Link
 }
 
 export type Link = {
@@ -86,42 +202,19 @@ export type Link = {
   openInNewTab?: boolean
 }
 
+export type CallToAction = {
+  _type: 'callToAction'
+  heading?: string
+  text?: string
+  buttonText?: string
+  link?: Link
+}
+
 export type InfoSection = {
   _type: 'infoSection'
   heading?: string
   subheading?: string
-  content?: Array<{
-    children?: Array<{
-      marks?: Array<string>
-      text?: string
-      _type: 'span'
-      _key: string
-    }>
-    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
-    listItem?: 'bullet' | 'number'
-    markDefs?: Array<{
-      linkType?: 'href' | 'page' | 'post'
-      href?: string
-      page?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'page'
-      }
-      post?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'post'
-      }
-      openInNewTab?: boolean
-      _type: 'link'
-      _key: string
-    }>
-    level?: number
-    _type: 'block'
-    _key: string
-  }>
+  content?: BlockContent
 }
 
 export type BlockContent = Array<{
@@ -160,6 +253,22 @@ export type BlockContent = Array<{
 export type ResourceTag = {
   _id: string
   _type: 'resourceTag'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title?: string
+  slug?: Slug
+}
+
+export type Slug = {
+  _type: 'slug'
+  current?: string
+  source?: string
+}
+
+export type ResourceCategory = {
+  _id: string
+  _type: 'resourceCategory'
   _createdAt: string
   _updatedAt: string
   _rev: string
@@ -215,19 +324,20 @@ export type PssoundArchive = {
   }>
 }
 
-export type ResourceSubmission = {
-  _id: string
-  _type: 'resourceSubmission'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  title?: string
-  url?: string
-  email?: string
-  tags?: Array<string>
-  description?: string
-  approved?: boolean
-  submittedAt?: string
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top?: number
+  bottom?: number
+  left?: number
+  right?: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x?: number
+  y?: number
+  height?: number
+  width?: number
 }
 
 export type ArchiveTag = {
@@ -260,6 +370,7 @@ export type ArchiveMedia = {
     crop?: SanityImageCrop
     _type: 'image'
   }
+  orderRank?: string
 }
 
 export type Resource = {
@@ -270,7 +381,13 @@ export type Resource = {
   _rev: string
   title?: string
   description?: string
-  category?: 'text' | 'video' | 'sound' | 'website'
+  categories?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'resourceCategory'
+  }>
   url?: string
   fileUrl?: string
   file?: {
@@ -295,7 +412,6 @@ export type Resource = {
     crop?: SanityImageCrop
     _type: 'image'
   }
-  email?: string
   tags?: Array<{
     _ref: string
     _type: 'reference'
@@ -305,33 +421,26 @@ export type Resource = {
   }>
   approved?: boolean
   publishedAt?: string
+  email?: string
+  submissionSource?: string
+  category?: string
+  submittedAt?: string
+  confirmationEmailSentAt?: string
+  approvalEmailSentAt?: string
+  emailDeliveryError?: string
 }
 
-export type PssoundCalendar = {
+export type PssoundFile = {
   _id: string
-  _type: 'pssoundCalendar'
+  _type: 'pssoundFile'
   _createdAt: string
   _updatedAt: string
   _rev: string
-  title?: string
-  startDate?: string
-  endDate?: string
-  notes?: string
-  request?: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'pssoundRequest'
-  }
-}
-
-export type PssoundManual = {
-  _id: string
-  _type: 'pssoundManual'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  pdf?: {
+  label?: string
+  fileGroup?: 'technicalManuals' | 'manifesto' | 'other'
+  languageName?: string
+  languageCode?: string
+  file?: {
     asset?: {
       _ref: string
       _type: 'reference'
@@ -341,39 +450,8 @@ export type PssoundManual = {
     media?: unknown
     _type: 'file'
   }
-  content?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>
-          text?: string
-          _type: 'span'
-          _key: string
-        }>
-        style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
-        listItem?: 'bullet' | 'number'
-        markDefs?: Array<{
-          href?: string
-          _type: 'link'
-          _key: string
-        }>
-        level?: number
-        _type: 'block'
-        _key: string
-      }
-    | {
-        asset?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-        }
-        media?: unknown
-        hotspot?: SanityImageHotspot
-        crop?: SanityImageCrop
-        _type: 'image'
-        _key: string
-      }
-  >
+  active?: boolean
+  orderRank?: string
 }
 
 export type PssoundRequest = {
@@ -383,6 +461,9 @@ export type PssoundRequest = {
   _updatedAt: string
   _rev: string
   collective?: string
+  eventDate?: string
+  pickupDate?: string
+  returnDate?: string
   eventTitle?: string
   eventLink?: string
   eventLocation?: string
@@ -401,15 +482,67 @@ export type PssoundRequest = {
     _key: string
   }>
   wagePolicy?: string
-  eventDate?: string
-  pickupDate?: string
-  returnDate?: string
   vehicleCert?: boolean
   teamCert?: boolean
   charterCert?: boolean
+  status?: 'pending' | 'confirmed'
+  calendarBlock?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'pssoundCalendar'
+  }
+  calendarBlockedAt?: string
+  approvalEmailSentAt?: string
+  emailDeliveryError?: string
+  contactEmail?: string
+  membership?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'pssoundMembership'
+  }
+  confirmationEmailSentAt?: string
   membershipCert?: boolean
-  status?: 'pending' | 'approved' | 'declined'
+}
+
+export type PssoundMembership = {
+  _id: string
+  _type: 'pssoundMembership'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  collectiveName?: string
+  email?: string
+  isPolitical?: Array<string>
+  otherPolitical?: string
+  caribbeanOrAfro?: boolean
+  qualifiedSoundEngineer?: 'yes' | 'no_commit'
+  annualContribution?: string
+  charterSigned?: boolean
   approved?: boolean
+  startDate?: string
+  confirmationEmailSentAt?: string
+  approvalEmailSentAt?: string
+  emailDeliveryError?: string
+}
+
+export type PssoundCalendar = {
+  _id: string
+  _type: 'pssoundCalendar'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title?: string
+  startDate?: string
+  endDate?: string
+  notes?: string
+  request?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'pssoundRequest'
+  }
 }
 
 export type Event = {
@@ -481,6 +614,9 @@ export type WorkshopRegistration = {
   status?: 'pending' | 'approved' | 'rejected' | 'waitlisted'
   notes?: string
   registrationDate?: string
+  confirmationEmailSentAt?: string
+  approvalEmailSentAt?: string
+  emailDeliveryError?: string
 }
 
 export type Workshop = {
@@ -492,6 +628,8 @@ export type Workshop = {
   title?: string
   slug?: Slug
   dates?: Array<string>
+  location?: string
+  url?: string
   tags?: Array<{
     _ref: string
     _type: 'reference'
@@ -507,7 +645,7 @@ export type Workshop = {
           _type: 'span'
           _key: string
         }>
-        style?: 'h2' | 'normal' | 'largeParagraph' | 'largeQuestion'
+        style?: 'normal' | 'h2'
         listItem?: 'bullet' | 'number'
         markDefs?: Array<
           | ({
@@ -516,6 +654,14 @@ export type Workshop = {
           | ({
               _key: string
             } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
         >
         level?: number
         _type: 'block'
@@ -583,15 +729,15 @@ export type Category = {
   slug?: Slug
 }
 
-export type PsstSection = {
+export type PssoundSection = {
   _id: string
-  _type: 'psstSection'
+  _type: 'pssoundSection'
   _createdAt: string
   _updatedAt: string
   _rev: string
-  orderRank?: string
   title?: string
   slug?: Slug
+  seo?: Seo
   layout?: 'default' | 'guidelines'
   content?: Array<
     | {
@@ -601,7 +747,7 @@ export type PsstSection = {
           _type: 'span'
           _key: string
         }>
-        style?: 'h2' | 'normal'
+        style?: 'normal' | 'h2'
         listItem?: 'bullet' | 'number'
         markDefs?: Array<
           | ({
@@ -610,6 +756,61 @@ export type PsstSection = {
           | ({
               _key: string
             } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+  orderRank?: string
+}
+
+export type PsstSection = {
+  _id: string
+  _type: 'psstSection'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title?: string
+  slug?: Slug
+  seo?: Seo
+  layout?: 'default' | 'guidelines'
+  content?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
         >
         level?: number
         _type: 'block'
@@ -635,7 +836,7 @@ export type PsstPage = {
           _type: 'span'
           _key: string
         }>
-        style?: 'h2' | 'normal'
+        style?: 'normal' | 'h2'
         listItem?: 'bullet' | 'number'
         markDefs?: Array<
           | ({
@@ -644,6 +845,14 @@ export type PsstPage = {
           | ({
               _key: string
             } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
         >
         level?: number
         _type: 'block'
@@ -661,7 +870,7 @@ export type PsstPage = {
           _type: 'span'
           _key: string
         }>
-        style?: 'h2' | 'normal'
+        style?: 'normal' | 'h2'
         listItem?: 'bullet' | 'number'
         markDefs?: Array<
           | ({
@@ -670,6 +879,14 @@ export type PsstPage = {
           | ({
               _key: string
             } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
         >
         level?: number
         _type: 'block'
@@ -687,7 +904,7 @@ export type PsstPage = {
           _type: 'span'
           _key: string
         }>
-        style?: 'h2' | 'normal'
+        style?: 'normal' | 'h2'
         listItem?: 'bullet' | 'number'
         markDefs?: Array<
           | ({
@@ -696,6 +913,14 @@ export type PsstPage = {
           | ({
               _key: string
             } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
         >
         level?: number
         _type: 'block'
@@ -705,6 +930,251 @@ export type PsstPage = {
         _key: string
       } & HighlightedBox)
   >
+}
+
+export type FormSuccessPages = {
+  _id: string
+  _type: 'formSuccessPages'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  databaseSubmitContent?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2' | 'largeParagraph' | 'largeQuestion'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+  resourceSubmitContent?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2' | 'largeParagraph' | 'largeQuestion'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+  workshopRegistrationContent?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2' | 'largeParagraph' | 'largeQuestion'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+  pssoundRequestContent?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2' | 'largeParagraph' | 'largeQuestion'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+  pssoundMembershipContent?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2' | 'largeParagraph' | 'largeQuestion'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+}
+
+export type EmailSettings = {
+  _id: string
+  _type: 'emailSettings'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  fromName?: string
+  fromEmail?: string
+  replyTo?: string
+  databaseReceived?: DatabaseReceivedEmailMessage
+  databaseApproved?: DatabaseApprovedEmailMessage
+  resourceReceived?: ResourceReceivedEmailMessage
+  resourceApproved?: ResourceApprovedEmailMessage
+  workshopReceived?: WorkshopReceivedEmailMessage
+  workshopApproved?: WorkshopApprovedEmailMessage
+  pssoundRequestReceived?: PssoundRequestReceivedEmailMessage
+  pssoundRequestApproved?: PssoundRequestApprovedEmailMessage
+  pssoundMembershipReceived?: PssoundMembershipReceivedEmailMessage
+  pssoundMembershipApproved?: PssoundMembershipApprovedEmailMessage
+}
+
+export type ThemeSettings = {
+  _id: string
+  _type: 'themeSettings'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  sectionColors?: {
+    home?: {
+      background?: string
+      foreground?: string
+    }
+    psst?: {
+      background?: string
+      foreground?: string
+    }
+    database?: {
+      background?: string
+      foreground?: string
+    }
+    workshops?: {
+      background?: string
+      foreground?: string
+    }
+    events?: {
+      background?: string
+      foreground?: string
+    }
+    pssoundSystem?: {
+      background?: string
+      foreground?: string
+    }
+    resources?: {
+      background?: string
+      foreground?: string
+    }
+    archive?: {
+      background?: string
+      foreground?: string
+    }
+    newsletter?: {
+      background?: string
+      foreground?: string
+    }
+  }
 }
 
 export type Homepage = {
@@ -721,7 +1191,7 @@ export type Homepage = {
           _type: 'span'
           _key: string
         }>
-        style?: 'h2' | 'normal' | 'largeParagraph' | 'largeQuestion'
+        style?: 'normal' | 'h2'
         listItem?: 'bullet' | 'number'
         markDefs?: Array<
           | ({
@@ -730,28 +1200,309 @@ export type Homepage = {
           | ({
               _key: string
             } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
         >
         level?: number
         _type: 'block'
-        _key: string
-      }
-    | {
-        linkType?: 'href' | 'page'
-        href?: string
-        page?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'page'
-        }
-        openInNewTab?: boolean
-        _type: 'link'
         _key: string
       }
     | ({
         _key: string
       } & HighlightedBox)
   >
+}
+
+export type MembershipPage = {
+  _id: string
+  _type: 'membershipPage'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title?: string
+  seo?: Seo
+  description?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+}
+
+export type PageSettings = {
+  _id: string
+  _type: 'pageSettings'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title?: string
+  seo?: Seo
+  layout?: 'default' | 'columns'
+  description?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+}
+
+export type Guidelines = {
+  _id: string
+  _type: 'guidelines'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  layout?: 'default' | 'columns'
+  content?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | ({
+              _key: string
+            } & TextColor)
+          | ({
+              _key: string
+            } & HighlightColor)
+          | {
+              linkType?: 'internal' | 'external'
+              internalLink?: string
+              href?: string
+              openInNewTab?: boolean
+              _type: 'link'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & HighlightedBox)
+  >
+}
+
+export type Settings = {
+  _id: string
+  _type: 'settings'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title?: string
+  siteUrl?: string
+  description?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal'
+    listItem?: never
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  ogImage?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    metadataBase?: string
+    _type: 'image'
+  }
+  soundcloudPlaylistUrl?: string
+  theme?: {
+    sectionColors?: {
+      home?: {
+        background?: Color
+        foreground?: Color
+      }
+      psst?: {
+        background?: Color
+        foreground?: Color
+      }
+      database?: {
+        background?: Color
+        foreground?: Color
+      }
+      workshops?: {
+        background?: Color
+        foreground?: Color
+      }
+      events?: {
+        background?: Color
+        foreground?: Color
+      }
+      pssoundSystem?: {
+        background?: Color
+        foreground?: Color
+      }
+      resources?: {
+        background?: Color
+        foreground?: Color
+      }
+      archive?: {
+        background?: Color
+        foreground?: Color
+      }
+    }
+  }
+  support?: {
+    floatingButtonLabel?: string
+    modalTitle?: string
+    modalSubtitle?: BlockContent
+    shareButtonLabel?: string
+    donationTabLabel?: string
+    newsletterTabLabel?: string
+    donationIntro?: BlockContent
+    newsletterIntro?: BlockContent
+    donationSubmitLabel?: string
+    newsletterSubmitLabel?: string
+    donationSuccessMessage?: Array<{
+      children?: Array<{
+        marks?: Array<string>
+        text?: string
+        _type: 'span'
+        _key: string
+      }>
+      style?: 'normal' | 'h2'
+      listItem?: never
+      markDefs?: Array<{
+        linkType?: 'internal' | 'external'
+        internalLink?: string
+        href?: string
+        openInNewTab?: boolean
+        _type: 'link'
+        _key: string
+      }>
+      level?: number
+      _type: 'block'
+      _key: string
+    }>
+    donationFailedMessage?: Array<{
+      children?: Array<{
+        marks?: Array<string>
+        text?: string
+        _type: 'span'
+        _key: string
+      }>
+      style?: 'normal' | 'h2'
+      listItem?: never
+      markDefs?: Array<{
+        linkType?: 'internal' | 'external'
+        internalLink?: string
+        href?: string
+        openInNewTab?: boolean
+        _type: 'link'
+        _key: string
+      }>
+      level?: number
+      _type: 'block'
+      _key: string
+    }>
+    newsletterSuccessMessage?: Array<{
+      children?: Array<{
+        marks?: Array<string>
+        text?: string
+        _type: 'span'
+        _key: string
+      }>
+      style?: 'normal' | 'h2'
+      listItem?: never
+      markDefs?: Array<{
+        linkType?: 'internal' | 'external'
+        internalLink?: string
+        href?: string
+        openInNewTab?: boolean
+        _type: 'link'
+        _key: string
+      }>
+      level?: number
+      _type: 'block'
+      _key: string
+    }>
+  }
 }
 
 export type Page = {
@@ -845,160 +1596,23 @@ export type Artist = {
     [internalGroqTypeReferenceTo]?: 'tag'
   }>
   approved?: boolean
+  submissionSource?: string
+  googleSheetsSyncedAt?: string
+  googleSheetsSheetName?: string
+  googleSheetsRowNumber?: number
+  googleSheetsSyncError?: string
+  confirmationEmailSentAt?: string
+  approvalEmailSentAt?: string
+  emailDeliveryError?: string
 }
 
-export type MembershipPage = {
-  _id: string
-  _type: 'membershipPage'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  title?: string
-  description?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>
-          text?: string
-          _type: 'span'
-          _key: string
-        }>
-        style?: 'h2' | 'normal'
-        listItem?: 'bullet' | 'number'
-        markDefs?: Array<
-          | ({
-              _key: string
-            } & TextColor)
-          | ({
-              _key: string
-            } & HighlightColor)
-        >
-        level?: number
-        _type: 'block'
-        _key: string
-      }
-    | ({
-        _key: string
-      } & HighlightedBox)
-  >
-}
-
-export type PageSettings = {
-  _id: string
-  _type: 'pageSettings'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  title?: string
-  description?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>
-          text?: string
-          _type: 'span'
-          _key: string
-        }>
-        style?: 'h2' | 'normal'
-        listItem?: 'bullet' | 'number'
-        markDefs?: Array<
-          | ({
-              _key: string
-            } & TextColor)
-          | ({
-              _key: string
-            } & HighlightColor)
-          | {
-              linkType?: 'internal' | 'external'
-              internalLink?: string
-              href?: string
-              openInNewTab?: boolean
-              _type: 'link'
-              _key: string
-            }
-        >
-        level?: number
-        _type: 'block'
-        _key: string
-      }
-    | ({
-        _key: string
-      } & HighlightedBox)
-  >
-}
-
-export type Guidelines = {
-  _id: string
-  _type: 'guidelines'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  content?: Array<
-    | {
-        children?: Array<{
-          marks?: Array<string>
-          text?: string
-          _type: 'span'
-          _key: string
-        }>
-        style?: 'h2' | 'normal' | 'largeParagraph' | 'largeQuestion'
-        listItem?: 'bullet' | 'number'
-        markDefs?: Array<
-          | ({
-              _key: string
-            } & TextColor)
-          | ({
-              _key: string
-            } & HighlightColor)
-        >
-        level?: number
-        _type: 'block'
-        _key: string
-      }
-    | ({
-        _key: string
-      } & HighlightedBox)
-  >
-}
-
-export type Settings = {
-  _id: string
-  _type: 'settings'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  title?: string
-  description?: Array<{
-    children?: Array<{
-      marks?: Array<string>
-      text?: string
-      _type: 'span'
-      _key: string
-    }>
-    style?: 'normal'
-    listItem?: never
-    markDefs?: Array<{
-      href?: string
-      _type: 'link'
-      _key: string
-    }>
-    level?: number
-    _type: 'block'
-    _key: string
-  }>
-  ogImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    alt?: string
-    metadataBase?: string
-    _type: 'image'
-  }
-  soundcloudPlaylistUrl?: string
+export type Color = {
+  _type: 'color'
+  hex?: string
+  alpha?: number
+  hsl?: HslaColor
+  hsv?: HsvaColor
+  rgb?: RgbaColor
 }
 
 export type HighlightColor = {
@@ -1017,15 +1631,6 @@ export type SimplerColor = {
   _type: 'simplerColor'
   label?: string
   value?: string
-}
-
-export type Color = {
-  _type: 'color'
-  hex?: string
-  alpha?: number
-  hsl?: HslaColor
-  hsv?: HsvaColor
-  rgb?: RgbaColor
 }
 
 export type RgbaColor = {
@@ -1213,20 +1818,15 @@ export type SanityImageDimensions = {
   aspectRatio?: number
 }
 
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot'
-  x?: number
-  y?: number
-  height?: number
-  width?: number
-}
-
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop'
-  top?: number
-  bottom?: number
-  left?: number
-  right?: number
+export type SanityImageMetadata = {
+  _type: 'sanity.imageMetadata'
+  location?: Geopoint
+  dimensions?: SanityImageDimensions
+  palette?: SanityImagePalette
+  lqip?: string
+  blurHash?: string
+  hasAlpha?: boolean
+  isOpaque?: boolean
 }
 
 export type SanityFileAsset = {
@@ -1249,6 +1849,13 @@ export type SanityFileAsset = {
   path?: string
   url?: string
   source?: SanityAssetSourceData
+}
+
+export type SanityAssetSourceData = {
+  _type: 'sanity.assetSourceData'
+  name?: string
+  id?: string
+  url?: string
 }
 
 export type SanityImageAsset = {
@@ -1274,17 +1881,6 @@ export type SanityImageAsset = {
   source?: SanityAssetSourceData
 }
 
-export type SanityImageMetadata = {
-  _type: 'sanity.imageMetadata'
-  location?: Geopoint
-  dimensions?: SanityImageDimensions
-  palette?: SanityImagePalette
-  lqip?: string
-  blurHash?: string
-  hasAlpha?: boolean
-  isOpaque?: boolean
-}
-
 export type Geopoint = {
   _type: 'geopoint'
   lat?: number
@@ -1292,35 +1888,37 @@ export type Geopoint = {
   alt?: number
 }
 
-export type Slug = {
-  _type: 'slug'
-  current?: string
-  source?: string
-}
-
-export type SanityAssetSourceData = {
-  _type: 'sanity.assetSourceData'
-  name?: string
-  id?: string
-  url?: string
-}
-
 export type AllSanitySchemaTypes =
-  | PssoundMembership
+  | PssoundMembershipApprovedEmailMessage
+  | PssoundMembershipReceivedEmailMessage
+  | PssoundRequestApprovedEmailMessage
+  | PssoundRequestReceivedEmailMessage
+  | WorkshopApprovedEmailMessage
+  | WorkshopReceivedEmailMessage
+  | ResourceApprovedEmailMessage
+  | ResourceReceivedEmailMessage
+  | DatabaseApprovedEmailMessage
+  | DatabaseReceivedEmailMessage
+  | EmailMessage
+  | Seo
   | HighlightedBox
-  | CallToAction
   | Link
+  | CallToAction
   | InfoSection
   | BlockContent
   | ResourceTag
+  | Slug
+  | ResourceCategory
   | PssoundArchive
-  | ResourceSubmission
+  | SanityImageCrop
+  | SanityImageHotspot
   | ArchiveTag
   | ArchiveMedia
   | Resource
-  | PssoundCalendar
-  | PssoundManual
+  | PssoundFile
   | PssoundRequest
+  | PssoundMembership
+  | PssoundCalendar
   | Event
   | WorkshopRegistration
   | Workshop
@@ -1328,20 +1926,24 @@ export type AllSanitySchemaTypes =
   | EventTag
   | Tag
   | Category
+  | PssoundSection
   | PsstSection
   | PsstPage
+  | FormSuccessPages
+  | EmailSettings
+  | ThemeSettings
   | Homepage
-  | Page
-  | Post
-  | Artist
   | MembershipPage
   | PageSettings
   | Guidelines
   | Settings
+  | Page
+  | Post
+  | Artist
+  | Color
   | HighlightColor
   | TextColor
   | SimplerColor
-  | Color
   | RgbaColor
   | HsvaColor
   | HslaColor
@@ -1360,18 +1962,15 @@ export type AllSanitySchemaTypes =
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
-  | SanityImageHotspot
-  | SanityImageCrop
-  | SanityFileAsset
-  | SanityImageAsset
   | SanityImageMetadata
-  | Geopoint
-  | Slug
+  | SanityFileAsset
   | SanityAssetSourceData
+  | SanityImageAsset
+  | Geopoint
 export declare const internalGroqTypeReferenceTo: unique symbol
 // Source: ./sanity/lib/queries.ts
 // Variable: settingsQuery
-// Query: *[_type == "settings"][0]
+// Query: *[_type == "settings" && _id == "siteSettings"][0]
 export type SettingsQueryResult = {
   _id: string
   _type: 'settings'
@@ -1379,6 +1978,7 @@ export type SettingsQueryResult = {
   _updatedAt: string
   _rev: string
   title?: string
+  siteUrl?: string
   description?: Array<{
     children?: Array<{
       marks?: Array<string>
@@ -1412,9 +2012,167 @@ export type SettingsQueryResult = {
     _type: 'image'
   }
   soundcloudPlaylistUrl?: string
+  theme?: {
+    sectionColors?: {
+      home?: {
+        background?: Color
+        foreground?: Color
+      }
+      psst?: {
+        background?: Color
+        foreground?: Color
+      }
+      database?: {
+        background?: Color
+        foreground?: Color
+      }
+      workshops?: {
+        background?: Color
+        foreground?: Color
+      }
+      events?: {
+        background?: Color
+        foreground?: Color
+      }
+      pssoundSystem?: {
+        background?: Color
+        foreground?: Color
+      }
+      resources?: {
+        background?: Color
+        foreground?: Color
+      }
+      archive?: {
+        background?: Color
+        foreground?: Color
+      }
+    }
+  }
+  support?: {
+    floatingButtonLabel?: string
+    modalTitle?: string
+    modalSubtitle?: BlockContent
+    shareButtonLabel?: string
+    donationTabLabel?: string
+    newsletterTabLabel?: string
+    donationIntro?: BlockContent
+    newsletterIntro?: BlockContent
+    donationSubmitLabel?: string
+    newsletterSubmitLabel?: string
+    donationSuccessMessage?: Array<{
+      children?: Array<{
+        marks?: Array<string>
+        text?: string
+        _type: 'span'
+        _key: string
+      }>
+      style?: 'h2' | 'normal'
+      listItem?: never
+      markDefs?: Array<{
+        linkType?: 'external' | 'internal'
+        internalLink?: string
+        href?: string
+        openInNewTab?: boolean
+        _type: 'link'
+        _key: string
+      }>
+      level?: number
+      _type: 'block'
+      _key: string
+    }>
+    donationFailedMessage?: Array<{
+      children?: Array<{
+        marks?: Array<string>
+        text?: string
+        _type: 'span'
+        _key: string
+      }>
+      style?: 'h2' | 'normal'
+      listItem?: never
+      markDefs?: Array<{
+        linkType?: 'external' | 'internal'
+        internalLink?: string
+        href?: string
+        openInNewTab?: boolean
+        _type: 'link'
+        _key: string
+      }>
+      level?: number
+      _type: 'block'
+      _key: string
+    }>
+    newsletterSuccessMessage?: Array<{
+      children?: Array<{
+        marks?: Array<string>
+        text?: string
+        _type: 'span'
+        _key: string
+      }>
+      style?: 'h2' | 'normal'
+      listItem?: never
+      markDefs?: Array<{
+        linkType?: 'external' | 'internal'
+        internalLink?: string
+        href?: string
+        openInNewTab?: boolean
+        _type: 'link'
+        _key: string
+      }>
+      level?: number
+      _type: 'block'
+      _key: string
+    }>
+  }
 } | null
+// Variable: themeSettingsQuery
+// Query: coalesce(*[_id == "drafts.themeSettings"][0], *[_id == "themeSettings"][0]){sectionColors}
+export type ThemeSettingsQueryResult =
+  | {
+      sectionColors: null
+    }
+  | {
+      sectionColors: {
+        home?: {
+          background?: string
+          foreground?: string
+        }
+        psst?: {
+          background?: string
+          foreground?: string
+        }
+        database?: {
+          background?: string
+          foreground?: string
+        }
+        workshops?: {
+          background?: string
+          foreground?: string
+        }
+        events?: {
+          background?: string
+          foreground?: string
+        }
+        pssoundSystem?: {
+          background?: string
+          foreground?: string
+        }
+        resources?: {
+          background?: string
+          foreground?: string
+        }
+        archive?: {
+          background?: string
+          foreground?: string
+        }
+        newsletter?: {
+          background?: string
+          foreground?: string
+        }
+      } | null
+    }
+  | null
 // Variable: getPageQuery
-// Query: *[_type == 'page' && slug.current == $slug][0]{    _id,    _type,    name,    slug,    heading,    subheading,    "pageBuilder": pageBuilder[]{      ...,      _type == "callToAction" => {          link {      ...,        _type == "link" => {    "page": page->slug.current,    "post": post->slug.current  }      },      },      _type == "infoSection" => {        content[]{          ...,          markDefs[]{            ...,              _type == "link" => {    "page": page->slug.current,    "post": post->slug.current  }          }        }      },    },  }
+// Query: *[_type == 'page' && slug.current == $slug][0]{    _id,    _type,    name,    slug,    heading,    subheading,      seo{    metaTitle,    metaDescription,    noIndex,    ogImage  },    "pageBuilder": pageBuilder[]{      ...,      _type == "callToAction" => {          link {      ...,        _type == "link" => {    "page": page->slug.current,    "post": post->slug.current  }      },      },      _type == "infoSection" => {        content[]{          ...,          markDefs[]{            ...,              _type == "link" => {    "page": page->slug.current,    "post": post->slug.current  }          }        }      },    },  }
 export type GetPageQueryResult = {
   _id: string
   _type: 'page'
@@ -1422,6 +2180,7 @@ export type GetPageQueryResult = {
   slug: Slug | null
   heading: string | null
   subheading: string | null
+  seo: null
   pageBuilder: Array<
     | {
         _key: string
@@ -1469,19 +2228,44 @@ export type GetPageQueryResult = {
   > | null
 } | null
 // Variable: sitemapData
-// Query: *[_type == "page" || _type == "post" && defined(slug.current)] | order(_type asc) {    "slug": slug.current,    _type,    _updatedAt,  }
-export type SitemapDataResult = Array<
-  | {
-      slug: string | null
-      _type: 'page'
-      _updatedAt: string
-    }
-  | {
-      slug: string | null
-      _type: 'post'
-      _updatedAt: string
-    }
->
+// Query: {  "pages": *[_type == "page" && defined(slug.current)] | order(slug.current asc){    "slug": slug.current,    _type,    _updatedAt  },  "posts": *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc){    "slug": slug.current,    _type,    _updatedAt  },  "psstSections": *[_type == "psstSection" && defined(slug.current)] | order(orderRank asc, _createdAt asc){    "slug": slug.current,    _updatedAt  },  "pssoundSections": *[_type == "pssoundSection" && defined(slug.current)] | order(defined(orderRank) desc, orderRank asc, _createdAt asc){    "slug": slug.current,    _updatedAt  },  "artists": *[_type == "artist" && approved == true && defined(slug.current)] | order(_updatedAt desc){    "slug": slug.current,    _updatedAt  },  "resources": *[_type == "resource" && approved == true] | order(_updatedAt desc){    _id,    title,    _updatedAt  },  "events": *[_type == "event" && defined(slug.current)] | order(_updatedAt desc){    "slug": slug.current,    _updatedAt  },  "workshops": *[_type == "workshop" && defined(slug.current)] | order(_updatedAt desc){    "slug": slug.current,    _updatedAt  }}
+export type SitemapDataResult = {
+  pages: Array<{
+    slug: string | null
+    _type: 'page'
+    _updatedAt: string
+  }>
+  posts: Array<{
+    slug: string | null
+    _type: 'post'
+    _updatedAt: string
+  }>
+  psstSections: Array<{
+    slug: string | null
+    _updatedAt: string
+  }>
+  pssoundSections: Array<{
+    slug: string | null
+    _updatedAt: string
+  }>
+  artists: Array<{
+    slug: string | null
+    _updatedAt: string
+  }>
+  resources: Array<{
+    _id: string
+    title: string | null
+    _updatedAt: string
+  }>
+  events: Array<{
+    slug: string | null
+    _updatedAt: string
+  }>
+  workshops: Array<{
+    slug: string | null
+    _updatedAt: string
+  }>
+}
 // Variable: allPostsQuery
 // Query: *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  excerpt,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  }
 export type AllPostsQueryResult = Array<{
@@ -1625,9 +2409,10 @@ export type UpcomingWorkshopsQueryResult = Array<{
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
-    '*[_type == "settings"][0]': SettingsQueryResult
-    '\n  *[_type == \'page\' && slug.current == $slug][0]{\n    _id,\n    _type,\n    name,\n    slug,\n    heading,\n    subheading,\n    "pageBuilder": pageBuilder[]{\n      ...,\n      _type == "callToAction" => {\n        \n  link {\n      ...,\n      \n  _type == "link" => {\n    "page": page->slug.current,\n    "post": post->slug.current\n  }\n\n      }\n,\n      },\n      _type == "infoSection" => {\n        content[]{\n          ...,\n          markDefs[]{\n            ...,\n            \n  _type == "link" => {\n    "page": page->slug.current,\n    "post": post->slug.current\n  }\n\n          }\n        }\n      },\n    },\n  }\n': GetPageQueryResult
-    '\n  *[_type == "page" || _type == "post" && defined(slug.current)] | order(_type asc) {\n    "slug": slug.current,\n    _type,\n    _updatedAt,\n  }\n': SitemapDataResult
+    '*[_type == "settings" && _id == "siteSettings"][0]': SettingsQueryResult
+    'coalesce(*[_id == "drafts.themeSettings"][0], *[_id == "themeSettings"][0]){sectionColors}': ThemeSettingsQueryResult
+    '\n  *[_type == \'page\' && slug.current == $slug][0]{\n    _id,\n    _type,\n    name,\n    slug,\n    heading,\n    subheading,\n    \n  seo{\n    metaTitle,\n    metaDescription,\n    noIndex,\n    ogImage\n  }\n,\n    "pageBuilder": pageBuilder[]{\n      ...,\n      _type == "callToAction" => {\n        \n  link {\n      ...,\n      \n  _type == "link" => {\n    "page": page->slug.current,\n    "post": post->slug.current\n  }\n\n      }\n,\n      },\n      _type == "infoSection" => {\n        content[]{\n          ...,\n          markDefs[]{\n            ...,\n            \n  _type == "link" => {\n    "page": page->slug.current,\n    "post": post->slug.current\n  }\n\n          }\n        }\n      },\n    },\n  }\n': GetPageQueryResult
+    '{\n  "pages": *[_type == "page" && defined(slug.current)] | order(slug.current asc){\n    "slug": slug.current,\n    _type,\n    _updatedAt\n  },\n  "posts": *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc){\n    "slug": slug.current,\n    _type,\n    _updatedAt\n  },\n  "psstSections": *[_type == "psstSection" && defined(slug.current)] | order(orderRank asc, _createdAt asc){\n    "slug": slug.current,\n    _updatedAt\n  },\n  "pssoundSections": *[_type == "pssoundSection" && defined(slug.current)] | order(defined(orderRank) desc, orderRank asc, _createdAt asc){\n    "slug": slug.current,\n    _updatedAt\n  },\n  "artists": *[_type == "artist" && approved == true && defined(slug.current)] | order(_updatedAt desc){\n    "slug": slug.current,\n    _updatedAt\n  },\n  "resources": *[_type == "resource" && approved == true] | order(_updatedAt desc){\n    _id,\n    title,\n    _updatedAt\n  },\n  "events": *[_type == "event" && defined(slug.current)] | order(_updatedAt desc){\n    "slug": slug.current,\n    _updatedAt\n  },\n  "workshops": *[_type == "workshop" && defined(slug.current)] | order(_updatedAt desc){\n    "slug": slug.current,\n    _updatedAt\n  }\n}': SitemapDataResult
     '\n  *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  excerpt,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n\n  }\n': AllPostsQueryResult
     '\n  *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  excerpt,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n\n  }\n': MorePostsQueryResult
     '\n  *[_type == "post" && slug.current == $slug] [0] {\n    content[]{\n    ...,\n    markDefs[]{\n      ...,\n      \n  _type == "link" => {\n    "page": page->slug.current,\n    "post": post->slug.current\n  }\n\n    }\n  },\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  excerpt,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n\n  }\n': PostQueryResult

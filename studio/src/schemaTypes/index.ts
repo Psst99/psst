@@ -23,6 +23,7 @@ import {resource} from './documents/resource'
 import archiveMedia from './documents/archiveMedia'
 import {archiveTag} from './documents/archiveTag'
 import {highlightedBox} from './objects/highlightedBox'
+import {seo} from './objects/seo'
 import {
   databaseApprovedEmailMessage,
   databaseReceivedEmailMessage,
@@ -90,6 +91,7 @@ export const schemaTypes = [
   callToAction,
   link,
   highlightedBox,
+  seo,
   emailMessage,
   databaseReceivedEmailMessage,
   databaseApprovedEmailMessage,

@@ -3,10 +3,11 @@ import './globals.css'
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import type {Metadata} from 'next'
 import {cookies, draftMode} from 'next/headers'
-import {VisualEditing, toPlainText} from 'next-sanity'
+import {VisualEditing} from 'next-sanity'
 import {Toaster} from 'sonner'
 
 import DraftModeToast from '@/components/DraftModeToast'
+import {createMetadataBase, toPlainText} from '@/lib/seo'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
 import {
@@ -35,20 +36,28 @@ import NavigationPendingProvider from './NavigationPendingProvider'
 export async function generateMetadata(): Promise<Metadata> {
   const {data: settings} = await sanityFetch({query: settingsQuery, stega: false})
   const title = settings?.title || demo.title
-  const description = settings?.description || demo.description
+  const description = toPlainText(settings?.description || demo.description)
   const ogImage = resolveOpenGraphImage(settings?.ogImage)
-  let metadataBase: URL | undefined = undefined
-  try {
-    metadataBase = settings?.ogImage?.metadataBase
-      ? new URL(settings.ogImage.metadataBase)
-      : undefined
-  } catch {}
+  const metadataBase = createMetadataBase(settings?.siteUrl || settings?.ogImage?.metadataBase)
 
   return {
     metadataBase,
     title: {template: `%s | ${title}`, default: title},
-    description: toPlainText(description),
-    openGraph: {images: ogImage ? [ogImage] : []},
+    description,
+    alternates: {canonical: '/'},
+    openGraph: {
+      title,
+      description,
+      siteName: title,
+      url: '/',
+      images: ogImage ? [ogImage] : [],
+    },
+    twitter: {
+      card: ogImage ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      images: ogImage?.url ? [ogImage.url] : [],
+    },
   }
 }
 
@@ -94,7 +103,9 @@ export default async function RootLayout({children}: {children: React.ReactNode}
     href: index === 0 ? '/psst' : `/psst/${section.slug}`,
     skeletonLayout: section.layout === 'guidelines' ? 'columns' : 'default',
   }))
-  const validPssoundSections = (pssoundSections || []).filter((section: any) => Boolean(section?.slug))
+  const validPssoundSections = (pssoundSections || []).filter((section: any) =>
+    Boolean(section?.slug),
+  )
   const dynamicPssoundPageItems = validPssoundSections.map((section: any, index: number) => ({
     label: section.title,
     href: index === 0 ? '/pssound-system' : `/pssound-system/${section.slug}`,

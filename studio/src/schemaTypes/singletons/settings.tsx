@@ -141,6 +141,14 @@ export const settings = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'siteUrl',
+      title: 'Site URL',
+      type: 'url',
+      description: 'Canonical public URL for SEO metadata and sitemap links.',
+      initialValue: 'https://psst.space',
+      validation: (rule) => rule.uri({scheme: ['http', 'https']}),
+    }),
+    defineField({
       name: 'description',
       description: 'Used both for the <meta> description tag for SEO, and the website subheader.',
       title: 'Description',

@@ -1,11 +1,28 @@
 import {eachDayOfInterval, parseISO, format} from 'date-fns'
 import PssoundRequestPageClient from '@/components/pssound-system/PssoundRequestPageClient'
+import {buildPageMetadata} from '@/lib/seo'
 import {sanityFetch} from '@/sanity/lib/live'
 import {
   allApprovedCollectivesQuery,
   allBlockedDatesQuery,
+  pageSettingsSeoQuery,
   pssoundFilesQuery,
 } from '@/sanity/lib/queries'
+
+export async function generateMetadata() {
+  const {data: settings} = await sanityFetch({
+    query: pageSettingsSeoQuery,
+    params: {id: 'pssound-request-pageSettings'},
+    stega: false,
+  })
+
+  return buildPageMetadata({
+    title: settings?.title || 'Request PSƧOUND System',
+    description: settings?.description,
+    seo: settings?.seo,
+    path: '/pssound-system/request',
+  })
+}
 
 export default async function SoundSystemRequestPage() {
   const {data} = await sanityFetch({query: allBlockedDatesQuery})

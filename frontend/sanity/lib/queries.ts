@@ -5,6 +5,15 @@ export const themeSettingsQuery = defineQuery(
   `coalesce(*[_id == "drafts.themeSettings"][0], *[_id == "themeSettings"][0]){sectionColors}`,
 )
 
+const seoFields = /* groq */ `
+  seo{
+    metaTitle,
+    metaDescription,
+    noIndex,
+    ogImage
+  }
+`
+
 const postFields = /* groq */ `
   _id,
   "status": select(_originalId in path("drafts.**") => "draft", "published"),
@@ -38,6 +47,7 @@ export const getPageQuery = defineQuery(`
     slug,
     heading,
     subheading,
+    ${seoFields},
     "pageBuilder": pageBuilder[]{
       ...,
       _type == "callToAction" => {
@@ -56,13 +66,77 @@ export const getPageQuery = defineQuery(`
   }
 `)
 
-export const sitemapData = defineQuery(`
-  *[_type == "page" || _type == "post" && defined(slug.current)] | order(_type asc) {
+export const sitemapData = defineQuery(`{
+  "pages": *[_type == "page" && defined(slug.current)] | order(slug.current asc){
     "slug": slug.current,
     _type,
-    _updatedAt,
+    _updatedAt
+  },
+  "posts": *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc){
+    "slug": slug.current,
+    _type,
+    _updatedAt
+  },
+  "psstSections": *[_type == "psstSection" && defined(slug.current)] | order(orderRank asc, _createdAt asc){
+    "slug": slug.current,
+    _updatedAt
+  },
+  "pssoundSections": *[_type == "pssoundSection" && defined(slug.current)] | order(defined(orderRank) desc, orderRank asc, _createdAt asc){
+    "slug": slug.current,
+    _updatedAt
+  },
+  "artists": *[_type == "artist" && approved == true && defined(slug.current)] | order(_updatedAt desc){
+    "slug": slug.current,
+    _updatedAt
+  },
+  "resources": *[_type == "resource" && approved == true] | order(_updatedAt desc){
+    _id,
+    title,
+    _updatedAt
+  },
+  "events": *[_type == "event" && defined(slug.current)] | order(_updatedAt desc){
+    "slug": slug.current,
+    _updatedAt
+  },
+  "workshops": *[_type == "workshop" && defined(slug.current)] | order(_updatedAt desc){
+    "slug": slug.current,
+    _updatedAt
   }
-`)
+}`)
+
+export const pageSettingsSeoQuery = `
+  *[_type == "pageSettings" && _id == $id][0]{
+    title,
+    description,
+    ${seoFields}
+  }
+`
+
+export const databasePageSeoQuery = `
+{
+  "settings": *[_type == "pageSettings" && _id == "database-pageSettings"][0]{
+    title,
+    description,
+    ${seoFields}
+  },
+  "guidelines": *[_type == "guidelines" && _id == "database-guidelines"][0]{
+    content
+  }
+}
+`
+
+export const resourcesPageSeoQuery = `
+{
+  "settings": *[_type == "pageSettings" && _id == "resources-pageSettings"][0]{
+    title,
+    description,
+    ${seoFields}
+  },
+  "guidelines": *[_type == "guidelines" && _id == "resources-guidelines"][0]{
+    content
+  }
+}
+`
 
 export const allPostsQuery = defineQuery(`
   *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {
@@ -120,7 +194,8 @@ export const eventsPageQuery = `
 {
   "settings": *[_type == "pageSettings" && _id == "events-pageSettings"][0]{
     title,
-    description
+    description,
+    ${seoFields}
   },
   "events": *[_type == "event"] | order(date desc){
     _id,
@@ -157,7 +232,8 @@ export const eventBySlugQuery = `
 export const membershipPageQuery = `
   *[_type == "membershipPage"][0]{
     title,
-    description
+    description,
+    ${seoFields}
   }
 `
 
@@ -165,7 +241,8 @@ export const resourcesPageQuery = `
 {
   "settings": *[_type == "pageSettings" && _id == "resources-pageSettings"][0]{
     title,
-    about
+    about,
+    ${seoFields}
   },
   "resources": *[_type == "resource" && approved == true] | order(submittedAt desc) {
     title,
@@ -180,7 +257,8 @@ export const archivePageQuery = `
 {
   "settings": *[_type == "pageSettings" && _id == "archive-pageSettings"][0]{
     title,
-    description
+    description,
+    ${seoFields}
   },
   "archiveMedia": *[_type == "archiveMedia"] | order(defined(orderRank) desc, orderRank asc, _createdAt desc){
     _id,
@@ -381,7 +459,8 @@ export const workshopsPageQuery = `
 {
   "settings": *[_type == "pageSettings" && _id == "workshops-pageSettings"][0]{
     title,
-    description
+    description,
+    ${seoFields}
   },
   "workshops": *[_type == "workshop"] | order(dates[0] desc){
     _id,
@@ -474,7 +553,8 @@ export const pssoundArchiveQuery = `
 {
   "settings": *[_type == "pageSettings" && _id == "pssound-archive-pageSettings"][0]{
     title,
-    description
+    description,
+    ${seoFields}
   },
   "archive": *[_type == "pssoundArchive"] | order(date desc){
     _id,
@@ -542,7 +622,8 @@ export const pssoundSectionsQuery = `
     count(*[_type == "pssoundSection"]) > 0 => *[_type == "pssoundSection"] | order(defined(orderRank) desc, orderRank asc, _createdAt asc){
       title,
       "slug": slug.current,
-      layout
+      layout,
+      ${seoFields}
     },
     [
       select(
@@ -550,7 +631,8 @@ export const pssoundSectionsQuery = `
           *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
             title,
             "slug": "manifesto",
-            "layout": select(layout == "columns" => "guidelines", "default")
+            "layout": select(layout == "columns" => "guidelines", "default"),
+            ${seoFields}
           }
       ),
       select(
@@ -558,7 +640,8 @@ export const pssoundSectionsQuery = `
           *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
             title,
             "slug": "about",
-            "layout": select(layout == "columns" => "guidelines", "default")
+            "layout": select(layout == "columns" => "guidelines", "default"),
+            ${seoFields}
           }
       )
     ][defined(title)]
@@ -570,20 +653,23 @@ export const pssoundSectionBySlugQuery = `
     *[_type == "pssoundSection" && slug.current == $slug][0]{
       title,
       content,
-      layout
+      layout,
+      ${seoFields}
     },
     select(
       $slug == "manifesto" =>
         *[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0]{
           title,
           "content": description,
-          "layout": select(layout == "columns" => "guidelines", "default")
+          "layout": select(layout == "columns" => "guidelines", "default"),
+          ${seoFields}
         },
       $slug == "about" =>
         *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
           title,
           "content": description,
-          "layout": select(layout == "columns" => "guidelines", "default")
+          "layout": select(layout == "columns" => "guidelines", "default"),
+          ${seoFields}
         }
     )
   )
@@ -596,7 +682,8 @@ export const pssoundFirstSectionQuery = `
         title,
         "slug": slug.current,
         content,
-        layout
+        layout,
+        ${seoFields}
       },
     select(
       count(coalesce(*[_type == "pageSettings" && _id == "pssound-manifesto-pageSettings"][0].description, [])) > 0 =>
@@ -604,14 +691,16 @@ export const pssoundFirstSectionQuery = `
           title,
           "slug": "manifesto",
           "content": description,
-          "layout": select(layout == "columns" => "guidelines", "default")
+          "layout": select(layout == "columns" => "guidelines", "default"),
+          ${seoFields}
         },
       count(coalesce(*[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0].description, [])) > 0 =>
         *[_type == "pageSettings" && _id == "pssound-about-pageSettings"][0]{
           title,
           "slug": "about",
           "content": description,
-          "layout": select(layout == "columns" => "guidelines", "default")
+          "layout": select(layout == "columns" => "guidelines", "default"),
+          ${seoFields}
         }
     )
   )
@@ -628,7 +717,8 @@ export const psstSectionBySlugQuery = `
   *[_type == "psstSection" && slug.current == $slug][0]{
     title,
     content,
-    layout
+    layout,
+    ${seoFields}
   }
 `
 
@@ -637,7 +727,8 @@ export const psstFirstSectionQuery = `
     title,
     "slug": slug.current,
     content,
-    layout
+    layout,
+    ${seoFields}
   }
 `
 
@@ -645,7 +736,8 @@ export const manifestoPageQuery = `
   *[_type == "psstSection" && slug.current == "manifesto"][0]{
     title,
     content,
-    layout
+    layout,
+    ${seoFields}
   }
 `
 
@@ -653,7 +745,8 @@ export const aboutPageQuery = `
   *[_type == "psstSection" && slug.current == "about"][0]{
     title,
     content,
-    layout
+    layout,
+    ${seoFields}
   }
 `
 

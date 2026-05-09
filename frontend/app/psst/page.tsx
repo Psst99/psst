@@ -1,6 +1,21 @@
 import CmsContent from '@/components/CmsContent'
+import {buildPageMetadata} from '@/lib/seo'
 import {sanityFetch} from '@/sanity/lib/live'
 import {psstFirstSectionQuery} from '@/sanity/lib/queries'
+
+export async function generateMetadata() {
+  const {data} = await sanityFetch({
+    query: psstFirstSectionQuery,
+    stega: false,
+  })
+
+  return buildPageMetadata({
+    title: data?.title || 'PSST',
+    description: data?.content,
+    seo: data?.seo,
+    path: '/psst',
+  })
+}
 
 export default async function PsstPage() {
   const {data} = await sanityFetch({

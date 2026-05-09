@@ -1,7 +1,4 @@
 import SectionNavigation from '@/components/SectionNavigation'
-import CmsContent from '@/components/CmsContent'
-import {homepageQuery} from '@/sanity/lib/queries'
-import {sanityFetch} from '@/sanity/lib/live'
 
 function HomepageLogoFallback({className}: {className?: string}) {
   return (
@@ -23,9 +20,7 @@ function HomepageLogoFallback({className}: {className?: string}) {
   )
 }
 
-export default async function Page() {
-  const {data: homepage} = await sanityFetch({query: homepageQuery})
-
+export default function Page() {
   return (
     <>
       <main className="h-[100svh] overflow-hidden">

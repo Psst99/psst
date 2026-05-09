@@ -1,5 +1,23 @@
 import ResourcesGuidelinesContentAsync from '@/components/resources/ResourcesGuidelinesContentAsync'
+import {buildPageMetadata} from '@/lib/seo'
+import {sanityFetch} from '@/sanity/lib/live'
+import {resourcesPageSeoQuery} from '@/sanity/lib/queries'
 import Loading from './loading'
+
+export async function generateMetadata() {
+  const {data} = await sanityFetch({
+    query: resourcesPageSeoQuery,
+    stega: false,
+  })
+  const settings = data?.settings
+
+  return buildPageMetadata({
+    title: settings?.title || 'Resources',
+    description: settings?.description || data?.guidelines?.content,
+    seo: settings?.seo,
+    path: '/resources',
+  })
+}
 
 export default function ResourcesPage() {
   return (
