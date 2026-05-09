@@ -545,6 +545,7 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                 type: 'archiveMedia',
                 title: 'Media',
                 icon: ListIcon,
+                createIntent: true,
                 S,
                 context,
               }),
