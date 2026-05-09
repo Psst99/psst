@@ -7,6 +7,7 @@ import {pssoundMembershipSchema} from '@/lib/schemas/pssoundMembership'
 import {pssoundRequestSchema} from '@/lib/schemas/pssoundRequest'
 import {sendPsstEmail} from '@/lib/email/send'
 import {PSSOUND_UNAVAILABLE_RANGE_MESSAGE} from '@/lib/pssound-dates'
+import {uuid} from '@sanity/uuid'
 
 type BlockedPeriod = {
   title?: string
@@ -41,6 +42,13 @@ async function findBlockedPeriodOverlap(startDate: string, endDate: string) {
     ][0]{title, startDate, endDate}`,
     {startDate, endDate},
   )
+}
+
+function addLineupKeys(artists: Array<{name: string; link?: string}>) {
+  return artists.map((artist) => ({
+    _key: uuid(),
+    ...artist,
+  }))
 }
 
 export async function POST(req: NextRequest) {
@@ -138,9 +146,7 @@ export async function POST(req: NextRequest) {
         `*[
           _type == "pssoundMembership" &&
           approved == true &&
-          collectiveName == $collectiveName &&
-          defined(email) &&
-          email != ""
+          collectiveName == $collectiveName
         ][0]{_id, email}`,
         {collectiveName},
       )
@@ -159,7 +165,7 @@ export async function POST(req: NextRequest) {
       eventLocation: validatedData.request.eventLocation,
       eventDescription: validatedData.request.eventDescription,
       isPolitical: validatedData.request.isPolitical,
-      marginalizedArtists: validatedData.request.marginalizedArtists,
+      marginalizedArtists: addLineupKeys(validatedData.request.marginalizedArtists),
       wagePolicy: validatedData.request.wagePolicy,
       eventDate: validatedData.request.eventDate,
       pickupDate: validatedData.request.pickupDate,

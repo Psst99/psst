@@ -1,10 +1,6 @@
 import {CheckmarkCircleIcon} from '@sanity/icons'
-import {useEffect, useState} from 'react'
-import {
-  type DocumentActionComponent,
-  type DocumentActionsResolver,
-  useDocumentOperationEvent,
-} from 'sanity'
+import {useState} from 'react'
+import {type DocumentActionComponent, type DocumentActionsResolver} from 'sanity'
 
 type ApprovalDocumentState = {
   approved?: boolean
@@ -255,106 +251,6 @@ async function approveDocument(documentId: string, documentType: string) {
   return payload.result
 }
 
-function createPublishAction(
-  originalPublishAction: DocumentActionComponent,
-): DocumentActionComponent {
-  function ApprovalPublishAction(props: Parameters<DocumentActionComponent>[0]) {
-    const originalResult = originalPublishAction(props)
-    const publishEvent = useDocumentOperationEvent(props.id, props.type)
-    const [pendingPublishAction, setPendingPublishAction] = useState<'sync' | 'approval' | null>(
-      null,
-    )
-
-    useEffect(() => {
-      if (!pendingPublishAction || publishEvent?.op !== 'publish') {
-        return
-      }
-
-      if (publishEvent.type === 'error') {
-        setPendingPublishAction(null)
-        return
-      }
-
-      if (publishEvent.type !== 'success') {
-        return
-      }
-
-      const action = pendingPublishAction
-      setPendingPublishAction(null)
-
-      const request =
-        action === 'approval' ? approveDocument(props.id, props.type) : syncArtist(props.id)
-
-      void request
-        .then((result) => {
-          if (action === 'approval') {
-            if (props.type === 'artist') {
-              notifyManualSyncResult(buildApprovalMessage(result, props.type))
-              return
-            }
-
-            if (props.type === 'pssoundRequest') {
-              notifyManualSyncResult(buildApprovalMessage(result, props.type))
-              return
-            }
-
-            if (
-              result.sent ||
-              result.reason === 'already sent' ||
-              result.reason === 'resource email missing'
-            ) {
-              console.info(buildApprovalMessage(result, props.type))
-              return
-            }
-
-            notifyManualSyncResult(buildApprovalMessage(result, props.type))
-            return
-          }
-
-          console.info(buildSuccessMessage(result))
-        })
-        .catch((error) => {
-          const approvalErrorPrefix =
-            props.type === 'pssoundRequest'
-              ? 'Confirmation handling failed'
-              : 'Approval handling failed'
-
-          notifyManualSyncResult(
-            action === 'approval'
-              ? `${approvalErrorPrefix}: ${buildErrorMessage(error)}`
-              : `Google Sheet sync failed: ${buildErrorMessage(error)}`,
-          )
-        })
-    }, [pendingPublishAction, props.id, props.type, publishEvent])
-
-    if (!originalResult) {
-      return null
-    }
-
-    const document = getDocumentState(props)
-    const publishAction =
-      APPROVAL_SCHEMA_TYPES.has(props.type) && isApprovedDocument(props, document)
-        ? 'approval'
-        : null
-
-    return {
-      ...originalResult,
-      onHandle: () => {
-        if (publishAction) {
-          setPendingPublishAction(publishAction)
-        }
-
-        originalResult.onHandle?.()
-      },
-    }
-  }
-
-  ApprovalPublishAction.action = originalPublishAction.action
-  ApprovalPublishAction.displayName = 'ApprovalPublishAction'
-
-  return ApprovalPublishAction
-}
-
 const syncArtistSheetAction: DocumentActionComponent = (props) => {
   const [isSyncing, setIsSyncing] = useState(false)
   const document = getDocumentState(props)
@@ -493,17 +389,13 @@ export const artistDocumentActions: DocumentActionsResolver = (previousActions, 
     return previousActions
   }
 
-  const actions = previousActions.map((action) =>
-    action.action === 'publish' ? createPublishAction(action) : action,
-  )
-
   if (context.schemaType === 'artist') {
-    return [...actions, processArtistApprovalAction, syncArtistSheetAction]
+    return [...previousActions, processArtistApprovalAction, syncArtistSheetAction]
   }
 
   if (context.schemaType === 'pssoundRequest') {
-    return [...actions, processPssoundRequestApprovalAction]
+    return [...previousActions, processPssoundRequestApprovalAction]
   }
 
-  return actions
+  return previousActions
 }

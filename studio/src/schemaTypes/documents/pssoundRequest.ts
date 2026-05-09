@@ -7,7 +7,7 @@ export const pssoundRequest = defineType({
   type: 'document',
   icon: ListIcon,
   groups: [
-    {name: 'loanRequest', title: 'Loan request', default: true},
+    {name: 'loanRequest', title: 'Loan request'},
     {name: 'review', title: 'Review & calendar'},
     {name: 'system', title: 'System'},
   ],
@@ -16,6 +16,23 @@ export const pssoundRequest = defineType({
     {name: 'certifications', title: 'Certifications'},
   ],
   fields: [
+    defineField({
+      name: 'status',
+      title: 'Status',
+      type: 'string',
+      group: ['loanRequest', 'review'],
+      options: {
+        list: [
+          {title: 'Pending', value: 'pending'},
+          {title: 'Confirmed', value: 'confirmed'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'pending',
+      validation: (Rule) => Rule.required(),
+      description:
+        'Set this to Confirmed and publish to send the confirmation email and block the loan dates.',
+    }),
     defineField({
       name: 'collective',
       title: 'Collective',
@@ -144,22 +161,6 @@ export const pssoundRequest = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'status',
-      title: 'Status',
-      type: 'string',
-      group: 'review',
-      options: {
-        list: [
-          {title: 'Pending', value: 'pending'},
-          {title: 'Confirmed', value: 'confirmed'},
-        ],
-        layout: 'radio',
-      },
-      initialValue: 'pending',
-      description:
-        'Set this to Confirmed and publish to send the confirmation email and block the loan dates.',
-    }),
-    defineField({
       name: 'calendarBlock',
       title: 'Blocked date period',
       type: 'reference',
@@ -193,10 +194,27 @@ export const pssoundRequest = defineType({
       name: 'contactEmail',
       title: 'Contact email',
       type: 'string',
-      group: 'system',
+      group: ['loanRequest', 'review', 'system'],
       description:
         'Resolved from the approved collective membership when available. Edit this if an older request is missing the email.',
-      validation: (Rule) => Rule.email(),
+      validation: (Rule) => [
+        Rule.email(),
+        Rule.custom((value, context) => {
+          if (context.document?.status === 'confirmed' && !value) {
+            return 'Add a contact email before confirming this loan request.'
+          }
+
+          return true
+        }),
+      ],
+    }),
+    defineField({
+      name: 'approvalEmailProcessingAt',
+      title: 'Loan confirmation email processing at',
+      type: 'datetime',
+      group: 'system',
+      readOnly: true,
+      hidden: true,
     }),
     defineField({
       name: 'membership',

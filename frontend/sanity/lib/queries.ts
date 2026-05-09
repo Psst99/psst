@@ -498,10 +498,8 @@ export const allBlockedDatesQuery = `
 export const allApprovedCollectivesQuery = `
   *[
     _type == "pssoundMembership" &&
-    approved == true &&
-    defined(email) &&
-    email != ""
-  ]{
+    approved == true
+  ] | order(lower(collectiveName) asc) {
     _id,
     collectiveName
   }

@@ -53,7 +53,7 @@ async function patchSuccess(id: string) {
   await writeClient
     .patch(id)
     .set({approvalEmailSentAt: new Date().toISOString()})
-    .unset(['emailDeliveryError'])
+    .unset(['emailDeliveryError', 'approvalEmailProcessingAt'])
     .commit()
 }
 
@@ -71,6 +71,7 @@ async function patchError(id: string, error: unknown) {
     .set({
       emailDeliveryError: error instanceof Error ? error.message : 'Unknown email delivery error',
     })
+    .unset(['approvalEmailProcessingAt'])
     .commit()
     .catch(() => undefined)
 }
@@ -512,6 +513,8 @@ function formatPssoundLineup(artists?: Array<{name?: string | null; link?: strin
   )
 }
 
+const APPROVAL_EMAIL_PROCESSING_TIMEOUT_MS = 5 * 60 * 1000
+
 function pssoundCalendarIdForRequest(id: string) {
   return `pssoundCalendar.${id.replace(/[^a-zA-Z0-9_.-]/g, '-')}`
 }
@@ -620,6 +623,66 @@ async function resolvePssoundRequestEmail(doc: {
   return member?.email
 }
 
+function isRecentProcessingTimestamp(value?: string | null) {
+  if (!value) return false
+
+  const timestamp = Date.parse(value)
+  if (Number.isNaN(timestamp)) return false
+
+  return Date.now() - timestamp < APPROVAL_EMAIL_PROCESSING_TIMEOUT_MS
+}
+
+async function fetchPssoundRequestEmailState(id: string) {
+  return writeClient.fetch<{
+    _id: string
+    _rev: string
+    approvalEmailSentAt?: string
+    approvalEmailProcessingAt?: string
+    collective?: string
+    contactEmail?: string
+    membership?: {email?: string}
+  } | null>(
+    `*[_type == "pssoundRequest" && _id == $id][0]{
+      _id,
+      _rev,
+      approvalEmailSentAt,
+      approvalEmailProcessingAt,
+      collective,
+      contactEmail,
+      membership->{email}
+    }`,
+    {id},
+  )
+}
+
+async function claimPssoundApprovalEmail(id: string) {
+  const latest = await fetchPssoundRequestEmailState(id)
+
+  if (!latest) {
+    return {claimed: false, reason: 'request not found' as const, latest}
+  }
+
+  if (latest.approvalEmailSentAt) {
+    return {claimed: false, reason: 'already sent' as const, latest}
+  }
+
+  if (isRecentProcessingTimestamp(latest.approvalEmailProcessingAt)) {
+    return {claimed: false, reason: 'already processing' as const, latest}
+  }
+
+  try {
+    await writeClient
+      .patch(id)
+      .ifRevisionId(latest._rev)
+      .set({approvalEmailProcessingAt: new Date().toISOString()})
+      .commit()
+
+    return {claimed: true, latest}
+  } catch {
+    return {claimed: false, reason: 'already processing' as const, latest}
+  }
+}
+
 async function handlePssoundRequest(id: string): Promise<ApprovalResult> {
   const doc = await writeClient.fetch<{
     _id: string
@@ -692,8 +755,20 @@ async function handlePssoundRequest(id: string): Promise<ApprovalResult> {
     }
   }
 
-  const email = await resolvePssoundRequestEmail(doc)
+  const claim = await claimPssoundApprovalEmail(doc._id)
+  if (!claim.claimed) {
+    return {
+      handled: true,
+      sent: false,
+      reason: claim.reason,
+      blockedDatesUpdated: true,
+      blockedDatesId: calendarId,
+    }
+  }
+
+  const email = await resolvePssoundRequestEmail(claim.latest ?? doc)
   if (!email) {
+    await patchError(doc._id, new Error('request contact email missing'))
     return {
       handled: true,
       sent: false,
@@ -721,7 +796,12 @@ async function handlePssoundRequest(id: string): Promise<ApprovalResult> {
       variables,
     })
 
-    if (result.sent) await patchSuccess(doc._id)
+    if (result.sent) {
+      await patchSuccess(doc._id)
+    } else {
+      await patchError(doc._id, new Error(result.reason || 'Confirmation email was not sent'))
+    }
+
     return {
       handled: true,
       sent: result.sent,
