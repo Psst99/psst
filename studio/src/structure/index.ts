@@ -608,6 +608,7 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
       //   }),
       // // Settings Singleton in order to view/edit the one particular document for Settings.  Learn more about Singletons: https://www.sanity.io/docs/create-a-link-to-a-single-edit-page-in-your-main-document-type-list
 
+      S.divider(),
       S.listItem()
         .title('Theme')
         .child(
