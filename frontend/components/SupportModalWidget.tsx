@@ -23,10 +23,7 @@ import {MODAL_CLOSE_BUTTON_CLASS} from '@/lib/modalStyles'
 type SupportTab = 'donation' | 'newsletter'
 
 type SupportContent = {
-  floatingButtonLabel?: string
   modalTitle?: string
-  modalSubtitle?: any[]
-  shareButtonLabel?: string
   donationTabLabel?: string
   newsletterTabLabel?: string
   donationIntro?: any[]

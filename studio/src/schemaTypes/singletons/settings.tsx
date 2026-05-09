@@ -401,9 +401,12 @@ export const settings = defineType({
     }),
     defineField({
       name: 'support',
-      title: 'Support Modal',
+      title: 'Support Modal (legacy)',
       type: 'object',
-      description: 'Controls the floating support button and modal copy site-wide.',
+      hidden: true,
+      readOnly: true,
+      description:
+        'Moved to Forms & support. Kept hidden so existing content can continue to fall back safely.',
       fields: [
         defineField({
           name: 'floatingButtonLabel',

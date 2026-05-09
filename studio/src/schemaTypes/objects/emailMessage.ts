@@ -114,7 +114,7 @@ export const newsletterReceivedEmailMessage = defineType({
   name: 'newsletterReceivedEmailMessage',
   title: 'Newsletter confirmation email message',
   type: 'object',
-  fields: [...baseFields, headingField, introField],
+  fields: [...baseFields, headingField, introField, disclaimerField],
 })
 
 export const pssoundRequestReceivedEmailMessage = defineType({

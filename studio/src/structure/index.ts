@@ -638,7 +638,7 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
       newsletterListItem(S),
 
       S.listItem()
-        .title('Form success pages')
+        .title('Forms')
         .icon(CheckmarkIcon)
         .child(S.document().schemaType('formSuccessPages').documentId('formSuccessPages')),
 

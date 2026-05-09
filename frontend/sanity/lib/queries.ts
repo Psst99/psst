@@ -522,6 +522,18 @@ export const pssoundFilesQuery = `
 
 export const formSuccessPagesQuery = `
   *[_type == "formSuccessPages" && _id == "formSuccessPages"][0]{
+    "support": {
+      "modalTitle": modalTitle,
+      "donationTabLabel": donationTabLabel,
+      "newsletterTabLabel": newsletterTabLabel,
+      "donationIntro": donationIntro,
+      "newsletterIntro": newsletterIntro,
+      "donationSubmitLabel": donationSubmitLabel,
+      "newsletterSubmitLabel": newsletterSubmitLabel,
+      "donationSuccessMessage": donationSuccessMessage,
+      "donationFailedMessage": donationFailedMessage,
+      "newsletterSuccessMessage": newsletterSuccessMessage
+    },
     databaseSubmitContent,
     resourceSubmitContent,
     workshopRegistrationContent,

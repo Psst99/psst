@@ -11,6 +11,7 @@ import {createMetadataBase, toPlainText} from '@/lib/seo'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
 import {
+  formSuccessPagesQuery,
   pssoundSectionsQuery,
   psstSectionsQuery,
   resourcesGuidelinesLayoutQuery,
@@ -79,12 +80,14 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
   const [
     {data: settings},
+    {data: formsAndSupport},
     {data: themeSettings},
     {data: psstSections},
     {data: pssoundSections},
     {data: resourcesGuidelinesLayoutData},
   ] = await Promise.all([
     sanityFetch({query: settingsQuery, stega: false}).catch(() => ({data: null})),
+    sanityFetch({query: formSuccessPagesQuery, stega: false}).catch(() => ({data: null})),
     sanityFetch({query: themeSettingsQuery, stega: false}).catch(() => ({data: null})),
     sanityFetch({query: psstSectionsQuery, stega: false}).catch(() => ({data: []})),
     sanityFetch({query: pssoundSectionsQuery, stega: false}).catch(() => ({data: []})),
@@ -120,6 +123,18 @@ export default async function RootLayout({children}: {children: React.ReactNode}
     psst: dynamicPsstSubNavItems,
     'pssound-system': dynamicPssoundSubNavItems,
   } as const
+  const legacySupportContent = (settings as any)?.support
+  const nextSupportContent = (formsAndSupport as any)?.support
+  const supportContent = nextSupportContent
+    ? {
+        ...(legacySupportContent ?? {}),
+        ...Object.fromEntries(
+          Object.entries(nextSupportContent).filter(
+            ([, value]) => value !== null && value !== undefined,
+          ),
+        ),
+      }
+    : (legacySupportContent ?? null)
   const contentPageLayouts = {
     resourcesGuidelines:
       resourcesGuidelinesLayoutData?.layout === 'default' ? 'default' : 'columns',
@@ -152,7 +167,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             initialRounded={initialRounded}
           >
             <ThemeToggleButton />
-            <SupportModalWidget content={(settings as any)?.support ?? null} />
+            <SupportModalWidget content={supportContent} />
             <div className="min-[69.375rem]:hidden">
               <MobileHeader dynamicSubNavItemsBySection={dynamicSubNavItemsBySection} />
             </div>

@@ -138,7 +138,7 @@ export const EMAIL_MESSAGE_DEFAULTS: Record<EmailTemplateKey, EmailMessageDefaul
     intro: 'Thanks for signing up to the PSST newsletter. We have saved your email.',
     notice: '',
     footer: '',
-    disclaimer: '',
+    disclaimer: 'Automated newsletter confirmation for {{email}}.',
   },
   pssoundRequestReceived: {
     enabled: true,

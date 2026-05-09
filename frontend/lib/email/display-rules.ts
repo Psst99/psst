@@ -27,7 +27,7 @@ const FOOTERLESS_TEMPLATES = new Set<EmailTemplateKey>([
   'pssoundMembershipApproved',
 ])
 
-const DISCLAIMERLESS_TEMPLATES = new Set<EmailTemplateKey>(['newsletterReceived'])
+const DISCLAIMERLESS_TEMPLATES = new Set<EmailTemplateKey>()
 
 export function getEmailFieldVisibility(key: EmailTemplateKey) {
   const isCardOnly = CARD_ONLY_TEMPLATES.has(key)
