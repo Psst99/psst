@@ -20,6 +20,7 @@ import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import pluralize from 'pluralize-esm'
 import ThemePreviewTool from '../components/ThemePreviewTool'
 import EmailPreviewPane from '../components/EmailPreviewPane'
+import SubmissionsDashboard from '../components/SubmissionsDashboard'
 
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
 
@@ -31,6 +32,153 @@ import type {StructureBuilder, StructureResolver} from 'sanity/structure'
 
 // const DISABLED_TYPES = ['settings', 'psstPage', 'assist.instruction.context']
 const STUDIO_API_VERSION = '2024-10-28'
+
+const NEEDS_REVIEW_FILTER = `
+  (_type == "artist" && submissionSource == "website" && coalesce(approved, false) == false) ||
+  (_type == "resource" && submissionSource == "website" && coalesce(approved, false) == false) ||
+  (_type == "workshopRegistration" && coalesce(status, "pending") == "pending") ||
+  (_type == "newsletterSubscription" && coalesce(status, "pending") == "pending") ||
+  (_type == "pssoundMembership" && coalesce(approved, false) == false) ||
+  (_type == "pssoundRequest" && coalesce(status, "pending") == "pending" && coalesce(archived, false) == false)
+`
+
+const ALL_SUBMISSIONS_FILTER = `
+  (_type == "artist" && submissionSource == "website") ||
+  (_type == "resource" && submissionSource == "website") ||
+  _type in ["workshopRegistration", "newsletterSubscription", "pssoundMembership", "pssoundRequest", "donationPaymentLog"]
+`
+
+const EMAIL_DELIVERY_ERRORS_FILTER = `
+  _type in ["artist", "resource", "workshopRegistration", "newsletterSubscription", "pssoundMembership", "pssoundRequest"] &&
+  defined(emailDeliveryError)
+`
+
+const submissionsListItem = (S: StructureBuilder) =>
+  S.listItem()
+    .title('Inbox')
+    .icon(BsFillInboxFill)
+    .child(
+      S.list()
+        .title('Inbox')
+        .items([
+          S.listItem()
+            .title('Dashboard')
+            .icon(BsFillInboxFill)
+            .child(S.component(SubmissionsDashboard).title('Inbox Dashboard')),
+          S.divider(),
+          S.listItem()
+            .title('Needs review')
+            .icon(ClockIcon)
+            .child(
+              S.documentList()
+                .title('Needs review')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter(NEEDS_REVIEW_FILTER)
+                .defaultOrdering([{field: '_createdAt', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('All website submissions')
+            .icon(ListIcon)
+            .child(
+              S.documentList()
+                .title('All website submissions')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter(ALL_SUBMISSIONS_FILTER)
+                .defaultOrdering([{field: '_createdAt', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('Email delivery problems')
+            .icon(MdOutlineAlternateEmail)
+            .child(
+              S.documentList()
+                .title('Email delivery problems')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter(EMAIL_DELIVERY_ERRORS_FILTER)
+                .defaultOrdering([{field: '_updatedAt', direction: 'desc'}]),
+            ),
+          S.divider(),
+          S.listItem()
+            .title('Database submissions')
+            .icon(UserIcon)
+            .child(
+              S.documentTypeList('artist')
+                .title('Database submissions')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter(
+                  '_type == "artist" && submissionSource == "website" && coalesce(approved, false) == false',
+                )
+                .defaultOrdering([{field: '_createdAt', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('Resource submissions')
+            .icon(LuLibrary)
+            .child(
+              S.documentTypeList('resource')
+                .title('Resource submissions')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter(
+                  '_type == "resource" && submissionSource == "website" && coalesce(approved, false) == false',
+                )
+                .defaultOrdering([{field: 'submittedAt', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('Workshop registrations')
+            .icon(LuLightbulb)
+            .child(
+              S.documentTypeList('workshopRegistration')
+                .title('Pending workshop registrations')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter(
+                  '_type == "workshopRegistration" && coalesce(status, "pending") == "pending"',
+                )
+                .defaultOrdering([{field: 'registrationDate', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('Newsletter signups')
+            .icon(BsSendFill)
+            .child(
+              S.documentTypeList('newsletterSubscription')
+                .title('Pending newsletter signups')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter(
+                  '_type == "newsletterSubscription" && coalesce(status, "pending") == "pending"',
+                )
+                .defaultOrdering([{field: 'lastSubmittedAt', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('PSSOUND memberships')
+            .icon(UserIcon)
+            .child(
+              S.documentTypeList('pssoundMembership')
+                .title('Pending PSSOUND memberships')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter('_type == "pssoundMembership" && coalesce(approved, false) == false')
+                .defaultOrdering([{field: '_createdAt', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('Loan requests')
+            .icon(BsFillSpeakerFill)
+            .child(
+              S.documentTypeList('pssoundRequest')
+                .title('Pending loan requests')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter(
+                  '_type == "pssoundRequest" && coalesce(status, "pending") == "pending" && coalesce(archived, false) == false',
+                )
+                .defaultOrdering([{field: '_createdAt', direction: 'desc'}]),
+            ),
+          S.listItem()
+            .title('Donation payments')
+            .icon(CheckmarkIcon)
+            .child(
+              S.documentTypeList('donationPaymentLog')
+                .title('Donation payments')
+                .apiVersion(STUDIO_API_VERSION)
+                .filter('_type == "donationPaymentLog"')
+                .defaultOrdering([{field: 'paidAt', direction: 'desc'}]),
+            ),
+        ]),
+    )
 
 const newsletterListItem = (S: StructureBuilder) =>
   S.listItem()
@@ -77,6 +225,10 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
   S.list()
     .title('CMS')
     .items([
+      submissionsListItem(S),
+
+      S.divider(),
+
       S.listItem()
         .title('Homepage')
         .child(S.document().schemaType('homepage').documentId('homepage'))

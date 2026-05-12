@@ -34,6 +34,15 @@ import {buildThemeOverrides} from '@/lib/theme/overrides'
 import SupportModalWidget from '@/components/SupportModalWidget'
 import NavigationPendingProvider from './NavigationPendingProvider'
 
+function JsonLdScript({data}: {data: Record<string, unknown>}) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{__html: JSON.stringify(data).replace(/</g, '\\u003c')}}
+    />
+  )
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const {data: settings} = await sanityFetch({query: settingsQuery, stega: false})
   const title = settings?.title || demo.title
@@ -95,6 +104,15 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   ])
 
   const soundcloudPlaylistUrl = settings?.soundcloudPlaylistUrl
+  const siteTitle = settings?.title || demo.title
+  const siteUrl = createMetadataBase(settings?.siteUrl || settings?.ogImage?.metadataBase).origin
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteTitle,
+    alternateName: ['PSST', 'Psst Mlle'],
+    url: `${siteUrl}/`,
+  }
   const themeOverrides = buildThemeOverrides((themeSettings as any)?.sectionColors)
   const modeCookie = cookieStore.get('psst-theme-mode')?.value
   const roundedCookie = cookieStore.get('psst-rounded-corners')?.value
@@ -158,6 +176,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         data-rounded={initialRounded ? 'true' : 'false'}
       >
         <head>
+          <JsonLdScript data={websiteJsonLd} />
           <script dangerouslySetInnerHTML={{__html: vtScript}} />
         </head>
         <body className="font-(family-name:--font-kleber) antialiased">

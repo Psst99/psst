@@ -46,6 +46,7 @@ import {themeSettings} from './singletons/themeSettings'
 import {emailSettings} from './singletons/emailSettings'
 import {formSuccessPages} from './singletons/formSuccessPages'
 import {newsletterSubscription} from './documents/newsletterSubscription'
+import {donationPaymentLog} from './documents/donationPaymentLog'
 import {pssoundArchive} from './documents/pssoundArchive'
 import {resourceCategory} from './documents/resourceCategory'
 import {resourceTag} from './documents/resourceTag'
@@ -83,6 +84,7 @@ export const schemaTypes = [
   pssoundCalendar,
   resource,
   newsletterSubscription,
+  donationPaymentLog,
   archiveMedia,
   archiveTag,
   pssoundArchive,
