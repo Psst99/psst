@@ -337,8 +337,8 @@ export default function PssoundCombinedForm({
       >
         {/* Membership selection */}
         <div className="p-6 section-bg rounded-xl">
-          <div className="mb-4 flex flex-col items-center gap-4 min-[86rem]:flex-row min-[86rem]:items-baseline min-[86rem]:justify-between">
-            <p className="tracking-tight text-2xl mb-4 section-fg text-center min-[86rem]:text-left">
+          <div className="flex flex-col items-center gap-4 min-[86rem]:flex-row min-[86rem]:items-center min-[86rem]:justify-between">
+            <p className="tracking-tight text-2xl leading-none section-fg text-center min-[86rem]:text-left">
               Are you already a Pssound Community member?
             </p>
 
@@ -356,7 +356,7 @@ export default function PssoundCombinedForm({
                     shouldValidate: true,
                   })
                 }}
-                className={`w-32 h-32 rounded-full text-2xl font-medium cursor-pointer ${
+                className={`round-action-button w-32 h-32 rounded-full text-2xl font-medium cursor-pointer ${
                   isMember === true
                     ? 'panel-bg panel-fg ring-4 ring-[var(--panel-fg)]/30'
                     : 'bg-white section-fg hover:[background:var(--panel-bg)] hover:[color:var(--panel-fg)] hover:ring-4 hover:ring-[var(--panel-fg)]/30'
@@ -378,7 +378,7 @@ export default function PssoundCombinedForm({
                     shouldValidate: true,
                   })
                 }}
-                className={`w-32 h-32 rounded-full text-2xl font-medium cursor-pointer ${
+                className={`round-action-button w-32 h-32 rounded-full text-2xl font-medium cursor-pointer ${
                   isMember === false
                     ? 'panel-bg panel-fg ring-4 ring-[var(--panel-fg)]/30'
                     : 'bg-white section-fg hover:[background:var(--panel-bg)] hover:[color:var(--panel-fg)] hover:ring-4 hover:ring-[var(--panel-fg)]/30'

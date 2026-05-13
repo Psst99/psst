@@ -165,6 +165,7 @@ export const pssoundRequest = defineType({
       title: 'Blocked date period',
       type: 'reference',
       to: [{type: 'pssoundCalendar'}],
+      weak: true,
       group: 'review',
       readOnly: true,
       description: 'Created or updated automatically when the request is confirmed.',

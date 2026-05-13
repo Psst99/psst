@@ -1,12 +1,14 @@
 import {CheckmarkCircleIcon} from '@sanity/icons'
 import {useState} from 'react'
-import {type DocumentActionComponent, type DocumentActionsResolver} from 'sanity'
+import {type DocumentActionComponent, type DocumentActionsResolver, useClient} from 'sanity'
 
 type ApprovalDocumentState = {
   approved?: boolean
   status?: string
   googleSheetsSheetName?: string
   approvalEmailSentAt?: string
+  calendarBlock?: {_ref?: string}
+  request?: {_ref?: string}
 }
 
 type ArtistActionResult = {
@@ -44,6 +46,7 @@ const APPROVAL_SCHEMA_TYPES = new Set([
   'resource',
   'workshopRegistration',
   'pssoundRequest',
+  'pssoundCalendar',
   'pssoundMembership',
 ])
 
@@ -209,6 +212,20 @@ function notifyManualSyncResult(message: string) {
   if (typeof window !== 'undefined') {
     window.alert(message)
   }
+}
+
+async function fetchCalendarBlocksForRequest(
+  client: ReturnType<typeof useClient>,
+  requestId: string,
+  calendarBlockId?: string,
+) {
+  return client.fetch<Array<{_id: string; title?: string}>>(
+    `*[
+      _type == "pssoundCalendar" &&
+      (request._ref == $requestId || _id == $calendarBlockId)
+    ]{_id, title}`,
+    {requestId, calendarBlockId: calendarBlockId || ''},
+  )
 }
 
 async function syncArtist(documentId: string) {
@@ -384,6 +401,116 @@ const processPssoundRequestApprovalAction: DocumentActionComponent = (props) => 
 
 processPssoundRequestApprovalAction.displayName = 'ProcessPssoundRequestApprovalAction'
 
+const unlinkPssoundRequestCalendarAction: DocumentActionComponent = (props) => {
+  const [isProcessing, setIsProcessing] = useState(false)
+  const client = useClient({apiVersion: '2024-10-28'})
+
+  if (props.type !== 'pssoundRequest') {
+    return null
+  }
+
+  const document = getDocumentState(props)
+  const hasUnpublishedChanges = Boolean(props.draft)
+
+  return {
+    label: 'Unblock loan dates',
+    icon: CheckmarkCircleIcon,
+    disabled: isProcessing || hasUnpublishedChanges,
+    title: hasUnpublishedChanges
+      ? 'Publish or discard changes first, then unblock the published calendar dates.'
+      : 'Detach and remove the calendar block created for this loan request.',
+    onHandle: () => {
+      if (isProcessing || hasUnpublishedChanges) {
+        return
+      }
+
+      setIsProcessing(true)
+
+      void fetchCalendarBlocksForRequest(client, props.id, document?.calendarBlock?._ref)
+        .then(async (blocks) => {
+          let tx = client.transaction().patch(props.id, (patch) =>
+            patch.unset(['calendarBlock', 'calendarBlockedAt']),
+          )
+
+          for (const block of blocks) {
+            tx = tx.delete(block._id)
+          }
+
+          await tx.commit()
+
+          const deletedCount = blocks.length
+          notifyManualSyncResult(
+            deletedCount > 0
+              ? `Loan dates unblocked. Removed ${deletedCount} calendar block${
+                  deletedCount === 1 ? '' : 's'
+                }.`
+              : 'No linked calendar block found. Cleared the request calendar fields.',
+          )
+        })
+        .catch((error) => {
+          notifyManualSyncResult(`Could not unblock loan dates: ${buildErrorMessage(error)}`)
+        })
+        .finally(() => {
+          setIsProcessing(false)
+          props.onComplete()
+        })
+    },
+  }
+}
+
+unlinkPssoundRequestCalendarAction.displayName = 'UnlinkPssoundRequestCalendarAction'
+
+const detachPssoundCalendarRequestAction: DocumentActionComponent = (props) => {
+  const [isProcessing, setIsProcessing] = useState(false)
+  const client = useClient({apiVersion: '2024-10-28'})
+
+  if (props.type !== 'pssoundCalendar') {
+    return null
+  }
+
+  const document = getDocumentState(props)
+  const requestId = document?.request?._ref
+  const hasUnpublishedChanges = Boolean(props.draft)
+
+  if (!requestId) {
+    return null
+  }
+
+  return {
+    label: 'Detach request link',
+    icon: CheckmarkCircleIcon,
+    disabled: isProcessing || hasUnpublishedChanges,
+    title: hasUnpublishedChanges
+      ? 'Publish or discard changes first, then detach the published request link.'
+      : 'Clear the request link so this blocked-date document or the loan request can be deleted.',
+    onHandle: () => {
+      if (isProcessing || hasUnpublishedChanges) {
+        return
+      }
+
+      setIsProcessing(true)
+
+      void client
+        .transaction()
+        .patch(props.id, (patch) => patch.unset(['request']))
+        .patch(requestId, (patch) => patch.unset(['calendarBlock', 'calendarBlockedAt']))
+        .commit()
+        .then(() => {
+          notifyManualSyncResult('Request link detached. You can now delete the blocked dates or the request.')
+        })
+        .catch((error) => {
+          notifyManualSyncResult(`Could not detach request link: ${buildErrorMessage(error)}`)
+        })
+        .finally(() => {
+          setIsProcessing(false)
+          props.onComplete()
+        })
+    },
+  }
+}
+
+detachPssoundCalendarRequestAction.displayName = 'DetachPssoundCalendarRequestAction'
+
 export const artistDocumentActions: DocumentActionsResolver = (previousActions, context) => {
   if (!APPROVAL_SCHEMA_TYPES.has(context.schemaType)) {
     return previousActions
@@ -394,7 +521,15 @@ export const artistDocumentActions: DocumentActionsResolver = (previousActions, 
   }
 
   if (context.schemaType === 'pssoundRequest') {
-    return [...previousActions, processPssoundRequestApprovalAction]
+    return [
+      ...previousActions,
+      processPssoundRequestApprovalAction,
+      unlinkPssoundRequestCalendarAction,
+    ]
+  }
+
+  if (context.schemaType === 'pssoundCalendar') {
+    return [...previousActions, detachPssoundCalendarRequestAction]
   }
 
   return previousActions

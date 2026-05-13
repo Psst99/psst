@@ -34,6 +34,7 @@ export const pssoundCalendar = defineType({
       title: 'Related Request',
       type: 'reference',
       to: [{type: 'pssoundRequest'}],
+      weak: true,
       description: 'Automatically linked when dates are blocked from an approved loan request.',
     }),
   ],

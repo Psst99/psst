@@ -431,11 +431,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           bottom: pos.y,
           backgroundColor: theme.bg,
           color: theme.fg,
-          borderRadius: isDetached
-            ? `${DOCKED_PLAYER_RADIUS}px`
-            : dockEdge === 'left'
-              ? `0 ${DOCKED_PLAYER_RADIUS}px ${DOCKED_PLAYER_RADIUS}px 0`
-              : `${DOCKED_PLAYER_RADIUS}px 0 0 ${DOCKED_PLAYER_RADIUS}px`,
+          borderRadius: 0,
           overflow: 'hidden',
         }}
         title={isDetached ? 'Drag to move, or snap to edges' : 'Click to play and expand'}
@@ -544,7 +540,7 @@ export default function CustomSoundcloudPlayer({playlistUrl}: {playlistUrl?: str
           style={{
             backgroundColor: theme.bg,
             color: theme.fg,
-            borderRadius: `${DOCKED_PLAYER_RADIUS}px 0 0 ${DOCKED_PLAYER_RADIUS}px`,
+            borderRadius: 0,
             overflow: 'hidden',
           }}
         >

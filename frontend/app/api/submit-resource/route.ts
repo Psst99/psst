@@ -7,6 +7,7 @@ import {sendPsstEmail} from '@/lib/email/send'
 
 const MAX_PDF_SIZE_MB = 10
 const MAX_PDF_SIZE_BYTES = MAX_PDF_SIZE_MB * 1024 * 1024
+const PDF_MIME_TYPE = 'application/pdf'
 
 const parseArrayField = (value: FormDataEntryValue | null) => {
   if (!value || typeof value !== 'string') return []
@@ -17,6 +18,9 @@ const parseArrayField = (value: FormDataEntryValue | null) => {
     return []
   }
 }
+
+const isPdfFile = (file: File) =>
+  file.type === PDF_MIME_TYPE || file.name.toLowerCase().endsWith('.pdf')
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,7 +48,7 @@ export async function POST(req: NextRequest) {
     if (formData) {
       const fileEntry = formData.get('file')
       if (fileEntry instanceof File) {
-        if (fileEntry.type !== 'application/pdf') {
+        if (!isPdfFile(fileEntry)) {
           return NextResponse.json(
             {success: false, error: 'Only PDF files are allowed'},
             {status: 400},
@@ -61,7 +65,7 @@ export async function POST(req: NextRequest) {
         const asset = await client
           .withConfig({token: writeToken})
           .assets.upload('file', fileEntry, {
-            contentType: fileEntry.type,
+            contentType: PDF_MIME_TYPE,
             filename: fileEntry.name,
           })
 
@@ -96,7 +100,6 @@ export async function POST(req: NextRequest) {
     const doc = {
       _type: 'resource',
       title: validatedData.title,
-      url: validatedData.url,
       email: validatedData.email,
       categories: categoryReferences,
       tags: tagReferences,
@@ -104,6 +107,7 @@ export async function POST(req: NextRequest) {
       submissionSource: 'website',
       approved: false,
       submittedAt,
+      ...(validatedData.url ? {url: validatedData.url} : {}),
       ...(fileField ? {file: fileField} : {}),
     }
 

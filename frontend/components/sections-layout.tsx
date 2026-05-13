@@ -37,7 +37,7 @@ export default function SectionsLayout({
             borderColor: mainColor,
             borderWidth: 1,
             borderTopWidth: 0,
-            borderRadius: '1rem 0 0 1rem',
+            borderRadius: 0,
           }}
         >
           {children}

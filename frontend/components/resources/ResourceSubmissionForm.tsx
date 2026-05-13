@@ -12,6 +12,11 @@ import {MultiSelectDropdown} from '@/components/form/MultiSelectDropdown'
 
 const MAX_PDF_SIZE_MB = 10
 const MAX_PDF_SIZE_BYTES = MAX_PDF_SIZE_MB * 1024 * 1024
+const PDF_MIME_TYPE = 'application/pdf'
+
+function isPdfFile(file: File | undefined) {
+  return !!file && (file.type === PDF_MIME_TYPE || file.name.toLowerCase().endsWith('.pdf'))
+}
 
 const resourceSubmissionFormSchema = resourceSubmissionSchema
   .extend({
@@ -19,7 +24,7 @@ const resourceSubmissionFormSchema = resourceSubmissionSchema
       .any()
       .optional()
       .refine(
-        (value) => !value || value.length === 0 || value[0]?.type === 'application/pdf',
+        (value) => !value || value.length === 0 || isPdfFile(value[0]),
         'Only PDF files are allowed',
       )
       .refine(
@@ -39,6 +44,17 @@ const resourceSubmissionFormSchema = resourceSubmissionSchema
 
 type ResourceSubmissionFormData = ResourceSubmissionData & {
   file?: FileList
+}
+
+async function getSubmissionErrorMessage(response: Response) {
+  try {
+    const body = (await response.json()) as {error?: unknown}
+    if (typeof body.error === 'string' && body.error.trim()) {
+      return body.error
+    }
+  } catch {}
+
+  return 'Submission failed'
 }
 
 interface ResourceSubmissionFormProps {
@@ -105,7 +121,7 @@ export const ResourceSubmissionForm: React.FC<ResourceSubmissionFormProps> = ({
       })
 
       if (!response.ok) {
-        throw new Error('Submission failed')
+        throw new Error(await getSubmissionErrorMessage(response))
       }
 
       router.push('/resources/submit/success')

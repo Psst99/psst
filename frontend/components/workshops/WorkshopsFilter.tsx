@@ -8,7 +8,7 @@ interface WorkshopsFilterProps {
 export default function WorkshopsFilter({activeFilters, onFilterToggle}: WorkshopsFilterProps) {
   const buttonClassName = (filter: string) =>
     [
-      'workshop-filter-button px-2 py-0 rounded-sm border transition-colors cursor-pointer',
+      'workshop-filter-button px-2 py-0 rounded-sm border font-mono transition-colors cursor-pointer',
       activeFilters.includes(filter) ? 'is-active' : '',
     ].join(' ')
 

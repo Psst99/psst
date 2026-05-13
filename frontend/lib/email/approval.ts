@@ -573,7 +573,7 @@ async function ensurePssoundCalendarBlock(doc: {
     title,
     startDate: doc.pickupDate,
     endDate: doc.returnDate,
-    request: {_type: 'reference', _ref: doc._id},
+    request: {_type: 'reference', _ref: doc._id, _weak: true},
   })
 
   await writeClient
@@ -582,7 +582,7 @@ async function ensurePssoundCalendarBlock(doc: {
       title,
       startDate: doc.pickupDate,
       endDate: doc.returnDate,
-      request: {_type: 'reference', _ref: doc._id},
+      request: {_type: 'reference', _ref: doc._id, _weak: true},
       notes: `Blocked automatically from confirmed request ${doc._id}.`,
     })
     .commit()
@@ -591,7 +591,7 @@ async function ensurePssoundCalendarBlock(doc: {
     .patch(doc._id)
     .set({
       status: 'confirmed',
-      calendarBlock: {_type: 'reference', _ref: calendarId},
+      calendarBlock: {_type: 'reference', _ref: calendarId, _weak: true},
       calendarBlockedAt: blockedAt,
     })
     .commit()

@@ -26,7 +26,11 @@ export default function ThemeToggleButton() {
       
       "
     >
-      <MdInvertColors className={`h-5 w-5 ${isAccessible ? 'text-black' : 'text-[#1D53FF]'}`} />
+      <MdInvertColors
+        className={`h-4.5 w-4.5 min-[69.375rem]:h-5 min-[69.375rem]:w-5 ${
+          isAccessible ? 'text-black' : 'text-[#1D53FF]'
+        }`}
+      />
     </button>
   )
 }

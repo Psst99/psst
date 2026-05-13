@@ -145,7 +145,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
                   <Link
                     href={path}
                     className={[
-                      'flex items-center justify-center text-center text-4xl flex-1 uppercase',
+                      'mobile-menu-tab flex items-center justify-center text-center text-4xl flex-1 uppercase',
                       'section-bg section-fg',
                       idx === 0 ? 'rounded-t-lg' : 'rounded-t-3xl',
                       idx > 0 ? '-mt-5' : '',
@@ -214,7 +214,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
           <SectionScope section="psst" variant="tab" asChild>
             <button
               onClick={toggleMenu}
-              className="flex-1 rounded-tr-3xl text-center text-lg z-50 pb-0 w-full -mr-[1px] section-bg"
+              className="mobile-menu-tab flex-1 rounded-tr-3xl text-center text-lg z-50 pb-0 w-full -mr-[1px] section-bg"
             />
           </SectionScope>
         </div>
@@ -254,7 +254,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
 
               <button
                 onClick={toggleSubMenu}
-                className="px-4 py-1 pb-2 flex items-center justify-center w-1/2 rounded-tr-lg h-full invert-panel border-none outline-none relative z-0 -ml-[14px] pl-[calc(1rem+14px)]"
+                className="mobile-menu-tab px-4 py-1 pb-2 flex items-center justify-center w-1/2 rounded-tr-lg h-full invert-panel border-none outline-none relative z-0 -ml-[14px] pl-[calc(1rem+14px)]"
                 aria-label="Open PSST tabs"
                 style={
                   {
@@ -366,7 +366,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
                   <Link
                     href={path}
                     className={[
-                      'flex items-center justify-center text-center text-4xl flex-1 rounded-t-3xl uppercase first:rounded-t-lg',
+                      'mobile-menu-tab flex items-center justify-center text-center text-4xl flex-1 rounded-t-3xl uppercase first:rounded-t-lg',
                       'section-bg section-fg',
                       idx > 0 ? '-mt-5' : '',
                     ].join(' ')}
@@ -408,7 +408,7 @@ export default function MobileHeader({dynamicSubNavItemsBySection}: Props) {
                       <Link
                         href={subMenu.href}
                         className={[
-                          'flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase border-t border-[color:var(--section-fg)]',
+                          'mobile-menu-tab flex items-center justify-center text-center text-4xl flex-1 rounded-t-lg uppercase border-t border-[color:var(--section-fg)]',
                           isActive ? 'tab-active' : 'tab-inactive',
                           idx > 0 ? '-mt-2' : '',
                         ].join(' ')}

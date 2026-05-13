@@ -11,7 +11,7 @@ export default function EventsFilter({
 }: EventsFilterProps) {
   const buttonClassName = (filter: string) =>
     [
-      'event-filter-button px-2 py-0 rounded-sm border transition-colors cursor-pointer',
+      'event-filter-button px-2 py-0 rounded-sm border font-mono transition-colors cursor-pointer',
       activeFilters.includes(filter) ? 'is-active' : '',
     ].join(' ')
 
