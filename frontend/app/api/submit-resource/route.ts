@@ -19,6 +19,9 @@ const parseArrayField = (value: FormDataEntryValue | null) => {
   }
 }
 
+const optionalStringField = (value: FormDataEntryValue | null) =>
+  typeof value === 'string' && value.trim() ? value : undefined
+
 const isPdfFile = (file: File) =>
   file.type === PDF_MIME_TYPE || file.name.toLowerCase().endsWith('.pdf')
 
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest) {
       ? rawData
       : {
           title: formData?.get('title'),
-          url: formData?.get('url'),
+          url: optionalStringField(formData?.get('url') ?? null),
           email: formData?.get('email'),
           categories: parseArrayField(formData?.get('categories') ?? null),
           tags: parseArrayField(formData?.get('tags') ?? null),
@@ -151,8 +154,17 @@ export async function POST(req: NextRequest) {
     console.error('Resource submission error:', error)
 
     if (error instanceof Error && error.name === 'ZodError') {
+      const issues = 'issues' in error && Array.isArray(error.issues) ? error.issues : []
+      const firstIssue = issues.find(
+        (issue): issue is {message: string} =>
+          typeof issue === 'object' &&
+          issue !== null &&
+          'message' in issue &&
+          typeof issue.message === 'string',
+      )
+
       return NextResponse.json(
-        {success: false, error: 'Invalid form data', details: error},
+        {success: false, error: firstIssue?.message || 'Invalid form data', details: issues},
         {status: 400},
       )
     }
