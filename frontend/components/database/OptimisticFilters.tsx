@@ -8,6 +8,7 @@ import type {DatabaseSearchParams} from './DatabaseBrowseContentAsync'
 import OptimisticTagPill from './OptimisticTagPill'
 import {IoMdClose, IoIosShuffle} from 'react-icons/io'
 import {ThemeContext} from '@/app/ThemeProvider'
+import {createRandomSeed} from '@/lib/seededShuffle'
 
 type OptimisticFiltersProps = {
   categories: Array<{_id: string; title: string; slug: string}>
@@ -94,6 +95,7 @@ export default function OptimisticFilters({
 
     if (newParams.search) searchParams.set('search', newParams.search)
     if (newParams.sort && newParams.sort !== 'alpha') searchParams.set('sort', newParams.sort)
+    if (newParams.sort === 'random' && newParams.seed) searchParams.set('seed', newParams.seed)
     if (newParams.tags) searchParams.set('tags', newParams.tags)
     if (newParams.category) searchParams.set('category', newParams.category)
     if (newParams.mode && newParams.mode !== 'any') searchParams.set('mode', newParams.mode)
@@ -119,6 +121,18 @@ export default function OptimisticFilters({
         .filter(Boolean)
     : []
 
+  const hasActiveFilters =
+    selectedTags.length > 0 || selectedCategories.length > 0 || searchValue.trim().length > 0
+
+  const clearFilters = () => {
+    setSearchValue('')
+    updateParams({
+      tags: undefined,
+      category: undefined,
+      search: undefined,
+    })
+  }
+
   // Toggle tag function
   const toggleTag = (tagTitle: string) => {
     const tagSlug = slugifyTag(tagTitle)
@@ -142,7 +156,7 @@ export default function OptimisticFilters({
 
   return (
     <div
-      className="w-full md:w-80 space-y-2 md:space-y-3"
+      className="w-full md:w-80 space-y-2 md:space-y-3 md:max-h-[calc(100svh-(var(--home-nav-h)*3)-3rem)] md:overflow-y-auto md:overscroll-contain md:pr-1 md:pb-4 no-scrollbar"
       data-pending={isPending ? '' : undefined}
     >
       {/* Search */}
@@ -157,9 +171,28 @@ export default function OptimisticFilters({
       </div>
 
       {/* Total Count Display */}
-      <div className="bg-white py-2 px-6 rounded-md">
-        <div className={`text-center tracking-tight text-lg lowercase ${headingClass}`}>
-          {totalCount} {totalCount === 1 ? 'Entry' : 'Entries'}
+      <div className="bg-white py-2 px-4 rounded-md">
+        <div
+          className={[
+            'flex items-center gap-2 tracking-tight text-lg lowercase',
+            hasActiveFilters ? 'justify-between' : 'justify-center',
+            headingClass,
+          ].join(' ')}
+        >
+          <span>
+            {totalCount} {totalCount === 1 ? 'Entry' : 'Entries'}
+          </span>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="inline-flex items-center justify-center px-1 py-0 hover:opacity-70 transition-opacity cursor-pointer"
+              type="button"
+              title="Clear filters"
+              aria-label="Clear filters"
+            >
+              <IoMdClose className="h-5 w-5" aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -181,7 +214,12 @@ export default function OptimisticFilters({
                     ? 'text-[var(--section-bg)] hover:bg-[var(--section-bg)] hover:text-[var(--section-fg)]'
                     : 'text-[var(--section-fg)] hover:bg-[var(--section-fg)] hover:text-[var(--section-bg)]',
               ].join(' ')}
-              onClick={() => updateParams({sort: s.key as any})}
+              onClick={() =>
+                updateParams({
+                  sort: s.key as any,
+                  seed: s.key === 'random' ? createRandomSeed() : undefined,
+                })
+              }
               type="button"
             >
               {s.label}
@@ -218,7 +256,7 @@ export default function OptimisticFilters({
       </div>
 
       {/* Tags with Shuffle */}
-      <div className="bg-white py-1 pb-3 px-6 rounded-md max-h-[25vh] xl:max-h-[40vh] overflow-y-auto no-scrollbar">
+      <div className="bg-white py-1 pb-3 px-6 rounded-md">
         <div
           className={`text-center uppercase tracking-tight text-xl mb-2 flex items-center justify-center gap-1 ${headingClass}`}
         >
@@ -259,27 +297,6 @@ export default function OptimisticFilters({
           </AnimatePresence>
         </motion.div>
       </div>
-
-      {/* Clear all filters button */}
-      {(selectedTags.length > 0 || selectedCategories.length > 0 || searchValue) && (
-        <button
-          onClick={() => {
-            setSearchValue('')
-            updateParams({
-              tags: undefined,
-              category: undefined,
-              search: undefined,
-            })
-          }}
-          className={[
-            'w-full py-2 px-4 rounded-md hover:opacity-90 transition-opacity cursor-pointer',
-            activeSortButtonClass,
-          ].join(' ')}
-          type="button"
-        >
-          Clear All Filters
-        </button>
-      )}
     </div>
   )
 }

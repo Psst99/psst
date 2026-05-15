@@ -2,6 +2,7 @@ import {sanityFetch} from '@/sanity/lib/live'
 import ResourcesOptimisticFilters from './ResourcesOptimisticFilters'
 import InfiniteResourcesList from './InfiniteResourcesList'
 import ResourcesMobileFiltersModal from './ResourcesMobileFiltersModal'
+import {RANDOM_SORT_FETCH_LIMIT, seededShuffleById} from '@/lib/seededShuffle'
 
 export type ResourcesSearchParams = {
   tags?: string
@@ -9,6 +10,7 @@ export type ResourcesSearchParams = {
   search?: string
   sort?: 'alpha' | 'chrono' | 'random'
   category?: string
+  seed?: string
 }
 
 export default async function ResourcesBrowseContentAsync({
@@ -25,6 +27,7 @@ export default async function ResourcesBrowseContentAsync({
   const search = sp.search ?? ''
   const sort = sp.sort ?? 'alpha'
   const category = sp.category ?? ''
+  const seed = sp.seed ?? ''
 
   const categorySlugs = (category ?? '')
     .split(',')
@@ -36,7 +39,7 @@ export default async function ResourcesBrowseContentAsync({
   if (sort === 'chrono') {
     orderClause = '| order(publishedAt desc)'
   } else if (sort === 'random') {
-    orderClause = '| order(_id) [0...100] | order(string::split(string(_id), "-")[4] asc)'
+    orderClause = '| order(title asc)'
   }
 
   // Build conditions for the query - FIXED TAG FILTERING
@@ -67,7 +70,7 @@ export default async function ResourcesBrowseContentAsync({
 
   // Construct the full query - FIXED
   const query = `{
-    "resources": *[_type == "resource"${conditions.length > 0 ? ` && ${conditions.join(' && ')}` : ''}] ${orderClause} [0...20] {
+    "resources": *[_type == "resource"${conditions.length > 0 ? ` && ${conditions.join(' && ')}` : ''}] ${orderClause} [0...${sort === 'random' ? RANDOM_SORT_FETCH_LIMIT : 20}] {
       _id,
       title,
       description,
@@ -103,6 +106,8 @@ export default async function ResourcesBrowseContentAsync({
   const {data} = await sanityFetch({query})
 
   const {resources, tags, categories, totalCount} = data
+  const orderedResources =
+    sort === 'random' ? seededShuffleById(resources, seed).slice(0, 20) : resources
   const categoriesWithSlug = categories.map((cat: any) => ({
     ...cat,
     slug: typeof cat.slug === 'string' ? cat.slug : cat.slug?.current,
@@ -119,6 +124,7 @@ export default async function ResourcesBrowseContentAsync({
     search: sp.search,
     sort: sp.sort,
     category: sp.category,
+    seed: sp.seed,
   }
 
   return (
@@ -143,13 +149,14 @@ export default async function ResourcesBrowseContentAsync({
         />
 
         <InfiniteResourcesList
-          initialResources={resources}
+          initialResources={orderedResources}
           searchParams={{
             tagSlugs,
             categorySlugs,
             mode: sp.mode ?? 'any',
             search,
             sort,
+            seed,
             page: 1,
             pageSize: 20,
           }}

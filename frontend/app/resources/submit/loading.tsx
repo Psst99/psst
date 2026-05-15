@@ -92,7 +92,7 @@ export default function Loading() {
 
         {/* Submit button */}
         <div className='flex justify-center mt-16'>
-          <div className='bg-[color:var(--section-bg)]/70 w-64 h-64 rounded-full'></div>
+          <div className='round-action-button bg-[color:var(--section-bg)]/70 w-64 h-64 rounded-full'></div>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 'use server'
 
 import {client} from '@/sanity/lib/client'
+import {RANDOM_SORT_FETCH_LIMIT, seededShuffleById} from '@/lib/seededShuffle'
 
 export interface PaginatedResourcesParams {
   tagSlugs: string[]
@@ -8,14 +9,16 @@ export interface PaginatedResourcesParams {
   mode: string
   search: string
   sort: string
+  seed?: string
   page: number
   pageSize: number
 }
 
 export async function getResourcesPaginated(params: PaginatedResourcesParams) {
-  const {tagSlugs, categorySlugs, mode, search, sort, page = 1, pageSize = 20} = params
+  const {tagSlugs, categorySlugs, mode, search, sort, seed, page = 1, pageSize = 20} = params
 
   const skip = (page - 1) * pageSize
+  const take = pageSize + 1
 
   // Generate order clause
   let orderClause
@@ -24,7 +27,7 @@ export async function getResourcesPaginated(params: PaginatedResourcesParams) {
       orderClause = '| order(publishedAt desc)'
       break
     case 'random':
-      orderClause = '| order(_id) | order(string::split(string(_id), "-")[4] asc)'
+      orderClause = '| order(title asc)'
       break
     default: // alpha
       orderClause = '| order(title asc)'
@@ -60,7 +63,10 @@ export async function getResourcesPaginated(params: PaginatedResourcesParams) {
     query += ` && ${conditions.join(' && ')}`
   }
 
-  query += `] ${orderClause} [${skip}...${skip + pageSize}] {
+  const queryStart = sort === 'random' ? 0 : skip
+  const queryEnd = sort === 'random' ? RANDOM_SORT_FETCH_LIMIT : skip + take
+
+  query += `] ${orderClause} [${queryStart}...${queryEnd}] {
     _id,
     title,
     description,
@@ -87,12 +93,17 @@ export async function getResourcesPaginated(params: PaginatedResourcesParams) {
   }])`
 
   // Execute queries
-  const resources = await client.fetch(query)
+  const fetchedResources = await client.fetch(query)
   const totalCount = await client.fetch(countQuery)
+  const pageResources =
+    sort === 'random'
+      ? seededShuffleById(fetchedResources, seed).slice(skip, skip + take)
+      : fetchedResources
+  const resources = pageResources.slice(0, pageSize)
 
   return {
     resources,
-    hasNextPage: resources.length >= pageSize,
+    hasNextPage: pageResources.length > pageSize,
     totalCount,
   }
 }

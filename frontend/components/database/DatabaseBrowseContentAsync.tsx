@@ -5,6 +5,7 @@ import CustomLink from '../CustomLink'
 import OptimisticFilters from './OptimisticFilters'
 import InfiniteArtistsList from './InfiniteArtistsList'
 import MobileFiltersModal from './MobileFiltersModal'
+import {RANDOM_SORT_FETCH_LIMIT, seededShuffleById} from '@/lib/seededShuffle'
 
 export type DatabaseSearchParams = {
   tags?: string
@@ -12,6 +13,7 @@ export type DatabaseSearchParams = {
   search?: string
   sort?: 'alpha' | 'chrono' | 'random'
   category?: string
+  seed?: string
 }
 
 export default async function DatabaseBrowseContentAsync({
@@ -28,6 +30,7 @@ export default async function DatabaseBrowseContentAsync({
   const search = sp.search ?? ''
   const sort = sp.sort ?? 'alpha'
   const category = sp.category ?? ''
+  const seed = sp.seed ?? ''
 
   const categorySlugs = (category ?? '')
     .split(',')
@@ -42,14 +45,16 @@ export default async function DatabaseBrowseContentAsync({
       case 'chrono':
         return '| order(_createdAt desc)'
       case 'random':
-        return '| order(_id) [0...100] | order(string::split(string(_id), "-")[4] asc)'
+        return '| order(artistName asc)'
       default:
         return '| order(artistName asc)'
     }
   }
 
+  const queryLimit = sort === 'random' ? RANDOM_SORT_FETCH_LIMIT : 20
+
   const {data} = await sanityFetch({
-    query: getDatabaseBrowseQuery(getOrderClause(sort)),
+    query: getDatabaseBrowseQuery(getOrderClause(sort), 0, queryLimit),
     params: {
       tagSlugs,
       mode: sp.mode ?? 'any',
@@ -59,6 +64,7 @@ export default async function DatabaseBrowseContentAsync({
   })
 
   const {artists, categories, tags, totalCount} = data
+  const orderedArtists = sort === 'random' ? seededShuffleById(artists, seed).slice(0, 20) : artists
 
   // Pass the current search params to the client component
   const currentSearchParams = {
@@ -67,6 +73,7 @@ export default async function DatabaseBrowseContentAsync({
     search: sp.search,
     sort: sp.sort,
     category: sp.category,
+    seed: sp.seed,
   }
 
   return (
@@ -90,13 +97,14 @@ export default async function DatabaseBrowseContentAsync({
           totalCount={totalCount}
         />
         <InfiniteArtistsList
-          initialArtists={artists}
+          initialArtists={orderedArtists}
           searchParams={{
             tagSlugs,
             categorySlugs,
             mode: sp.mode ?? 'any',
             search,
             sort,
+            seed,
             page: 1,
             pageSize: 20,
           }}

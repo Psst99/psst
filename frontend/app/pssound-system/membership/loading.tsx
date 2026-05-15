@@ -16,7 +16,7 @@ export default function Loading() {
         ))}
         {/* Submit button */}
         <div className="flex justify-center mt-16">
-          <div className="bg-[color:var(--section-accent)]/30 opacity-60 w-64 h-64 rounded-full" />
+          <div className="round-action-button bg-[color:var(--section-accent)]/30 opacity-60 w-64 h-64 rounded-full" />
         </div>
       </div>
     </div>

@@ -20,6 +20,8 @@ type PortableTextLinkValue = {
   openInNewTab?: boolean
 }
 
+type CSSVars = CSSProperties & Record<`--${string}`, string | undefined>
+
 const bulletToneColor = {
   panel: 'var(--panel-fg)',
   sectionBg: 'var(--section-bg)',
@@ -140,16 +142,56 @@ function resolvePortableTextLink(value: PortableTextLinkValue | null | undefined
 const getHighlightedBlockComponents = (): PortableTextComponents => ({
   block: {
     normal: ({children}) => (
-      <p className="last:mb-0 text-base min-[69.375rem]:text-2xl leading-snug">{children}</p>
+      <p className="mb-4 last:mb-0 text-base leading-tight min-[69.375rem]:mb-6 min-[69.375rem]:text-2xl">
+        {children}
+      </p>
     ),
     h2: ({children}) => (
-      <h2 className="text-3xl min-[69.375rem]:text-3xl mb-6 text-center tracking-tight">
+      <h2 className="cms-highlighted-heading text-3xl min-[69.375rem]:text-3xl mb-6 text-center tracking-tight">
         {children}
       </h2>
     ),
   },
+  list: {
+    bullet: ({children}) => (
+      <ul className="list-none p-0 my-4 min-[69.375rem]:my-6 space-y-0.5">{children}</ul>
+    ),
+    number: ({children}) => (
+      <ol className="list-decimal pl-8 my-4 min-[69.375rem]:my-6 space-y-1">{children}</ol>
+    ),
+  },
+  listItem: {
+    bullet: ({children}) => (
+      <li className="text-base leading-tight mb-0 min-[69.375rem]:text-2xl">
+        <span className="inline-flex items-start gap-1.5">
+          <span
+            className="inline-flex shrink-0 translate-y-[0.32em] mr-1"
+            style={{color: 'var(--cms-bullet-color, currentColor)'}}
+          >
+            <GlyphBulletIcon />
+          </span>
+          <span>{children}</span>
+        </span>
+      </li>
+    ),
+    number: ({children}) => (
+      <li className="pl-1 text-base leading-tight mb-0 min-[69.375rem]:text-2xl">{children}</li>
+    ),
+  },
   marks: {
     strong: ({children}) => <TapeMark>{children}</TapeMark>,
+    textColor: ({children, value}) => <span style={{color: value?.value}}>{children}</span>,
+    highlightColor: ({children, value}) => (
+      <span
+        style={{
+          backgroundColor: value?.value,
+          color: value?.text || undefined,
+          padding: '0.05em 0.15em',
+        }}
+      >
+        {children}
+      </span>
+    ),
     link: ({children, value}) => {
       const resolvedLink = resolvePortableTextLink(value)
       if (!resolvedLink) return <span>{children}</span>
@@ -298,6 +340,11 @@ const getComponents = (
 
       if (value?.useCustomBgColor && value?.customBgColor) bgColor = value.customBgColor
       if (value?.useCustomTextColor && value?.customTextColor) textColor = value.customTextColor
+      const highlightedStyle: CSSVars = {
+        backgroundColor: bgColor,
+        color: textColor,
+        '--cms-bullet-color': textColor,
+      }
 
       // Only extract heading if showHeadingAsTab is enabled
       const showTab = Boolean(value?.showHeadingAsTab)
@@ -322,13 +369,13 @@ const getComponents = (
           durationMs={560}
         >
           <div
-            className="relative p-6 min-[69.375rem]:p-8 rounded-3xl min-[69.375rem]:text-xl"
-            style={{backgroundColor: bgColor, color: textColor}}
+            className="cms-highlighted-box relative p-6 min-[69.375rem]:p-8 rounded-3xl min-[69.375rem]:text-xl"
+            style={highlightedStyle}
           >
             {showTab && heading?.text ? (
               <div className={tabPosClass}>
                 <div
-                  className={['highlighted-heading-tab', 'uppercase tracking-tight'].join(' ')}
+                  className="highlighted-heading-tab tracking-tight"
                   style={
                     {
                       '--highlight-tab-fill': bgColor,

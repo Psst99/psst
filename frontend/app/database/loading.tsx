@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div className="p-6 md:px-20 animate-pulse">
+    <div className="p-6 pb-16 md:px-20 min-[69.375rem]:pb-[calc(var(--home-nav-h)+4rem)] animate-pulse">
       <div className="md:flex md:items-start md:gap-20">
         {/* Left column */}
         <div className="w-full text-base leading-tight md:text-xl">
